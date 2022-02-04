@@ -37,3 +37,4 @@ site
 
 # Sensitive credentials
 *-credentials.yaml
+.idea

@@ -1,12 +1,25 @@
 version: '3.4'
 
 services:
-  redis:
-    image: 'redis:alpine'
+  backstage:
+    container_name: backstage_container
+    image: sourcefuse/sourcefuse-backstage
+    build: .
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      GITHUB_TOKEN: 'test'
+      GITHUB_CLIENT_ID: 'test'
+      GITHUB_CLIENT_SECRET: 'test'
     ports:
-      - '6379:6379'
+      - '7000:7000'
+      - '7007:7007'
+      - '3000:3000'
     networks:
       - backstage
+    restart: always
 
   postgres:
     container_name: postgres_container
