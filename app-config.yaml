@@ -1,6 +1,8 @@
 app:
   title: SourceFuse Backstage
   baseUrl: ${BASE_URL}
+  listen:
+    host: 0.0.0.0
 
 organization:
   name: SourceFuse
@@ -38,10 +40,10 @@ backend:
     store: memory
   # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
 
-#integrations:
-#  github:
-#    - host: github.com
-#      token: ${GITHUB_TOKEN}
+integrations:
+  github:
+    - host: github.com
+      token: ${GITHUB_TOKEN}
 
 #proxy:
 #  '/circleci/api':
