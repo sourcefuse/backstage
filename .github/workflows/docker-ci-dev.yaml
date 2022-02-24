@@ -1,0 +1,32 @@
+name: Docker CI
+
+on:
+  push:
+    tags:
+      - 'dev-*'
+
+jobs:
+
+  build-and-push-to-ecr:
+    runs-on:
+      - self-hosted
+      - refarch
+    name: build-image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set output
+        id: release
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.SF_REF_ARCH_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.SF_REF_ARCH_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.SF_REF_ARCH_AWS_REGION }}
+      - name: Build, tag, and push the image to Amazon ECR
+        id: build-push-image
+        env:
+          IMAGE_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          source dev_build.sh 
