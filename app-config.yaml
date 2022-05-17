@@ -119,9 +119,5 @@ catalog:
       target: https://github.com/sourcefuse/sf-software-templates/blob/main/scaffolder-templates/terraform-aws-ref-arch-bootstrap/template.yaml
       rules:
         - allow: [ Template ]
-    - type: url
-      target: https://github.com/akshatdubeysf/backstage_templates/blob/master/template.yaml
-      rules:
-        - allow: [Template]
 #    - type: github-discovery
 #      target: https://github.com/sourcefuse
