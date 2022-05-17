@@ -21,7 +21,8 @@
     "lint:all": "lerna run lint --",
     "prettier:check": "prettier --check .",
     "create-plugin": "backstage-cli create-plugin --scope internal",
-    "remove-plugin": "backstage-cli remove-plugin"
+    "remove-plugin": "backstage-cli remove-plugin",
+    "setup-hooks": "husky install"
   },
   "workspaces": {
     "packages": [
@@ -31,8 +32,14 @@
   },
   "devDependencies": {
     "@backstage/cli": "^0.11.0",
+    "@commitlint/cli": "^17.0.0",
+    "@commitlint/config-conventional": "^17.0.0",
+    "@commitlint/config-lerna-scopes": "^17.0.0",
     "@spotify/prettier-config": "^12.0.0",
     "concurrently": "^6.0.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "cz-format-extension": "^1.5.0",
+    "husky": "^8.0.1",
     "lerna": "^4.0.0",
     "prettier": "^2.3.2"
   },
@@ -45,5 +52,10 @@
     "*.{json,md}": [
       "prettier --write"
     ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-format-extension"
+    }
   }
 }
