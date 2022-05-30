@@ -10,6 +10,7 @@ import type { PluginEnvironment } from '../types';
 import { createMicroserviceAction } from './sourceloop-ms';
 import { createScaffoldAction } from './sourceloop-scaffold';
 import { ScmIntegrations } from '@backstage/integration';
+import { createExtensionAction } from './sourceloop-extension';
 
 export default async function createPlugin({
   logger,
@@ -31,6 +32,7 @@ export default async function createPlugin({
     catalogClient,
     reader,
     actions: [
+      createExtensionAction(),
       createScaffoldAction(),
       createMicroserviceAction(),
       ...createBuiltinActions({

@@ -1,8 +1,10 @@
-const scaffolder = require('./scaffold');
+const scaffold = require('./scaffold');
 const microservice = require('./microservice');
+const extension = require('./extension');
 const workerpool = require('workerpool');
 
 workerpool.worker({
-  scaffold: scaffolder,
+  scaffold: scaffold,
   microservice: microservice,
+  extension: extension,
 });
