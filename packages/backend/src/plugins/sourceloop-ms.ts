@@ -10,8 +10,24 @@ export function createMicroserviceAction() {
     schema: {
       input: {
         type: 'object',
-        required: ['services', 'project', 'datasourceType'],
+        required: [
+          'services',
+          'project',
+          'datasourceType',
+          'sourceloop',
+          'facade',
+        ],
         properties: {
+          sourceloop: {
+            title: 'Sourceloop-based',
+            description: 'Is this ms based on sourceloop?',
+            type: 'boolean',
+          },
+          facade: {
+            title: 'isFacade',
+            description: 'Is this a facade',
+            type: 'boolean',
+          },
           services: {
             title: 'Services List',
             description: 'List of the services to generate',
@@ -34,6 +50,8 @@ export function createMicroserviceAction() {
       const services = ctx.input.services;
       const name = ctx.input.project;
       const databaseType = ctx.input.datasourceType;
+      const sourceloop = ctx.input.sourceloop;
+      const facade = ctx.input.facade;
       if (services) {
         const pool = container.get<WorkerPool>(POOL);
         await pool.exec('microservice', [
@@ -41,6 +59,8 @@ export function createMicroserviceAction() {
           ctx.workspacePath,
           services,
           databaseType,
+          sourceloop,
+          facade,
         ]);
         ctx.logger.info('Done generating all services.');
       }
