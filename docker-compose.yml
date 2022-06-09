@@ -11,9 +11,9 @@ services:
       POSTGRES_PORT: 5432
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
-      GITHUB_TOKEN: ''
-      GITHUB_CLIENT_ID: ''
-      GITHUB_CLIENT_SECRET: ''
+      GITHUB_TOKEN: 'secret'
+      GITHUB_CLIENT_ID: 'secret'
+      GITHUB_CLIENT_SECRET: 'secret'
       BASE_URL: 'http://localhost:7007'
     ports:
       - '7007:7007'

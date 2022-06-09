@@ -13,10 +13,11 @@ RUN find packages \! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {
 # Stage 2 - Install dependencies and build packages
 FROM node:14 AS build
 
+ARG BASE_URL="http://localhost:7007"
+
 WORKDIR /app
 COPY --from=packages /app .
-RUN apt-get update -y && apt-get install python make gcc g++ -y
-RUN npm install -g node-gyp
+RUN apt-get update -y && apt-get install software-properties-common make gcc g++ -y
 RUN yarn install --frozen-lockfile --network-timeout 600000 && rm -rf "$(yarn cache dir)"
 
 COPY . .
