@@ -9,5 +9,8 @@ yarn install
 yarn dev
 ```
 
-TODO: look into
-* https://backstage.io/docs/plugins/github-apps
+Image Build Example (use an appropriate SemVer)
+```shell
+chmod +x ./dev_build.sh
+./dev_build.sh 0.2.0
+```
