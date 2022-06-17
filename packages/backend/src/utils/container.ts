@@ -1,10 +1,11 @@
 import { Container } from 'inversify';
 import { pool, WorkerPool } from 'workerpool';
 import { POOL } from '../keys';
+import { join } from 'path';
 
 const container = new Container();
 container.bind<WorkerPool>(POOL).toConstantValue(
-  pool('./src/workers/index.js', {
+  pool(join(__dirname, '../workers/index.js'), {
     workerType: 'process',
   }),
 );
