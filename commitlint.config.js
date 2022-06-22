@@ -8,7 +8,7 @@ module.exports = {
   },
   parserPreset: {
     parserOpts: {
-      issuePrefixes: ['#', 'GH'],
+      issuePrefixes: ['ARC'],
     },
   },
 };

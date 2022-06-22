@@ -54,14 +54,15 @@ export function createMicroserviceAction() {
       const facade = ctx.input.facade;
       if (services) {
         const pool = container.get<WorkerPool>(POOL);
-        await pool.exec('microservice', [
-          name,
-          ctx.workspacePath,
-          services,
-          databaseType,
-          sourceloop,
-          facade,
-        ]);
+        await pool.exec(
+          'microservice',
+          [name, ctx.workspacePath, services, databaseType, sourceloop, facade],
+          {
+            on: payload => {
+              ctx.logger.info(payload.message);
+            },
+          },
+        );
         ctx.logger.info('Done generating all services.');
       }
     },

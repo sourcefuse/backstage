@@ -9,6 +9,7 @@ module.exports = async function extension(name, cwd) {
     config: JSON.stringify({
       applicationName: name,
       description: `${name} extension`,
+      ...utils.buildOptions,
     }),
   });
   process.chdir(originalCwd);
