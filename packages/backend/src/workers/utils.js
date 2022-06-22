@@ -23,9 +23,18 @@ async function registerGenerators(env, generator) {
   );
 }
 
+const buildOptions = {
+  loopbackBuild: true,
+  eslint: true,
+  prettier: true,
+  mocha: true,
+  vscode: true,
+};
+
 module.exports = {
   yeomanRun,
   getEnv,
   runWithEnv,
   registerGenerators,
+  buildOptions,
 };

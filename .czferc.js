@@ -74,9 +74,9 @@ module.exports = {
         type: 'input',
         name: 'issues',
         message:
-          'List any ISSUES CLOSED by this change (optional). E.g.: #31, #34:\n',
+          'List any ISSUES CLOSED by this change (optional). E.g.: ARC-12, ARC-34:\n',
         filter: (input, answers) => {
-          return input.replace(/^\#/g, 'gh-');
+          return input.replace(/^\#/g, 'ARC-');
         },
       },
       {
