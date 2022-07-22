@@ -123,5 +123,9 @@ catalog:
       target: https://github.com/sourcefuse/sf-software-templates/blob/main/scaffolder-templates/microservice-repo-bootstrap/template.yaml
       rules:
         - allow: [ Template ]
+    - type: url
+      target: https://github.com/sourcefuse/typescript-lambda-boilerplate/blob/main/templates/api-gw-lambda.yaml
+      rules:
+        - allow: [ Template ]
 #    - type: github-discovery
 #      target: https://github.com/sourcefuse
