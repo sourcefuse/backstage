@@ -29,6 +29,7 @@ jobs:
         run: echo "ECR_REGISTRY=757583164619.dkr.ecr.us-east-1.amazonaws.com" >> $GITHUB_ENV
       - name: Get registry login password
         run: echo "ECR_PASSWORD=$(aws ecr get-login-password --region us-east-1)" >> $GITHUB_ENV
+        
 
       - name: Build, tag, and push the image to Amazon ECR
         id: build-push-image
