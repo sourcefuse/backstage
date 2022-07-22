@@ -5,7 +5,7 @@ on:
       - 'feature/ARC-135-ci-config'  
     pull_request:
       branches:
-        - feature/ARC-43-github-token
+        - feature/ARC-135-ci-config
 
 jobs:
 
