@@ -1,0 +1,41 @@
+name: Docker CI
+
+on:
+  push:
+    branches:
+      - 'feature/ARC-135-ci-config'  
+
+jobs:
+
+  build-and-push-to-ecr:
+    runs-on:
+      - self-hosted
+      - refarch
+      - dev
+    name: build-image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install aws cli
+        id: install-aws-cli
+        uses: unfor19/install-aws-cli-action@v1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.SF_REF_ARCH_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.SF_REF_ARCH_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.SF_REF_ARCH_AWS_REGION }}
+      - name: Set ECR registry
+        run: echo "ECR_REGISTRY=757583164619.dkr.ecr.us-east-1.amazonaws.com" >> $GITHUB_ENV
+      - name: Get registry login password
+        run: echo "ECR_PASSWORD=$(aws ecr get-login-password --region us-east-1)" >> $GITHUB_ENV
+
+      - name: Build, tag, and push the image to Amazon ECR
+        id: build-push-image
+        uses: aevea/action-kaniko@master  
+        with:
+          name: ${{ secrets.SF_REF_ARCH_REPO_NAME }}
+          tag: "latest"
+          registry: $ECR_REGISTRY
+          username: AWS
+          password: $ECR_PASSWORD
