@@ -2,10 +2,10 @@ name: Docker CI
 on:
   push:
     branches:
-      - 'feature/ARC-135-ci-config'  
+      - main
     pull_request:
       branches:
-        - feature/ARC-135-ci-config
+        - 'feature/ARC-135-ci-config'
 
 jobs:
 
