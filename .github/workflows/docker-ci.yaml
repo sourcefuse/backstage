@@ -1,18 +1,12 @@
 name: Docker CI
-# Controls when the workflow will run
+
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches:
+      - feature/ARC-135-ci-config
   pull_request:
-    branches: [ "main" ]
-# on:
-#   push:
-#     branches:
-#       - "feature/ARC-135-ci-config"
-    #pull_request:
-    #  branches:
-    #    - 'feature/ARC-135-ci-config'
+     branches:
+       - 'feature/ARC-135-ci-config'
 
 jobs:
 
