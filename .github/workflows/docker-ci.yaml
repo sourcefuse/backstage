@@ -23,7 +23,7 @@ jobs:
         id: install-aws-cli
         uses: unfor19/install-aws-cli-action@v1.0.3
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: chrislennon/action-aws-cli@v1.1
         with:
           aws-access-key-id: ${{ secrets.SF_REF_ARCH_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.SF_REF_ARCH_SECRET_ACCESS_KEY }}
