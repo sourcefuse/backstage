@@ -2,7 +2,7 @@ name: Docker CI
 on:
   push:
     branches:
-      - feature/ARC-135-ci-config
+      - "feature/ARC-135-ci-config"
     #pull_request:
     #  branches:
     #    - 'feature/ARC-135-ci-config'
