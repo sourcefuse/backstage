@@ -29,12 +29,30 @@ jobs:
       - name: Get registry login password
         run: echo "ECR_PASSWORD=$(aws ecr get-login-password --region us-east-1)" >> $GITHUB_ENV
 
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: $ECR_REGISTRY
+          ECR_REPOSITORY: sf-refarch-dev-sourcefuse-backstage
+          IMAGE_TAG: latest
+        run: |
+          # Build a docker container and push it to ECR 
+          #docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker-compose build -f ../docker-compose.yml 
+          echo "Tagging Image..."
+          docker tag sourcefuse/sourcefuse-backstage:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:999
+          echo "Pushing image to ECR..."
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-      - name: Build, tag, and push the image to Amazon ECR
-        uses: aevea/action-kaniko@master  
-        with:
-          name: ${{ secrets.SF_REF_ARCH_REPO_NAME }}
-          tag: "latest"
-          registry: $ECR_REGISTRY
-          username: AWS
-          password: $ECR_PASSWORD
+
+      # - name: Build, tag, and push the image to Amazon ECR
+
+      #   uses: aevea/action-kaniko@master  
+
+      #   with:
+      #     name: ${{ secrets.SF_REF_ARCH_REPO_NAME }}
+
+      #     tag: "latest"
+      #     registry: $ECR_REGISTRY
+      #     username: AWS
+      #     password: $ECR_PASSWORD
