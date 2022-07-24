@@ -31,7 +31,7 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         env:
-          ECR_REGISTRY: $ECR_REGISTRY
+          ECR_REGISTRY: 757583164619.dkr.ecr.us-east-1.amazonaws.com
           ECR_REPOSITORY: sf-refarch-dev-sourcefuse-backstage
           IMAGE_TAG: latest
         run: |
