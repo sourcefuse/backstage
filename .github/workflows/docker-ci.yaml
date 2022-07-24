@@ -30,7 +30,7 @@ jobs:
         env:
           IMAGE_TAG: latest
         with: 
-          ACCOUNT: $({ secrets.AWS_ACCOUNT_ID })
+          ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID }}
         run: |
           # Build a docker compose and push it to ECR 
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com.dkr.ecr.us-east-1.amazonaws.com
