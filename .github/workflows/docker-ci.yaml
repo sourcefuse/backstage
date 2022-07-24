@@ -25,13 +25,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.SF_REF_ARCH_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.SF_REF_ARCH_AWS_REGION }}
       - name: Set ECR registry
-        run: echo "ECR_REGISTRY=757583164619.dkr.ecr.us-east-1.amazonaws.com:latest" >> $GITHUB_ENV
+        run: echo "ECR_REGISTRY=757583164619.dkr.ecr.us-east-1.amazonaws.com" >> $GITHUB_ENV
       - name: Get registry login password
         run: echo "ECR_PASSWORD=$(aws ecr get-login-password --region us-east-1)" >> $GITHUB_ENV
 
 
       - name: Build, tag, and push the image to Amazon ECR
-        id: build-push-image
         uses: aevea/action-kaniko@master  
         with:
           name: ${{ secrets.SF_REF_ARCH_REPO_NAME }}
