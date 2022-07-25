@@ -27,7 +27,6 @@ jobs:
           aws-region: ${{ secrets.SF_REF_ARCH_AWS_REGION }}
 
       - name: Build, tag, and push image to Amazon ECR
-        uses: aevea/action-kaniko@master 
         with: 
           ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID }}
         env:
