@@ -32,10 +32,10 @@ jobs:
           ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID }}
         run: |
           # Build a docker compose and push it to ECR 
-          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "$env:ACCOUNT".dkr.ecr.us-east-1.amazonaws.com.dkr.ecr.us-east-1.amazonaws.com
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "$ACCOUNT".dkr.ecr.us-east-1.amazonaws.com.dkr.ecr.us-east-1.amazonaws.com
           docker-compose -f ./docker-compose.yml build 
           echo "Tagging Image..."
-          docker tag sourcefuse/sourcefuse-backstage:"$env:IMAGE_TAG" $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/sf-refarch-dev-sourcefuse-backstage:$IMAGE_TAG
+          docker tag sourcefuse/sourcefuse-backstage:"$IMAGE_TAG" $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/sf-refarch-dev-sourcefuse-backstage:$IMAGE_TAG
           echo "Pushing image to ECR..."
           docker push $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/sf-refarch-dev-sourcefuse-backstage:$IMAGE_TAG
           echo "::set-output name=image::$ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/sf-refarch-dev-sourcefuse-backstage:$IMAGE_TAG"
