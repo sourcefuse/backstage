@@ -14,20 +14,24 @@
 
 echo "Account: $AWS_ACCOUNT_ID"
 
-aws ecr get-login-password \
-  --region $AWS_REGION \
-  | docker login \
-      --username AWS \
-      --password-stdin $ECR_REGISTRY_ENDPOINT
+echo $IMAGE_NAME:$IMAGE_TAG
 
-docker-compose -f $DOCKER_COMPOSE_FILE build
-
-printf "Tagging image...\n"
-docker tag sourcefuse/sourcefuse-backstage:$IMAGE_TAG $IMAGE_NAME:$IMAGE_TAG
-
-printf "Pushing image to ECR...\n"
-docker push $IMAGE_NAME:$IMAGE_TAG
-
-echo "::set-output name=image::$IMAGE_NAME:$IMAGE_TAG"
-
-
+#aws ecr get-login-password \
+#  --region $AWS_REGION \
+#  | docker login \
+#      --username AWS \
+#      --password-stdin $ECR_REGISTRY_ENDPOINT
+#
+#docker-compose -f $DOCKER_COMPOSE_FILE build
+#
+#printf "Tagging image...\n"
+#docker tag sourcefuse/sourcefuse-backstage:$IMAGE_TAG $IMAGE_NAME:$IMAGE_TAG
+#
+#printf "Pushing image to ECR...\n"
+#docker push $IMAGE_NAME:$IMAGE_TAG
+#
+#
+#
+#echo "::set-output name=image::$IMAGE_NAME:$IMAGE_TAG"
+#
+#
