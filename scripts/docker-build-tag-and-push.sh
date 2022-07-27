@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source $PWD/.secrets.sh
-
 # optional
 : "${AWS_REGION:=us-east-1}"
 : "${DOCKER_COMPOSE_FILE:=./docker-compose.yml}"
@@ -9,8 +7,7 @@ source $PWD/.secrets.sh
 ## required
 : "${AWS_ACCOUNT_ID:-$AWS_ACCOUNT_ID}"
 : "${IMAGE_TAG:-$IMAGE_TAG}"
-#: "${AWS_ACCESS_KEY_ID:-$AWS_ACCESS_KEY_ID}"  # TODO - remove if not needed
-#: "${AWS_SECRET_ACCESS_KEY:-$AWS_ACCESS_KEY_ID}"  # TODO - remove if not needed
+
 ECR_REGISTRY_ENDPOINT="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
 IMAGE_NAME="$ECR_REGISTRY_ENDPOINT/sf-refarch-dev-sourcefuse-backstage"
 
