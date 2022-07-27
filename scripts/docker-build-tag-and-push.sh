@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# optional
+: "${AWS_REGION:=us-east-1}"
+: "${DOCKER_COMPOSE_FILE:=./docker-compose.yml}"
+
 ## required
 : "${AWS_ACCOUNT_ID:=$AWS_ACCOUNT_ID}"
 #: "${AWS_ACCESS_KEY_ID:-$AWS_ACCESS_KEY_ID}"  # TODO - remove if not needed
@@ -7,10 +11,6 @@
 : "${ECR_REGISTRY_ENDPOINT:-$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com}"
 : "${IMAGE_NAME:-$ECR_REGISTRY_ENDPOINT/sf-refarch-dev-sourcefuse-backstage}"
 : "${IMAGE_TAG:-$IMAGE_TAG}"
-
-# optional
-: "${AWS_REGION:=us-east-1}"
-: "${DOCKER_COMPOSE_FILE:=./docker-compose.yml}"
 
 echo "Account: $AWS_ACCOUNT_ID"
 
