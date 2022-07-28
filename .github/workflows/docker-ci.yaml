@@ -16,6 +16,7 @@ jobs:
       - self-hosted
       - refarch
       - dev
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -32,7 +33,4 @@ jobs:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
         run: |
           export IMAGE_TAG=$(cat version.json | jq -r .version)
-          
-          echo $IMAGE_TAG
-          
-          # ./scripts/docker-build-tag-and-push.sh
+          ./scripts/docker-build-tag-and-push.sh
