@@ -31,9 +31,11 @@ FROM node:16-buster-slim
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git libsqlite3-dev python3 build-essential && \
+    apt-get install -y --no-install-recommends git libsqlite3-dev python3 python3-pip build-essential && \
     rm -rf /var/lib/apt/lists/* && \
     yarn config set python /usr/bin/python3
+RUN pip3 install --upgrade setuptools wheel
+RUN pip3 install mkdocs-techdocs-core==1.0.1
 
 # Copy the install dependencies from the build stage and context
 COPY --from=build /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton.tar.gz ./
