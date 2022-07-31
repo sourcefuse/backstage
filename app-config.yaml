@@ -136,34 +136,28 @@ catalog:
       rules:
         - allow: [ Template ]
     ################################################################################################################################################
-    ## TODO - change branch to main
     - type: url
-      target: https://github.com/sourcefuse/refarch-devops-infra/blob/ARC-417/catalog-info.yaml
+      target: https://github.com/sourcefuse/refarch-devops-infra/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
-    ## TODO - change branch to main
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-refarch-cloudfront/blob/ARC-418-backstage-catalog/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-refarch-cloudfront/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
-    ## TODO - change branch to main
     - type: url
-      target: https://github.com/sourcefuse/terraform-k8s-app/blob/ARC-419-backstage-catalog/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-k8s-app/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
-    ## TODO - change branch to main
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-ref-arch-bootstrap/blob/ARC-420/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-ref-arch-bootstrap/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
-    ## TODO - change branch to main
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-ref-arch-db/blob/ARC-421/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-ref-arch-db/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
-    ## TODO - change branch to main
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-refarch-tags/blob/ARC-424/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-refarch-tags/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
 #    - type: github-discovery
