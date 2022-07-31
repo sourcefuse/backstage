@@ -77,6 +77,10 @@ scaffolder:
 catalog:
   rules:
     - allow: [ Component, System, API, Group, User, Resource, Location ]
+
+  ## unable to reference branches with / in the name.
+  ## If testing, do not create a branch with a / until the issue is resolved.
+  ## https://github.com/backstage/backstage/issues/2815
   locations:
     # Backstage example components
     - type: url
@@ -131,5 +135,36 @@ catalog:
       target: https://github.com/sourcefuse/arc-mono-repo-infra-template/blob/main/template.yaml
       rules:
         - allow: [ Template ]
+    ################################################################################################################################################
+    ## TODO - change branch to main
+    - type: url
+      target: https://github.com/sourcefuse/refarch-devops-infra/blob/ARC-417/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    ## TODO - change branch to main
+    - type: url
+      target: https://github.com/sourcefuse/terraform-aws-refarch-cloudfront/blob/ARC-418-backstage-catalog/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    ## TODO - change branch to main
+    - type: url
+      target: https://github.com/sourcefuse/terraform-k8s-app/blob/ARC-419-backstage-catalog/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    ## TODO - change branch to main
+    - type: url
+      target: https://github.com/sourcefuse/terraform-aws-ref-arch-bootstrap/blob/ARC-420/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    ## TODO - change branch to main
+    - type: url
+      target: https://github.com/sourcefuse/terraform-aws-ref-arch-db/blob/ARC-421/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    ## TODO - change branch to main
+    - type: url
+      target: https://github.com/sourcefuse/terraform-aws-refarch-tags/blob/ARC-424/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
 #    - type: github-discovery
 #      target: https://github.com/sourcefuse
