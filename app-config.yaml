@@ -159,5 +159,49 @@ catalog:
       target: https://github.com/sourcefuse/terraform-aws-refarch-tags/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+    - type: url
+      target: https://github.com/sourcefuse/terraform-sourceloop-apps/blob/main/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    - type: url
+      target: https://github.com/sourcefuse/terraform-aws-refarch-cloudfront/blob/main/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    - type: url
+      target: https://github.com/sourcefuse/terraform-aws-refarch-cognito/blob/main/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    - type: url
+      target: https://github.com/sourcefuse/terraform-aws-refarch-ecs/blob/main/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    - type: url
+      target: https://github.com/sourcefuse/terraform-aws-refarch-elasticache/blob/main/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    - type: url
+      target: https://github.com/sourcefuse/terraform-aws-ref-arch-network/blob/main/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    - type: url
+      target: https://github.com/sourcefuse/terraform-aws-ref-arch-eks/blob/main/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    - type: url
+      target: https://github.com/sourcefuse/terraform-module-aws-bootstrap/blob/main/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    - type: url
+      target: https://github.com/sourcefuse/terraform-aws-ref-arch-waf/blob/main/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    - type: url
+      target: https://github.com/sourcefuse/terraform-aws-cloud-custodian/blob/main/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+    - type: url
+      target: https://github.com/sourcefuse/terraform-aws-opensearch/blob/main/catalog-info.yaml
+      rules:
+        - allow: [ Component ]    
 #    - type: github-discovery
 #      target: https://github.com/sourcefuse
