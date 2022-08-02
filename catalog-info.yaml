@@ -2,8 +2,12 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: sourcefuse-backstage
+  namespace: arc
   description: SourceFuse boilerplate BackStage implementation
+  annotations:
+    github.com/project-slug: sourcefuse/sourcefuse-backstage
+    backstage.io/techdocs-ref: dir:.
 spec:
   type: website
-  owner: sfdevops@sourcefuse.com
+  owner: sourcefuse
   lifecycle: development
