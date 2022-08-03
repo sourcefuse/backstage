@@ -128,8 +128,8 @@ catalog:
       rules:
         - allow: [ Template ]
     - type: url
-      target: https://github.com/sourcefuse/arc-mono-repo-infra-template/blob/main/template.yaml
+      target: https://github.com/sourcefuse/arc-mono-repo-infra-template/blob/main/templates/template.yaml
       rules:
         - allow: [ Template ]
-#    - type: github-discovery
-#      target: https://github.com/sourcefuse
+    - type: github-discovery
+      target: https://github.com/sourcefuse
