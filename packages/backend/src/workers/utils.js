@@ -29,6 +29,9 @@ const buildOptions = {
   prettier: true,
   mocha: true,
   vscode: true,
+  docker: true,
+  repositories: true,
+  services: true,
 };
 
 module.exports = {

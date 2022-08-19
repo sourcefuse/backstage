@@ -77,10 +77,6 @@ scaffolder:
 catalog:
   rules:
     - allow: [ Component, System, API, Group, User, Resource, Location ]
-
-  ## unable to reference branches with / in the name.
-  ## If testing, do not create a branch with a / until the issue is resolved.
-  ## https://github.com/backstage/backstage/issues/2815
   locations:
     # Backstage example components
     - type: url
@@ -132,7 +128,7 @@ catalog:
       rules:
         - allow: [ Template ]
     - type: url
-      target: https://github.com/sourcefuse/arc-mono-repo-infra-template/blob/main/template.yaml
+      target: https://github.com/sourcefuse/arc-mono-repo-infra-template/blob/main/templates/template.yaml
       rules:
         - allow: [ Template ]
     - type: url
@@ -202,6 +198,9 @@ catalog:
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-opensearch/blob/main/catalog-info.yaml
       rules:
-        - allow: [ Component ]    
+        - allow: [ Component ]
+########################################################################################################################
+## KEEP THIS COMMENTED OUT
+########################################################################################################################
 #    - type: github-discovery
 #      target: https://github.com/sourcefuse
