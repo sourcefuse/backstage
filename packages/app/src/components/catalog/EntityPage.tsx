@@ -127,6 +127,10 @@ const serviceEntityPage = (
             {overviewContent}
         </EntityLayout.Route>
 
+        <EntityLayout.Route path="/pr" title="Pull Requests">
+            {overviewContent}
+        </EntityLayout.Route>
+
         <EntityLayout.Route path="/ci-cd" title="CI/CD">
             {cicdContent}
         </EntityLayout.Route>
