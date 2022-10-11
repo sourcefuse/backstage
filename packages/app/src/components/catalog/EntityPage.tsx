@@ -121,6 +121,12 @@ const overviewContent = (
     </Grid>
 );
 
+const prContent = (
+    <Grid>
+        <h1>PR Page</h1>
+    </Grid>
+);
+
 const serviceEntityPage = (
     <EntityLayout>
         <EntityLayout.Route path="/" title="Overview">
@@ -128,7 +134,7 @@ const serviceEntityPage = (
         </EntityLayout.Route>
 
         <EntityLayout.Route path="/pr" title="Pull Requests">
-            {overviewContent}
+            {prContent}
         </EntityLayout.Route>
 
         <EntityLayout.Route path="/ci-cd" title="CI/CD">
