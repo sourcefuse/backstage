@@ -78,63 +78,52 @@ catalog:
   rules:
     - allow: [ Component, System, API, Group, User, Resource, Location ]
   locations:
-    # Backstage example components
-    - type: url
-      target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all-components.yaml
-
-    # Backstage example systems
-    - type: url
-      target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all-systems.yaml
-
-    # Backstage example APIs
-    - type: url
-      target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all-apis.yaml
-
-    # Backstage example resources
-    - type: url
-      target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all-resources.yaml
-
-    # Backstage example organization groups
-    - type: url
-      target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme/org.yaml
-
     # Backstage example templates
     - type: url
       target: https://github.com/backstage/software-templates/blob/main/scaffolder-templates/react-ssr-template/template.yaml
       rules:
         - allow: [ Template ]
+
     - type: url
       target: https://github.com/backstage/software-templates/blob/main/scaffolder-templates/docs-template/template.yaml
       rules:
         - allow: [ Template ]
+
     - type: url
       target: https://github.com/backstage/software-templates/blob/main/scaffolder-templates/create-react-app/template.yaml
       rules:
         - allow: [ Template ]
+
     - type: url
       target: https://github.com/sourcefuse/sf-software-templates/blob/main/scaffolder-templates/react-boilerplate/template.yaml
       rules:
         - allow: [ Template ]
+
     - type: url
       target: https://github.com/sourcefuse/sf-software-templates/blob/main/scaffolder-templates/terraform-aws-ref-arch-bootstrap/template.yaml
       rules:
         - allow: [ Template ]
+
     - type: url
       target: https://github.com/sourcefuse/sf-software-templates/blob/main/scaffolder-templates/microservice-repo-bootstrap/template.yaml
       rules:
         - allow: [ Template ]
+
     - type: url
       target: https://github.com/sourcefuse/typescript-lambda-boilerplate/blob/main/templates/api-gw-lambda.yaml
       rules:
         - allow: [ Template ]
+
     - type: url
       target: https://github.com/sourcefuse/arc-mono-repo-infra-template/blob/main/templates/template.yaml
       rules:
         - allow: [ Template ]
+
     - type: url
       target: https://github.com/sourcefuse/refarch-devops-infra/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-refarch-cloudfront/blob/main/catalog-info.yaml
       rules:
@@ -143,58 +132,72 @@ catalog:
       target: https://github.com/sourcefuse/terraform-k8s-app/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-ref-arch-bootstrap/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-ref-arch-db/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-refarch-tags/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-sourceloop-apps/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-refarch-cloudfront/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-refarch-cognito/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-refarch-ecs/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-refarch-elasticache/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-ref-arch-network/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-ref-arch-eks/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-module-aws-bootstrap/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-ref-arch-waf/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-cloud-custodian/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-opensearch/blob/main/catalog-info.yaml
       rules:
