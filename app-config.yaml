@@ -159,51 +159,41 @@ catalog:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-refarch-cognito/blob/main/catalog-info.yaml
-      rules:
-        - allow: [ Component ]
-
-    - type: url
       target: https://github.com/sourcefuse/terraform-aws-refarch-ecs/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-refarch-elasticache/blob/main/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-ref-arch-network/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-ref-arch-network/blob/main/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-ref-arch-eks/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-ref-arch-eks/blob/main/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-module-aws-bootstrap/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-module-aws-bootstrap/blob/main/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-ref-arch-waf/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-ref-arch-waf/blob/main/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-cloud-custodian/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-cloud-custodian/blob/main/catalog-info.yaml
-      rules:
-        - allow: [ Component ]
-
-    - type: url
-      target: https://github.com/sourcefuse/terraform-aws-opensearch/blob/main/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-refarch-opensearch/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 ########################################################################################################################
 ## KEEP THIS COMMENTED OUT
 ########################################################################################################################
-#    - type: github-discovery
-#      target: https://github.com/sourcefuse
+    - type: github-discovery
+      target: https://github.com/sourcefuse
