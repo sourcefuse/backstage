@@ -195,5 +195,5 @@ catalog:
 ########################################################################################################################
 ## KEEP THIS COMMENTED OUT
 ########################################################################################################################
-    - type: github-discovery
-      target: https://github.com/sourcefuse
+#    - type: github-discovery
+#      target: https://github.com/sourcefuse
