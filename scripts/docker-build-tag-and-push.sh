@@ -5,7 +5,7 @@ set -e
 # optional
 : "${AWS_REGION:=us-east-1}"
 : "${DOCKER_COMPOSE_FILE:=./docker-compose.yml}"
-: "${ENVIRONMENT:=dev}"
+: "${ENVIRONMENT:=poc}"
 
 ## required
 : "${AWS_ACCOUNT_ID:-$AWS_ACCOUNT_ID}"

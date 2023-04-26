@@ -45,6 +45,13 @@ integrations:
     - host: github.com
       token: ${GITHUB_TOKEN}
 
+# TODO: hook up to secrets manager/SSM
+#integrations:
+#  github:
+#    - host: github.com
+#      apps:
+#        - $include: github-app-sourcefuse-backstage-local-credentials.yaml
+
 #proxy:
 #  '/circleci/api':
 #    target: https://circleci.com/api/v1.1
