@@ -46,7 +46,7 @@ services:
     volumes:
       - pgadmin:/root/.pgadmin
     ports:
-      - '${PGADMIN_PORT:-5050}:8000'
+      - '${PGADMIN_PORT:-5050}:80'
     networks:
       - backstage
     restart: always
