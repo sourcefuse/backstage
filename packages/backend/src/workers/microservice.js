@@ -1,5 +1,6 @@
 const utils = require('./utils');
 const workerpool = require('workerpool');
+
 module.exports = async function microservice(
   prefix,
   cwd,
@@ -11,7 +12,7 @@ module.exports = async function microservice(
   const originalCwd = process.cwd();
   process.chdir(cwd);
   const env = utils.getEnv(cwd, 'microservice');
-  for (let service of services) {
+  for (const service of services) {
     if (sourceloop) {
       workerpool.workerEmit({
         message: `Generating service based on ${service}`
