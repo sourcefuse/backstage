@@ -1,4 +1,4 @@
-import { createTemplateAction } from '@backstage/plugin-scaffolder-backend';
+import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
 import { container } from '../utils/container';
 import { WorkerPool } from 'workerpool';
 import { POOL } from '../keys';
@@ -37,7 +37,7 @@ export function createScaffoldAction() {
     async handler(ctx: any) {
       ctx.logger.info(`Templating using Yeoman generator: ${ctx.input.name}`);
       const pool = container.get<WorkerPool>(POOL);
-      
+
       await pool.exec('scaffold', [
         ctx.input.name,
         ctx.workspacePath,

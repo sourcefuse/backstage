@@ -8,7 +8,8 @@ import {
   UrlReader,
 } from '@backstage/backend-common';
 import { PluginTaskScheduler } from '@backstage/backend-tasks';
-import { PermissionAuthorizer } from '@backstage/plugin-permission-common';
+import { PermissionEvaluator } from '@backstage/plugin-permission-common';
+import { IdentityApi } from '@backstage/plugin-auth-node';
 
 export type PluginEnvironment = {
   logger: Logger;
@@ -19,5 +20,6 @@ export type PluginEnvironment = {
   discovery: PluginEndpointDiscovery;
   tokenManager: TokenManager;
   scheduler: PluginTaskScheduler;
-  permissions: PermissionAuthorizer;
+  permissions: PermissionEvaluator;
+  identity: IdentityApi;
 };
