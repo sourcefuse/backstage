@@ -34,13 +34,14 @@ const useSidebarLogoStyles = makeStyles({
     display: 'flex',
     flexFlow: 'row nowrap',
     alignItems: 'center',
-    marginBottom: -14,
+    marginBottom: 0,
   },
   link: {
     width: sidebarConfig.drawerWidthClosed,
-    marginLeft: 24,
+    marginLeft: 15,
   },
 });
+
 
 const SidebarLogo = () => {
   const classes = useSidebarLogoStyles();
@@ -62,7 +63,7 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
       <SidebarGroup label="Search" icon={<SearchIcon />} to="/search">
         <SidebarSearchModal />
       </SidebarGroup>
-      <SidebarDivider />
+      {/* <SidebarDivider /> */}
       <SidebarGroup label="Menu" icon={<MenuIcon />}>
         {/* Global nav, not org-specific */}
         <SidebarItem icon={HomeIcon} to="catalog" text="Home" />
@@ -70,13 +71,13 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
         <SidebarItem icon={CreateComponentIcon} to="create" text="Create..." />
         {/* End global nav */}
-        <SidebarDivider />
+        {/* <SidebarDivider /> */}
         <SidebarScrollWrapper>
           <SidebarItem icon={MapIcon} to="tech-radar" text="Tech Radar" />
         </SidebarScrollWrapper>
       </SidebarGroup>
       <SidebarSpace />
-      <SidebarDivider />
+      {/* <SidebarDivider /> */}
       <SidebarGroup
         label="Settings"
         icon={<UserSettingsSignInAvatar />}

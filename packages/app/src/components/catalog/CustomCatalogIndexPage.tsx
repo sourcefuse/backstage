@@ -100,7 +100,7 @@ import { EntityLanguagePicker } from '../../filters/language.filter';
                 <EntityOwnerPicker />
                 <EntityLifecyclePicker />
                 <EntityTagPicker />
-                <EntityProcessingStatusPicker /
+                <EntityProcessingStatusPicker />
                 <EntityNamespacePicker />
                 <EntityLanguagePicker />
               </CatalogFilterLayout.Filters>
