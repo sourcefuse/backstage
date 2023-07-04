@@ -1,6 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 import { makeStyles } from '@material-ui/core';
 import HomeIcon from '@material-ui/icons/Home';
+import { Homeicon } from '../../assets/icons/CustomIcons';
 import ExtensionIcon from '@material-ui/icons/Extension';
 import MapIcon from '@material-ui/icons/MyLocation';
 import LibraryBooks from '@material-ui/icons/LibraryBooks';
@@ -29,7 +30,8 @@ import SearchIcon from '@material-ui/icons/Search';
 
 const useSidebarLogoStyles = makeStyles({
   root: {
-    width: sidebarConfig.drawerWidthClosed,
+    // width: sidebarConfig.drawerWidthClosed,
+    width: '100%',
     height: 3 * sidebarConfig.logoHeight,
     display: 'flex',
     flexFlow: 'row nowrap',
@@ -37,8 +39,10 @@ const useSidebarLogoStyles = makeStyles({
     marginBottom: 0,
   },
   link: {
-    width: sidebarConfig.drawerWidthClosed,
-    marginLeft: 15,
+    // width: sidebarConfig.drawerWidthClosed,
+    width: '90%',
+    // marginLeft: 15,
+    margin: '0 auto',
   },
 });
 
@@ -66,7 +70,7 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
       {/* <SidebarDivider /> */}
       <SidebarGroup label="Menu" icon={<MenuIcon />}>
         {/* Global nav, not org-specific */}
-        <SidebarItem icon={HomeIcon} to="catalog" text="Home" />
+        <SidebarItem icon={Homeicon} to="catalog" text="Home" />
         <SidebarItem icon={ExtensionIcon} to="api-docs" text="APIs" />
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
         <SidebarItem icon={CreateComponentIcon} to="create" text="Create..." />
