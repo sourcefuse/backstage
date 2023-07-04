@@ -1,11 +1,13 @@
 import React from 'react';
 import { Navigate, Route } from 'react-router-dom';
+import './App.css';
 import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
 import {
   createTheme,
   lightTheme,
   BackstageTheme,
 } from '@backstage/theme';
+import CssBaseline from "@material-ui/core/CssBaseline";
 import { ThemeProvider } from '@material-ui/core/styles';
 import { BackstageOverrides } from '@backstage/core-components';
 
@@ -87,8 +89,7 @@ const customTheme = createTheme({
       selectedColor: '#222222',
       navItem: {
         hoverBackground: '#F6F6F6',
-      },
-      
+      },      
     },
   },
   fontFamily: 'Gotham, sans-serif',
@@ -101,30 +102,46 @@ export const createCustomThemeOverrides = (
   return {
     BackstageHeader: {
       header: {
+        padding: '14px 24px',
         boxShadow: 'none',
         backgroundImage: 'none',
         // borderBottom: `4px solid ${theme.palette.primary.main}`,
       },
       title: {
+        fontSize: '20px',
         color: '#525252',
         fontWeight: 400,
       },
       subtitle: {
+        fontSize: '12px',
         color: '#525252',
         fontWeight: 400,
+        marginTop: 0,
       },
     },
-    // BackstageSidebar:{
-    //   drawer:{
-    //     Item:{
-    //       textDecorator: 'none',
-    //     },
-    //   },
-    // },
+    BackstageContentHeader:{
+      title:{
+        fontSize: '20px',
+      },
+    },
+    BackstageTableToolbar:{
+      root:{
+        padding: '16px 0px 16px 20px',
+      },
+    },
+    BackstageSidebar:{
+      drawer:{
+        background: '#FFFFFF',
+        borderRight: '1px solid #D1D1D1',
+      },
+    },
     MuiTypography:{
       body1:{
         fontSize: '0.875rem',
-      }
+      },
+      h5:{
+        fontSize: '16px',
+      },
     },
     MuiFormLabel:{
       root:{
@@ -156,11 +173,13 @@ export const createCustomThemeOverrides = (
     BackstageSidebarItem:{
       root:{
         textDecoration: 'none',
+        color: '#222222',
       },
       selected:{
         position: 'relative',
         borderLeft: 'none!important',
         backgroundColor: '#F6F6F6',
+        color: '#E81823!important',
         '&:after':{
           content: '""',
           width: '2px',
@@ -171,6 +190,9 @@ export const createCustomThemeOverrides = (
           right: '0px',
         },
       },
+      iconContainer:{
+        marginLeft: '0px!important',
+      },
       label: {
         fontSize: '14px',
         fontWeight: 400,
@@ -180,6 +202,8 @@ export const createCustomThemeOverrides = (
         width: '90%!important',
         margin: '0 auto 20px',
         border: '1px solid #D1D1D1',
+        height: '38px',
+        borderRadius: 0,
       },
     },
     MuiButton: {
@@ -251,6 +275,7 @@ const app = createApp({
     variant: 'light',
     Provider: ({ children }) => (
       <ThemeProvider theme={customfinalTheme}>
+        <CssBaseline />
         {children}
       </ThemeProvider>
     ),

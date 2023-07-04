@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core';
 const useStyles = makeStyles({
   svg: {
     // width: 'auto',
-    width: 180,
+    width: '100%',
     // height: 30,
     height: 55,
     padding: 10,
