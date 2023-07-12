@@ -108,9 +108,8 @@ export const createCustomThemeOverrides = (
         // borderBottom: `4px solid ${theme.palette.primary.main}`,
       },
       title: {
-        fontSize: '20px',
-        color: '#525252',
-        fontWeight: 400,
+        fontSize: '30px',
+        color: '#000000',
       },
       subtitle: {
         fontSize: '12px',
@@ -133,6 +132,11 @@ export const createCustomThemeOverrides = (
       drawer:{
         background: '#FFFFFF',
         borderRight: '1px solid #D1D1D1',
+      },
+    },
+    MuiPaper:{
+      elevation1:{
+        boxShadow: '0px 0px 3px 1px rgba(0,0,0,0.2)',
       },
     },
     MuiTypography:{
