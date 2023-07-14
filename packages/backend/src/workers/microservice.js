@@ -2,6 +2,7 @@ const utils = require('./utils');
 const workerpool = require('workerpool');
 module.exports = async function microservice(
   prefix,
+  cdk,
   cwd,
   services,
   databaseType,
@@ -19,6 +20,7 @@ module.exports = async function microservice(
       await utils.runWithEnv(env, 'microservice', [service, '-y'], {
         uniquePrefix: prefix,
         baseService: service,
+        cdk:cdk,
         datasourceType: databaseType,
         datasourceName: 'db',
         facade: false,
@@ -40,6 +42,7 @@ module.exports = async function microservice(
         await utils.runWithEnv(env, 'microservice', [service.name, '-y'], {
           uniquePrefix: prefix,
           facade: true,
+          cdk:cdk,
           config: JSON.stringify({
             applicationName: service.name,
             description: `Sourceloop based ${service.name}`,
@@ -56,6 +59,7 @@ module.exports = async function microservice(
         await utils.runWithEnv(env, 'microservice', [service.name, '-y'], {
           uniquePrefix: prefix,
           datasourceType: databaseType,
+          cdk:cdk,
           datasourceName: 'db',
           facade: false,
           config: JSON.stringify({

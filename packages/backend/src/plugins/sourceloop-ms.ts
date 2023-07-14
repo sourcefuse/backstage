@@ -23,6 +23,11 @@ export function createMicroserviceAction() {
             description: 'Is this ms based on sourceloop?',
             type: 'boolean',
           },
+          cdk: {
+            title: 'cdk',
+            description: 'include arc-cdk?',
+            type: 'boolean',
+          },
           facade: {
             title: 'isFacade',
             description: 'Is this a facade',
@@ -52,11 +57,12 @@ export function createMicroserviceAction() {
       const databaseType = ctx.input.datasourceType;
       const sourceloop = ctx.input.sourceloop;
       const facade = ctx.input.facade;
+      const cdk = ctx.input.cdk;
       if (services) {
         const pool = container.get<WorkerPool>(POOL);
         await pool.exec(
           'microservice',
-          [name, ctx.workspacePath, services, databaseType, sourceloop, facade],
+          [name,cdk, ctx.workspacePath, services, databaseType, sourceloop, facade],
           {
             on: payload => {
               ctx.logger.info(payload.message);

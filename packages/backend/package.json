@@ -32,7 +32,7 @@
     "@backstage/plugin-techdocs-backend": "^0.12.3",
     "@gitbeaker/node": "^34.6.0",
     "@octokit/rest": "^18.5.3",
-    "@sourceloop/cli": "^2.3.1",
+    "@sourceloop/cli": "^4.1.0",
     "app": "0.0.0",
     "dockerode": "^3.3.1",
     "express": "^4.17.1",
