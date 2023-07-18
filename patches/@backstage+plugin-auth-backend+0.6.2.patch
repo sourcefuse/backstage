@@ -1,0 +1,215 @@
+diff --git a/node_modules/@backstage/plugin-auth-backend/migrations/20210326100300_timestamptz.js b/node_modules/@backstage/plugin-auth-backend/migrations/20210326100300_timestamptz.js
+index e9bdddd..4a7aa3e 100644
+--- a/node_modules/@backstage/plugin-auth-backend/migrations/20210326100300_timestamptz.js
++++ b/node_modules/@backstage/plugin-auth-backend/migrations/20210326100300_timestamptz.js
+@@ -21,14 +21,14 @@
+  */
+ exports.up = async function up(knex) {
+   // Sqlite does not support alter column.
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     await knex.schema.alterTable('signing_keys', table => {
+       table
+         .timestamp('created_at', { useTz: true, precision: 0 })
+         .notNullable()
+         .defaultTo(knex.fn.now())
+         .comment('The creation time of the key')
+-        .alter();
++        .alter({ alterType: true });
+     });
+   }
+ };
+@@ -38,14 +38,14 @@ exports.up = async function up(knex) {
+  */
+ exports.down = async function down(knex) {
+   // Sqlite does not support alter column.
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     await knex.schema.alterTable('signing_keys', table => {
+       table
+         .timestamp('created_at', { useTz: false, precision: 0 })
+         .notNullable()
+         .defaultTo(knex.fn.now())
+         .comment('The creation time of the key')
+-        .alter();
++        .alter({ alterType: true });
+     });
+   }
+ };
+diff --git a/node_modules/@backstage/plugin-auth-backend/migrations/20220321100910_timestamptz_again.js b/node_modules/@backstage/plugin-auth-backend/migrations/20220321100910_timestamptz_again.js
+new file mode 100644
+index 0000000..ab7e713
+--- /dev/null
++++ b/node_modules/@backstage/plugin-auth-backend/migrations/20220321100910_timestamptz_again.js
+@@ -0,0 +1,58 @@
++/*
++ * Copyright 2020 The Backstage Authors
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++// @ts-check
++
++// NOTE: This may look like a plain duplicate of the previous one, but that
++// file had a bug added when improving sqlite driver support:
++// https://github.com/backstage/backstage/pull/10053/files#diff-30bb343265e71ca2f1cdcccd5ac8fdbb2a597507c5531bf26945059783377b15R24
++// Since the old file was released to end users, those who created a new
++// Backstage app specifically for PostgreSQL since the release will be missing
++// this fix on their table. So we re-apply it.
++
++/**
++ * @param {import('knex').Knex} knex
++ */
++exports.up = async function up(knex) {
++  // Sqlite does not support alter column.
++  if (!knex.client.config.client.includes('sqlite3')) {
++    await knex.schema.alterTable('signing_keys', table => {
++      table
++        .timestamp('created_at', { useTz: true, precision: 0 })
++        .notNullable()
++        .defaultTo(knex.fn.now())
++        .comment('The creation time of the key')
++        .alter({ alterType: true });
++    });
++  }
++};
++
++/**
++ * @param {import('knex').Knex} knex
++ */
++exports.down = async function down(knex) {
++  // Sqlite does not support alter column.
++  if (!knex.client.config.client.includes('sqlite3')) {
++    await knex.schema.alterTable('signing_keys', table => {
++      table
++        .timestamp('created_at', { useTz: false, precision: 0 })
++        .notNullable()
++        .defaultTo(knex.fn.now())
++        .comment('The creation time of the key')
++        .alter({ alterType: true });
++    });
++  }
++};
+diff --git a/node_modules/@backstage/plugin-auth-backend/migrations/20220522100910_key_field_size.js b/node_modules/@backstage/plugin-auth-backend/migrations/20220522100910_key_field_size.js
+new file mode 100644
+index 0000000..c27d038
+--- /dev/null
++++ b/node_modules/@backstage/plugin-auth-backend/migrations/20220522100910_key_field_size.js
+@@ -0,0 +1,49 @@
++/*
++ * Copyright 2022 The Backstage Authors
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++// @ts-check
++
++/**
++ * @param {import('knex').Knex} knex
++ */
++exports.up = async function up(knex) {
++  // Sqlite does not support alter column.
++  if (!knex.client.config.client.includes('sqlite3')) {
++    await knex.schema.alterTable('signing_keys', table => {
++      table
++        .text('key')
++        .notNullable()
++        .comment('The serialized signing key')
++        .alter({ alterType: true });
++    });
++  }
++};
++
++/**
++ * @param {import('knex').Knex} knex
++ */
++exports.down = async function down(knex) {
++  // Sqlite does not support alter column.
++  if (!knex.client.config.client.includes('sqlite3')) {
++    await knex.schema.alterTable('signing_keys', table => {
++      table
++        .string('key')
++        .notNullable()
++        .comment('The serialized signing key')
++        .alter({ alterType: true });
++    });
++  }
++};
+diff --git a/node_modules/@backstage/plugin-auth-backend/migrations/20230428155633_sessions.js b/node_modules/@backstage/plugin-auth-backend/migrations/20230428155633_sessions.js
+new file mode 100644
+index 0000000..49462ac
+--- /dev/null
++++ b/node_modules/@backstage/plugin-auth-backend/migrations/20230428155633_sessions.js
+@@ -0,0 +1,52 @@
++/*
++ * Copyright 2023 The Backstage Authors
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++// @ts-check
++
++/**
++ * @param {import('knex').Knex} knex
++ */
++exports.up = async function up(knex) {
++  // See https://github.com/gx0r/connect-session-knex
++  // Modeled loosely after https://github.com/gx0r/connect-session-knex/blob/4e0e36a9afbb13c3000a89f5e341f2d2d4339a02/lib/index.js#L114
++  // For simplicity we always make the session a string
++  // Do NOT change around this table or column names; the connect-session-knex library makes assumptions about them
++  await knex.schema.createTable('sessions', table => {
++    table.comment('Session data');
++    table.string('sid').primary().notNullable().comment('ID of the session');
++    table
++      .text('sess', 'longtext')
++      .notNullable()
++      .comment('Session data, JSON serialized');
++    table
++      .timestamp('expired')
++      .notNullable()
++      .comment('The point in time when the session expires');
++    table.index('sid', 'sessions_sid_idx');
++    table.index('expired', 'sessions_expired_idx');
++  });
++};
++
++/**
++ * @param {import('knex').Knex} knex
++ */
++exports.down = async function down(knex) {
++  await knex.schema.alterTable('sessions', table => {
++    table.dropIndex([], 'sessions_sid_idx');
++    table.dropIndex([], 'sessions_expired_idx');
++  });
++  await knex.schema.dropTable('sessions');
++};

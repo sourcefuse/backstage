@@ -1,0 +1,813 @@
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20200511113813_init.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20200511113813_init.js
+index b89ec57..710ff53 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/migrations/20200511113813_init.js
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20200511113813_init.js
+@@ -27,7 +27,7 @@ exports.up = async function up(knex) {
+       //
+       .createTable('locations', table => {
+         table.comment(
+-          'Registered locations that shall be contiuously scanned for catalog item updates',
++          'Registered locations that shall be continuously scanned for catalog item updates',
+         );
+         table
+           .uuid('id')
+@@ -59,7 +59,7 @@ exports.up = async function up(knex) {
+             'An opaque string that changes for each update operation to any part of the entity, including metadata.',
+           );
+         table
+-          .string('generation')
++          .integer('generation')
+           .notNullable()
+           .unsigned()
+           .comment(
+@@ -92,7 +92,9 @@ exports.up = async function up(knex) {
+       })
+       .alterTable('entities', table => {
+         // https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#objectmeta-v1-meta
+-        table.unique(['kind', 'name', 'namespace'], 'entities_unique_name');
++        table.unique(['kind', 'name', 'namespace'], {
++          indexName: 'entities_unique_name',
++        });
+       })
+       //
+       // entities_search
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20200702153613_entities.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20200702153613_entities.js
+index fef8a7c..37aee4d 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/migrations/20200702153613_entities.js
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20200702153613_entities.js
+@@ -21,7 +21,7 @@
+  */
+ exports.up = async function up(knex) {
+   // SQLite does not support FK and PK
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     await knex.schema.alterTable('entities_search', table => {
+       table.dropForeign(['entity_id']);
+     });
+@@ -31,6 +31,7 @@ exports.up = async function up(knex) {
+   }
+   await knex.schema.alterTable('entities', table => {
+     table.dropUnique([], 'entities_unique_name');
++    table.dropForeign(['location_id']);
+   });
+   // Setup temporary tables
+   await knex.schema.renameTable('entities_search', 'tmp_entities_search');
+@@ -56,7 +57,7 @@ exports.up = async function up(knex) {
+           'An opaque string that changes for each update operation to any part of the entity, including metadata.',
+         );
+       table
+-        .string('generation')
++        .integer('generation')
+         .notNullable()
+         .unsigned()
+         .comment(
+@@ -89,7 +90,9 @@ exports.up = async function up(knex) {
+     })
+     .alterTable('entities', table => {
+       // https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#objectmeta-v1-meta
+-      table.unique(['kind', 'name', 'namespace'], 'entities_unique_name');
++      table.unique(['kind', 'name', 'namespace'], {
++        indexName: 'entities_unique_name',
++      });
+     });
+ 
+   await knex.schema.raw(`INSERT INTO entities SELECT * FROM tmp_entities`);
+@@ -130,7 +133,7 @@ exports.up = async function up(knex) {
+  */
+ exports.down = async function down(knex) {
+   // SQLite does not support FK and PK
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     await knex.schema.alterTable('entities_search', table => {
+       table.dropForeign(['entity_id']);
+     });
+@@ -199,7 +202,9 @@ exports.down = async function down(knex) {
+     })
+     .alterTable('entities', table => {
+       // https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#objectmeta-v1-meta
+-      table.unique(['kind', 'name', 'namespace'], 'entities_unique_name');
++      table.unique(['kind', 'name', 'namespace'], {
++        indexName: 'entities_unique_name',
++      });
+     });
+ 
+   await knex.schema.raw(`INSERT INTO entities SELECT * FROM tmp_entities`);
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20200807120600_entitySearch.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20200807120600_entitySearch.js
+index bdb6037..5acfbeb 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/migrations/20200807120600_entitySearch.js
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20200807120600_entitySearch.js
+@@ -21,9 +21,9 @@
+  */
+ exports.up = async function up(knex) {
+   // Sqlite does not support alter column.
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     await knex.schema.alterTable('entities_search', table => {
+-      table.text('value').nullable().alter();
++      table.string('value').nullable().alter({ alterType: true });
+     });
+   }
+ };
+@@ -33,9 +33,9 @@ exports.up = async function up(knex) {
+  */
+ exports.down = async function down(knex) {
+   // Sqlite does not support alter column.
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     await knex.schema.alterTable('entities_search', table => {
+-      table.string('value').nullable().alter();
++      table.string('value').nullable().alter({ alterType: true });
+     });
+   }
+ };
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20200923104503_case_insensitivity.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20200923104503_case_insensitivity.js
+index 01be478..9f0caba 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/migrations/20200923104503_case_insensitivity.js
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20200923104503_case_insensitivity.js
+@@ -24,8 +24,8 @@ exports.up = async function up(knex) {
+     .where({ namespace: null })
+     .update({ namespace: 'default' });
+   await knex('entities_search').update({
+-    key: knex.raw('LOWER(key)'),
+-    value: knex.raw('LOWER(value)'),
++    key: knex.raw('LOWER(??)', ['key']),
++    value: knex.raw('LOWER(??)', ['value']),
+   });
+ };
+ 
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20201005122705_add_entity_full_name.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20201005122705_add_entity_full_name.js
+index 2f9b282..412791d 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/migrations/20201005122705_add_entity_full_name.js
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20201005122705_add_entity_full_name.js
+@@ -21,25 +21,26 @@
+  */
+ exports.up = async function up(knex) {
+   await knex.schema.alterTable('entities', table => {
+-    table.text('full_name').nullable();
++    table.string('full_name').nullable();
+   });
+ 
+   await knex('entities').update({
+     full_name: knex.raw(
+-      "LOWER(kind) || ':' || LOWER(COALESCE(namespace, 'default')) || '/' || LOWER(name)",
++      "LOWER(??) || ':' || LOWER(COALESCE(??, 'default')) || '/' || LOWER(??)",
++      ['kind', 'namespace', 'name'],
+     ),
+   });
+ 
+   // SQLite does not support alter column
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     await knex.schema.alterTable('entities', table => {
+-      table.text('full_name').notNullable().alter();
++      table.string('full_name').notNullable().alter({ alterNullable: true });
+     });
+   }
+ 
+   await knex.schema.alterTable('entities', table => {
+     // https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#objectmeta-v1-meta
+-    table.unique(['full_name'], 'entities_unique_full_name');
++    table.unique(['full_name'], { indexName: 'entities_unique_full_name' });
+     table.dropUnique([], 'entities_unique_name');
+   });
+ };
+@@ -51,7 +52,9 @@ exports.down = async function down(knex) {
+   await knex.schema.alterTable('entities', table => {
+     // https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#objectmeta-v1-meta
+     table.dropUnique([], 'entities_unique_full_name');
+-    table.unique(['kind', 'namespace', 'name'], 'entities_unique_name');
++    table.unique(['kind', 'namespace', 'name'], {
++      indexName: 'entities_unique_name',
++    });
+   });
+ 
+   await knex.schema.alterTable('entities_search', table => {
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20201006130744_entity_data_column.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20201006130744_entity_data_column.js
+index 214a8f4..6e7ae9b 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/migrations/20201006130744_entity_data_column.js
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20201006130744_entity_data_column.js
+@@ -31,7 +31,8 @@ exports.up = async function up(knex) {
+     // apiVersion and kind should not contain any JSON unsafe chars, and both
+     // metadata and spec are already valid serialized JSON
+     data: knex.raw(
+-      `'{"apiVersion":"' || api_version || '","kind":"' || kind || '","metadata":' || metadata || COALESCE(',"spec":' || spec, '') || '}'`,
++      `'{"apiVersion":"' || ?? || '","kind":"' || ?? || '","metadata":' || ?? || COALESCE(',"spec":' || ??, '') || '}'`,
++      ['api_version', 'kind', 'metadata', 'spec'],
+     ),
+   });
+ 
+@@ -41,9 +42,9 @@ exports.up = async function up(knex) {
+   });
+ 
+   // SQLite does not support ALTER COLUMN.
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     await knex.schema.alterTable('entities', table => {
+-      table.text('data').notNullable().alter();
++      table.text('data').notNullable().alter({ alterNullable: true });
+     });
+   }
+ };
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20201123205611_relations_table_uniq.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20201123205611_relations_table_uniq.js
+index b3c3a04..313eb88 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/migrations/20201123205611_relations_table_uniq.js
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20201123205611_relations_table_uniq.js
+@@ -20,11 +20,11 @@
+  * @param {import('knex').Knex} knex
+  */
+ exports.up = async function up(knex) {
+-  if (knex.client.config.client === 'sqlite3') {
++  if (knex.client.config.client.includes('sqlite3')) {
+     // sqlite doesn't support dropPrimary so we recreate it properly instead
+     await knex.schema.dropTable('entities_relations');
+     await knex.schema.createTable('entities_relations', table => {
+-      table.comment('All relations between entities in the catalog');
++      table.comment('All relations between entities');
+       table
+         .uuid('originating_entity_id')
+         .references('id')
+@@ -58,10 +58,10 @@ exports.up = async function up(knex) {
+  * @param {import('knex').Knex} knex
+  */
+ exports.down = async function down(knex) {
+-  if (knex.client.config.client === 'sqlite3') {
++  if (knex.client.config.client.includes('sqlite3')) {
+     await knex.schema.dropTable('entities_relations');
+     await knex.schema.createTable('entities_relations', table => {
+-      table.comment('All relations between entities in the catalog');
++      table.comment('All relations between entities');
+       table
+         .uuid('originating_entity_id')
+         .references('id')
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20201210185851_fk_index.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20201210185851_fk_index.js
+index 11907b2..84ec03f 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/migrations/20201210185851_fk_index.js
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20201210185851_fk_index.js
+@@ -20,7 +20,7 @@
+  * @param {import('knex').Knex} knex
+  */
+ exports.up = async function up(knex) {
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     await knex.schema.alterTable('entities_relations', table => {
+       table.index('originating_entity_id', 'originating_entity_id_idx');
+     });
+@@ -34,7 +34,7 @@ exports.up = async function up(knex) {
+  * @param {import('knex').Knex} knex
+  */
+ exports.down = async function down(knex) {
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     await knex.schema.alterTable('entities_relations', table => {
+       table.dropIndex([], 'originating_entity_id_idx');
+     });
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20201230103504_update_log_varchar.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20201230103504_update_log_varchar.js
+index c4413d4..a12130e 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/migrations/20201230103504_update_log_varchar.js
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20201230103504_update_log_varchar.js
+@@ -20,14 +20,14 @@
+  * @param {import('knex').Knex} knex
+  */
+ exports.up = async function up(knex) {
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     // We actually just want to widen columns, but can't do that while a
+     // view is dependent on them - so we just reconstruct it exactly as it was
+     await knex.schema
+       .raw('DROP VIEW location_update_log_latest;')
+       .alterTable('location_update_log', table => {
+-        table.text('message').alter();
+-        table.text('entity_name').nullable().alter();
++        table.text('message').alter({ alterType: true });
++        table.text('entity_name').nullable().alter({ alterType: true });
+       }).raw(`
+         CREATE VIEW location_update_log_latest AS
+         SELECT t1.* FROM location_update_log t1
+@@ -49,12 +49,12 @@ exports.up = async function up(knex) {
+  * @param {import('knex').Knex} knex
+  */
+ exports.down = async function down(knex) {
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     await knex.schema
+       .raw('DROP VIEW location_update_log_latest;')
+       .alterTable('location_update_log', table => {
+-        table.string('message').alter();
+-        table.string('entity_name').nullable().alter();
++        table.string('message').alter({ alterType: true });
++        table.string('entity_name').nullable().alter({ alterType: true });
+       }).raw(`
+         CREATE VIEW location_update_log_latest AS
+         SELECT t1.* FROM location_update_log t1
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20210209121210_locations_fk_index.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20210209121210_locations_fk_index.js
+index 80925f4..34f465d 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/migrations/20210209121210_locations_fk_index.js
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20210209121210_locations_fk_index.js
+@@ -20,7 +20,7 @@
+  * @param {import('knex').Knex} knex
+  */
+ exports.up = async function up(knex) {
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     await knex.schema.alterTable('entities', table => {
+       table.index('location_id', 'entity_location_id_idx');
+     });
+@@ -34,7 +34,7 @@ exports.up = async function up(knex) {
+  * @param {import('knex').Knex} knex
+  */
+ exports.down = async function down(knex) {
+-  if (knex.client.config.client !== 'sqlite3') {
++  if (!knex.client.config.client.includes('sqlite3')) {
+     await knex.schema.alterTable('entities', table => {
+       table.dropIndex([], 'entity_location_id_idx');
+     });
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20210302150147_refresh_state.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20210302150147_refresh_state.js
+index db66b46..1c8081c 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/migrations/20210302150147_refresh_state.js
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20210302150147_refresh_state.js
+@@ -20,39 +20,30 @@
+  * @param {import('knex').Knex} knex
+  */
+ exports.up = async function up(knex) {
++  const isMySQL = knex.client.config.client.includes('mysql');
+   await knex.schema.createTable('refresh_state', table => {
+-    table.comment(
+-      'Location refresh states. Every individual location (that was ever directly or indirectly discovered) and entity has an entry in this table. It therefore represents the entire live set of things that the refresh loop considers.',
+-    );
++    table.comment('Location refresh states');
+     table
+-      .text('entity_id')
++      .string('entity_id')
+       .primary()
+       .notNullable()
+-      .comment(
+-        'Primary ID, which will also be used as the uid of the resulting entity',
+-      );
++      .comment('Primary ID, also used as the uid of the entity');
+     table
+-      .text('entity_ref')
++      .string('entity_ref')
+       .notNullable()
+-      .comment('A reference to the entity that the refresh state is tied to');
++      .comment('A reference to the entity for this refresh state');
+     table
+       .text('unprocessed_entity')
+       .notNullable()
+-      .comment(
+-        'The unprocessed entity (in its source form, before being run through all of the processors) as JSON',
+-      );
++      .comment('The unprocessed entity (in original form) as JSON');
+     table
+       .text('processed_entity')
+       .nullable()
+-      .comment(
+-        'The processed entity (after running through all processors, but before being stitched together with state and relations) as JSON',
+-      );
++      .comment('The processed entity (not yet stitched) as JSON');
+     table
+       .text('cache')
+       .nullable()
+-      .comment(
+-        'Cache information tied to the refreshing of this entity, such as etag information or actual response caching',
+-      );
++      .comment('Cache information tied to refreshes of this entity');
+     table
+       .text('errors')
+       .notNullable()
+@@ -64,39 +55,33 @@ exports.up = async function up(knex) {
+     table
+       .dateTime('last_discovery_at') // TODO: timezone or change to epoch-millis or similar
+       .notNullable()
+-      .comment('The last timestamp of which this entity was discovered');
+-    table.unique(['entity_ref'], 'refresh_state_entity_ref_uniq');
++      .comment('The last timestamp that this entity was discovered');
++    table.unique(['entity_ref'], {
++      indexName: 'refresh_state_entity_ref_uniq',
++    });
+     table.index('entity_id', 'refresh_state_entity_id_idx');
+     table.index('entity_ref', 'refresh_state_entity_ref_idx');
+     table.index('next_update_at', 'refresh_state_next_update_at_idx');
+   });
+ 
+   await knex.schema.createTable('final_entities', table => {
+-    table.comment(
+-      'This table contains the final entity result after processing and stitching',
+-    );
++    table.comment('Final entities after processing and stitching');
+     table
+-      .text('entity_id')
++      .string('entity_id')
+       .primary()
+       .notNullable()
+       .references('entity_id')
+       .inTable('refresh_state')
+       .onDelete('CASCADE')
+-      .comment(
+-        'Entity ID which corresponds to the ID in the refresh_state table',
+-      );
++      .comment('Entity ID -> refresh_state table');
+     table
+-      .text('hash')
++      .string('hash')
+       .notNullable()
+-      .comment(
+-        'Stable hash of the entity data, to be used for caching and avoiding redundant work',
+-      );
++      .comment('Stable hash of the entity data');
+     table
+       .text('stitch_ticket')
+       .notNullable()
+-      .comment(
+-        'A random value representing a unique stitch attempt ticket, that gets updated each time that a stitching attempt is made on the entity',
+-      );
++      .comment('Random value representing a unique stitch attempt ticket');
+     table
+       .text('final_entity')
+       .nullable()
+@@ -105,29 +90,24 @@ exports.up = async function up(knex) {
+   });
+ 
+   await knex.schema.createTable('refresh_state_references', table => {
+-    table.comment(
+-      'Holds edges between refresh state rows. Every time when an entity is processed and emits another entity, an edge will be stored to represent that fact. This is used to detect orphans and ultimately deletions.',
+-    );
++    const textColumn = isMySQL
++      ? table.string.bind(table)
++      : table.text.bind(table);
++
++    table.comment('Edges between refresh state rows');
+     table
+       .increments('id')
+       .comment('Primary key to distinguish unique lines from each other');
+-    table
+-      .text('source_key')
++    textColumn('source_key')
+       .nullable()
+-      .comment(
+-        'When the reference source is not an entity, this is an opaque identifier for that source.',
+-      );
+-    table
+-      .text('source_entity_ref')
++      .comment('Opaque identifier for non-entity sources');
++    textColumn('source_entity_ref')
+       .nullable()
+       .references('entity_ref')
+       .inTable('refresh_state')
+       .onDelete('CASCADE')
+-      .comment(
+-        'When the reference source is an entity, this is the EntityRef of the source entity.',
+-      );
+-    table
+-      .text('target_entity_ref')
++      .comment('EntityRef of entity sources');
++    textColumn('target_entity_ref')
+       .notNullable()
+       .references('entity_ref')
+       .inTable('refresh_state')
+@@ -145,36 +125,34 @@ exports.up = async function up(knex) {
+   });
+ 
+   await knex.schema.createTable('relations', table => {
+-    table.comment('All relations between entities in the catalog');
++    table.comment('All relations between entities');
+     table
+-      .text('originating_entity_id')
++      .string('originating_entity_id')
+       .references('entity_id')
+       .inTable('refresh_state')
+       .onDelete('CASCADE')
+       .notNullable()
+       .comment('The entity that provided the relation');
+     table
+-      .text('source_entity_ref')
++      .string('source_entity_ref')
+       .notNullable()
+-      .comment('The entity reference of the source entity of the relation');
++      .comment('Entity reference of the source entity of the relation');
+     table
+-      .text('type')
++      .string('type')
+       .notNullable()
+       .comment('The type of the relation between the entities');
+     table
+-      .text('target_entity_ref')
++      .string('target_entity_ref')
+       .notNullable()
+-      .comment('The entity reference of the target entity of the relation');
++      .comment('Entity reference of the target entity of the relation');
+     table.index('source_entity_ref', 'relations_source_entity_ref_idx');
+     table.index('originating_entity_id', 'relations_source_entity_id_idx');
+   });
+ 
+   await knex.schema.createTable('search', table => {
+-    table.comment(
+-      'Flattened key-values from the entities, used for quick filtering',
+-    );
++    table.comment('Flattened key-values from the entities, for filtering');
+     table
+-      .text('entity_id')
++      .string('entity_id')
+       .references('entity_id')
+       .inTable('refresh_state')
+       .onDelete('CASCADE')
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20210622104022_refresh_state_location_key.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20210622104022_refresh_state_location_key.js
+index 37ab5e1..f15e2c2 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/migrations/20210622104022_refresh_state_location_key.js
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20210622104022_refresh_state_location_key.js
+@@ -24,9 +24,7 @@ exports.up = async function up(knex) {
+     table
+       .text('location_key')
+       .nullable()
+-      .comment(
+-        'An opaque key that uniquely identifies the location of an entity in order to support conflict resolution',
+-      );
++      .comment('Opaque conflict resolution key');
+   });
+ };
+ 
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20210925102509_add_refresh_state_input_hash.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20210925102509_add_refresh_state_input_hash.js
+index 7d7a4ac..136be98 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/migrations/20210925102509_add_refresh_state_input_hash.js
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20210925102509_add_refresh_state_input_hash.js
+@@ -24,7 +24,7 @@ exports.up = async function up(knex) {
+     table
+       .text('unprocessed_hash')
+       .nullable()
+-      .comment('A hash of the unprocessed contents, used to detect changes');
++      .comment('A hash of the unprocessed contents');
+   });
+ };
+ 
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20220116144621_remove_legacy.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20220116144621_remove_legacy.js
+new file mode 100644
+index 0000000..b7992ec
+--- /dev/null
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20220116144621_remove_legacy.js
+@@ -0,0 +1,28 @@
++/*
++ * Copyright 2021 The Backstage Authors
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++// @ts-check
++
++/**
++ * @param {import('knex').Knex} knex
++ */
++exports.up = async function up(knex) {
++  await knex.schema.dropTable('entities_relations');
++  await knex.schema.dropTable('entities_search');
++  await knex.schema.dropTable('entities');
++};
++
++exports.down = async function down() {};
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20220222164811_reprocess_for_relation_refs.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20220222164811_reprocess_for_relation_refs.js
+new file mode 100644
+index 0000000..0679d5c
+--- /dev/null
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20220222164811_reprocess_for_relation_refs.js
+@@ -0,0 +1,31 @@
++/*
++ * Copyright 2021 The Backstage Authors
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++// @ts-check
++
++/**
++ * @param {import('knex').Knex} knex
++ */
++exports.up = async function up(knex) {
++  // Make sure to reprocess everything, to make sure that relations have a targetRef produced
++  await knex('final_entities').update({ hash: '' });
++  await knex('refresh_state').update({
++    result_hash: '',
++    next_update_at: knex.fn.now(),
++  });
++};
++
++exports.down = async function down() {};
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20220616202842_refresh_keys.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20220616202842_refresh_keys.js
+new file mode 100644
+index 0000000..a7ec819
+--- /dev/null
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20220616202842_refresh_keys.js
+@@ -0,0 +1,55 @@
++/*
++ * Copyright 2022 The Backstage Authors
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++// @ts-check
++
++/**
++ * @param { import("knex").Knex } knex
++ */
++exports.up = async function up(knex) {
++  await knex.schema.createTable('refresh_keys', table => {
++    table.comment(
++      'This table contains relations between entities and keys to trigger refreshes with',
++    );
++    table
++      .string('entity_id')
++      .notNullable()
++      .references('entity_id')
++      .inTable('refresh_state')
++      .onDelete('CASCADE')
++      .comment('A reference to the entity that the refresh key is tied to');
++    table
++      .string('key')
++      .notNullable()
++      .comment(
++        'A reference to a key which should be used to trigger a refresh on this entity',
++      );
++    table.index('entity_id', 'refresh_keys_entity_id_idx');
++    table.index('key', 'refresh_keys_key_idx');
++  });
++};
++
++/**
++ * @param { import("knex").Knex } knex
++ */
++exports.down = async function down(knex) {
++  await knex.schema.alterTable('refresh_keys', table => {
++    table.dropIndex([], 'refresh_keys_entity_id_idx');
++    table.dropIndex([], 'refresh_keys_key_idx');
++  });
++
++  await knex.schema.dropTable('refresh_keys');
++};
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20221109192547_search_add_original_value_column.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20221109192547_search_add_original_value_column.js
+new file mode 100644
+index 0000000..597006e
+--- /dev/null
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20221109192547_search_add_original_value_column.js
+@@ -0,0 +1,51 @@
++/*
++ * Copyright 2022 The Backstage Authors
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++// @ts-check
++
++/**
++ * @param { import("knex").Knex } knex
++ */
++exports.up = async function up(knex) {
++  // Start out with an original_value column that's equal to the value column
++  await knex.schema.alterTable('search', table => {
++    table
++      .string('original_value')
++      .nullable()
++      .comment('Holds the corresponding original case sensitive value');
++  });
++  await knex('search').update({ original_value: knex.ref('value') });
++
++  // Make sure to reprocess everything, to make sure that the original_value
++  // column is populated with values with the proper casing. It's unfortunately
++  // not enough to just reset the final_entities hash, since stitching is driven
++  // only by processing resulting in data that isn't matching the refresh_state
++  // hash.
++  await knex('final_entities').update({ hash: '' });
++  await knex('refresh_state').update({
++    result_hash: '',
++    next_update_at: knex.fn.now(),
++  });
++};
++
++/**
++ * @param { import("knex").Knex } knex
++ */
++exports.down = async function down(knex) {
++  await knex.schema.alterTable('search', table => {
++    table.dropColumn('original_value');
++  });
++};
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20221201085245_add_last_updated_at_in_final_entities.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20221201085245_add_last_updated_at_in_final_entities.js
+new file mode 100644
+index 0000000..44fcf30
+--- /dev/null
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20221201085245_add_last_updated_at_in_final_entities.js
+@@ -0,0 +1,39 @@
++/*
++ * Copyright 2022 The Backstage Authors
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++// @ts-check
++
++/**
++ * @param { import("knex").Knex } knex
++ */
++exports.up = async function up(knex) {
++  await knex.schema.table('final_entities', table => {
++    table
++      .dateTime('last_updated_at')
++      .nullable()
++      .comment('The time when final_entity changed');
++  });
++};
++
++/**
++ * @param { import("knex").Knex } knex
++ * @returns { Promise<void> }
++ */
++exports.down = async function down(knex) {
++  await knex.schema.table('final_entities', table => {
++    table.dropColumn('last_updated_at');
++  });
++};
+diff --git a/node_modules/@backstage/plugin-catalog-backend/migrations/20230125085746_trigger_reprocessing.js b/node_modules/@backstage/plugin-catalog-backend/migrations/20230125085746_trigger_reprocessing.js
+new file mode 100644
+index 0000000..9bd3072
+--- /dev/null
++++ b/node_modules/@backstage/plugin-catalog-backend/migrations/20230125085746_trigger_reprocessing.js
+@@ -0,0 +1,33 @@
++/*
++ * Copyright 2022 The Backstage Authors
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++// @ts-check
++
++/**
++ * @param { import("knex").Knex } knex
++ */
++exports.up = async function up(knex) {
++  await knex('final_entities').update({ hash: '' });
++  await knex('refresh_state').update({
++    result_hash: '',
++    next_update_at: knex.fn.now(),
++  });
++};
++
++/**
++ * @param { import("knex").Knex } _knex
++ */
++exports.down = async function down(_knex) {};

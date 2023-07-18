@@ -6,6 +6,7 @@
     "node": "14 || 16"
   },
   "scripts": {
+    "postinstall": "patch-package",
     "dev": "concurrently \"yarn start\" \"yarn start-backend\"",
     "start": "yarn workspace app start",
     "start-backend": "yarn workspace backend start",
@@ -57,5 +58,8 @@
     "commitizen": {
       "path": "cz-format-extension"
     }
+  },
+  "dependencies": {
+    "patch-package": "^7.0.2"
   }
 }
