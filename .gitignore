@@ -36,3 +36,4 @@ site
 *-credentials.yaml
 .idea
 .env.local*
+*.pem
