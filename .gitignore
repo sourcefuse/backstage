@@ -35,4 +35,5 @@ site
 # Sensitive credentials
 *-credentials.yaml
 .idea
-.env.local
+.env.local*
+*.pem

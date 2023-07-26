@@ -3,4 +3,5 @@ node_modules
 #packages
 !packages/backend/dist
 plugins
-.env.local
+.env.local*
+*.pem
