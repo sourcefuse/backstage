@@ -39,10 +39,22 @@ backend:
     store: memory
   # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
 
+#integrations:
+#  github:
+#    - host: github.com
+#      token: ${GITHUB_TOKEN}
+
+# TODO: hook up to secrets manager/SSM
 integrations:
   github:
     - host: github.com
-      token: ${GITHUB_TOKEN}
+      apps:
+        - appId: ${INTEGRATION_GITHUB_APP_ID}
+          webhookUrl: ${INTEGRATION_GITHUB_WEBHOOK_URL}
+          clientId: ${INTEGRATION_GITHUB_CLIENT_ID}
+          clientSecret: ${INTEGRATION_GITHUB_CLIENT_SECRET}
+          webhookSecret: ${INTEGRATION_GITHUB_WEBHOOK_SECRET}
+          privateKey: ${INTEGRATION_GITHUB_PRIVATE_KEY}
 
 #proxy:
 #  '/circleci/api':
@@ -67,8 +79,8 @@ auth:
   providers:
     github:
       development:
-        clientId: ${GITHUB_CLIENT_ID}
-        clientSecret: ${GITHUB_CLIENT_SECRET}
+        clientId: ${AUTH_GITHUB_CLIENT_ID}
+        clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
 
 scaffolder:
 # see https://backstage.io/docs/features/software-templates/configuration for software template options
