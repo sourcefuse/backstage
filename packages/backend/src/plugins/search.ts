@@ -52,8 +52,7 @@ export default async function createPlugin(
   // The scheduler controls when documents are gathered from collators and sent
   // to the search engine for indexing.
   const { scheduler } = await indexBuilder.build();
-  scheduler.start();
-
+  setTimeout(() => scheduler.start(), 3000);
   useHotCleanup(module, () => scheduler.stop());
 
   return await createRouter({
