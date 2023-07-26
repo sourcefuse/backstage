@@ -23,7 +23,7 @@
     "create-plugin": "backstage-cli create-plugin --scope internal",
     "remove-plugin": "backstage-cli remove-plugin",
     "setup-hooks": "husky install",
-	"new": "backstage-cli new --scope internal"
+    "new": "backstage-cli new --scope internal"
   },
   "workspaces": {
     "packages": [
@@ -60,5 +60,8 @@
     "commitizen": {
       "path": "cz-format-extension"
     }
+  },
+  "dependencies": {
+    "dotenv-extended": "^2.9.0"
   }
 }

@@ -89,7 +89,7 @@ const customTheme = createTheme({
       selectedColor: '#222222',
       navItem: {
         hoverBackground: '#F6F6F6',
-      },      
+      },
     },
   },
   fontFamily: 'Gotham, sans-serif',
@@ -289,9 +289,9 @@ const app = createApp({
 const routes = (
   <FlatRoutes>
     <Route path="/" element={<Navigate to="catalog" />} />
-    <Route path="/catalog" element={<CatalogIndexPage />}>
-      <CustomCatalogPage />
-    </Route>
+    <Route path="/catalog" element={<CatalogIndexPage />} />
+      {/* <CustomCatalogPage />
+    </Route> */}
     <Route
       path="/catalog/:namespace/:kind/:name"
       element={<CatalogEntityPage />}
