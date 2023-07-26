@@ -151,7 +151,7 @@ catalog:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/bhupesh-sf/terraform-sourceloop-apps/blob/main/catalog-info.yml
+      target: https://github.com/sourcefuse/terraform-sourceloop-apps/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 
