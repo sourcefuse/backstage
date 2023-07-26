@@ -23,7 +23,8 @@ RUN yarn install --frozen-lockfile --network-timeout 600000 && rm -rf "$(yarn ca
 COPY . .
 
 RUN yarn tsc
-RUN yarn --cwd packages/backend backstage-cli backend:bundle --build-dependencies
+RUN #yarn --cwd packages/backend backstage-cli backend:bundle --build-dependencies
+RUN yarn --cwd packages/backend backstage-cli package build
 
 # Stage 3 - Build the actual backend image and install production dependencies
 FROM node:16-buster-slim
@@ -50,6 +51,5 @@ RUN tar xzf bundle.tar.gz && rm bundle.tar.gz
 
 # Copy any other files that we need at runtime
 COPY app-config.yaml ./
-
 
 CMD ["node", "packages/backend", "--config", "app-config.yaml"]

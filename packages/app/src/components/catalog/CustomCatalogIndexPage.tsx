@@ -23,13 +23,17 @@ import {
     TableColumn,
     TableProps,
   } from '@backstage/core-components';
+  // import {
+  //   createExternalRouteRef,
+  // } from '@backstage/core-plugin-api';
+  // import {
+  //   usePluginOptions
+  // } from '@backstage/core-plugin-api/alpha';
   import {
-    createExternalRouteRef,
+    configApiRef,
+    useApi,
+    // useRouteRef
   } from '@backstage/core-plugin-api';
-  import {
-    usePluginOptions
-  } from '@backstage/core-plugin-api/alpha';
-  import { configApiRef, useApi, useRouteRef } from '@backstage/core-plugin-api';
   import {
     CatalogFilterLayout,
     EntityLifecyclePicker,
