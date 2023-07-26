@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react';
 import { makeStyles } from '@material-ui/core';
-import HomeIcon from '@material-ui/icons/Home';
+// import HomeIcon from '@material-ui/icons/Home';
 import { Homeicon } from '../../assets/icons/CustomIcons';
 import ExtensionIcon from '@material-ui/icons/Extension';
 import MapIcon from '@material-ui/icons/MyLocation';
@@ -16,7 +16,7 @@ import { SidebarSearchModal } from '@backstage/plugin-search';
 import {
   Sidebar,
   sidebarConfig,
-  SidebarDivider,
+  // SidebarDivider,
   SidebarGroup,
   SidebarItem,
   SidebarPage,

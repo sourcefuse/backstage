@@ -12,7 +12,7 @@ backend:
   # auth:
   #   keys:
   #     - secret: ${BACKEND_SECRET}
-  baseUrl: ${BACKEND_BASE_URL}
+  baseUrl: ${BASE_URL}
   listen:
     port: 7007
   csp:
@@ -44,7 +44,6 @@ backend:
 #    - host: github.com
 #      token: ${GITHUB_TOKEN}
 
-# TODO: hook up to secrets manager/SSM
 integrations:
   github:
     - host: github.com
@@ -55,12 +54,6 @@ integrations:
           clientSecret: ${INTEGRATION_GITHUB_CLIENT_SECRET}
           webhookSecret: ${INTEGRATION_GITHUB_WEBHOOK_SECRET}
           privateKey: ${INTEGRATION_GITHUB_PRIVATE_KEY}
-
-#proxy:
-#  '/circleci/api':
-#    target: https://circleci.com/api/v1.1
-#    headers:
-#      Circle-Token: ${CIRCLECI_AUTH_TOKEN}
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
@@ -129,11 +122,6 @@ catalog:
       target: https://github.com/sourcefuse/arc-mono-repo-infra-template/blob/main/templates/template.yaml
       rules:
         - allow: [ Template ]
-
-    - type: url
-      target: https://github.com/sourcefuse/refarch-devops-infra/blob/main/catalog-info.yaml
-      rules:
-        - allow: [ Component ]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-refarch-cloudfront/blob/main/catalog-info.yaml

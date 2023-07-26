@@ -34,7 +34,7 @@ import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import { UserSettingsPage } from '@backstage/plugin-user-settings';
 import { apis } from './apis';
 import { entityPage } from './components/catalog/EntityPage';
-import { CustomCatalogPage } from './components/catalog/CustomCatalogIndexPage';
+// import { CustomCatalogPage } from './components/catalog/CustomCatalogIndexPage';
 import { searchPage } from './components/search/SearchPage';
 import { Root } from './components/Root';
 
@@ -97,7 +97,7 @@ const customTheme = createTheme({
 });
 
 export const createCustomThemeOverrides = (
-  theme: BackstageTheme,
+  // theme: BackstageTheme,
 ): BackstageOverrides => {
   return {
     BackstageHeader: {
@@ -236,7 +236,8 @@ const customfinalTheme: BackstageTheme = {
     // overrides that Backstage applies to `material-ui` components
     ...lightTheme.overrides,
     // custom overrides, either to `material-ui` or Backstage components.
-    ...createCustomThemeOverrides(lightTheme),
+    // ...createCustomThemeOverrides(lightTheme),
+    ...createCustomThemeOverrides(),
   },
 };
 
