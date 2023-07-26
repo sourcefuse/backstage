@@ -9197,13 +9197,6 @@ atomic-sleep@^1.0.0:
   resolved "https://registry.yarnpkg.com/atomic-sleep/-/atomic-sleep-1.0.0.tgz#eb85b77a601fc932cfe432c5acd364a9e2c9075b"
   integrity sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ==
 
-auto-parse@^1.3.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/auto-parse/-/auto-parse-1.8.0.tgz#1164051c832d5574e8eb6a18d3a37a278fe61e72"
-  integrity sha512-Uri4uC+K5cSi5hjM4snFrqPrjqUpwxeSW5EMTPvN7Ju3PlDzmXXDr5tjdzxPvvwgT3J7bmMDJ3Rm625nbrc72A==
-  dependencies:
-    typpy "2.3.11"
-
 autolinker@^3.11.0:
   version "3.16.2"
   resolved "https://registry.yarnpkg.com/autolinker/-/autolinker-3.16.2.tgz#6bb4f32432fc111b65659336863e653973bfbcc9"
@@ -12090,21 +12083,6 @@ dot-prop@^6.0.1:
   dependencies:
     is-obj "^2.0.0"
 
-dotenv-extended@^2.9.0:
-  version "2.9.0"
-  resolved "https://registry.yarnpkg.com/dotenv-extended/-/dotenv-extended-2.9.0.tgz#1e44a018f90ee88c066273cd855e3095c7e781e5"
-  integrity sha512-MKc4WCqZj6Abx4rpDbQ9LsuBJldRLxLgFkY5qE+4JM7hXVYT/v8zyWGgnBeDjSOGzEecWOFPlosNpxfB9YnsCw==
-  dependencies:
-    auto-parse "^1.3.0"
-    camelcase "^5.3.1"
-    cross-spawn "^7.0.1"
-    dotenv "^8.2.0"
-
-dotenv@^8.2.0:
-  version "8.6.0"
-  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.6.0.tgz#061af664d19f7f4d8fc6e4ff9b584ce237adcb8b"
-  integrity sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==
-
 drange@^1.0.2:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/drange/-/drange-1.1.1.tgz#b2aecec2aab82fcef11dbbd7b9e32b83f8f6c0b8"
@@ -13639,13 +13617,6 @@ function-bind@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/function-bind/-/function-bind-1.1.1.tgz#a56899d3ea3c9bab874bb9773b7c5ede92f4895d"
   integrity sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==
-
-function.name@^1.0.3:
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/function.name/-/function.name-1.0.13.tgz#eef045abc4b5ff4e3e9d001a53ce14e090c971c6"
-  integrity sha512-mVrqdoy5npWZyoXl4DxCeuVF6delDcQjVS9aPdvLYlBxtMTZDR2B5GVEQEoM1jJyspCqg3C0v4ABkLE7tp9xFA==
-  dependencies:
-    noop6 "^1.0.1"
 
 function.prototype.name@^1.1.5:
   version "1.1.5"
@@ -18685,11 +18656,6 @@ node-releases@^2.0.12:
   version "2.0.12"
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.12.tgz#35627cc224a23bfb06fb3380f2b3afaaa7eb1039"
   integrity sha512-QzsYKWhXTWx8h1kIvqfnC++o0pEmpRQA/aenALsL2F4pqNVr7YzcdMlDij5WBnwftRbJCNJL/O7zdKaxKPHqgQ==
-
-noop6@^1.0.1:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/noop6/-/noop6-1.0.9.tgz#8749944c15c09f2cd2d562ac24f5a8341762a950"
-  integrity sha512-DB3Hwyd89dPr5HqEPg3YHjzvwh/mCqizC1zZ8vyofqc+TQRyPDnT4wgXXbLGF4z9YAzwwTLi8pNLhGqcbSjgkA==
 
 nopt@^4.0.1:
   version "4.0.3"
@@ -24280,13 +24246,6 @@ typescript@~5.0.0:
   version "5.0.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.0.4.tgz#b217fd20119bd61a94d4011274e0ab369058da3b"
   integrity sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==
-
-typpy@2.3.11:
-  version "2.3.11"
-  resolved "https://registry.yarnpkg.com/typpy/-/typpy-2.3.11.tgz#21a0d22c96fb646306e08b6c669ad43608e1b3b9"
-  integrity sha512-Jh/fykZSaxeKO0ceMAs6agki9T5TNA9kiIR6fzKbvafKpIw8UlNlHhzuqKyi5lfJJ5VojJOx9tooIbyy7vHV/g==
-  dependencies:
-    function.name "^1.0.3"
 
 uc.micro@^1.0.1, uc.micro@^1.0.5:
   version "1.0.6"

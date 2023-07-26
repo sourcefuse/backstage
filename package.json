@@ -61,7 +61,5 @@
       "path": "cz-format-extension"
     }
   },
-  "dependencies": {
-    "dotenv-extended": "^2.9.0"
-  }
+  "dependencies": {}
 }
