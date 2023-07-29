@@ -1,7 +1,8 @@
-# Backstage override configuration for your local development environment
 app:
   title: SourceFuse Backstage
   baseUrl: ${BASE_URL}
+  listen:
+    host: 0.0.0.0
 
 organization:
   name: SourceFuse
@@ -44,10 +45,23 @@ backend:
 #    - host: github.com
 #      token: ${GITHUB_TOKEN}
 
+# TODO: hook up to secrets manager/SSM
 integrations:
   github:
     - host: github.com
-      token: ${GITHUB_TOKEN}
+      apps:
+        - appId: ${INTEGRATION_GITHUB_APP_ID}
+          webhookUrl: ${INTEGRATION_GITHUB_WEBHOOK_URL}
+          clientId: ${INTEGRATION_GITHUB_CLIENT_ID}
+          clientSecret: ${INTEGRATION_GITHUB_CLIENT_SECRET}
+          webhookSecret: ${INTEGRATION_GITHUB_WEBHOOK_SECRET}
+          privateKey: ${INTEGRATION_GITHUB_PRIVATE_KEY}
+
+#proxy:
+#  '/circleci/api':
+#    target: https://circleci.com/api/v1.1
+#    headers:
+#      Circle-Token: ${CIRCLECI_AUTH_TOKEN}
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
@@ -66,8 +80,8 @@ auth:
   providers:
     github:
       development:
-        clientId: ${GITHUB_CLIENT_ID}
-        clientSecret: ${GITHUB_CLIENT_SECRET}
+        clientId: ${AUTH_GITHUB_CLIENT_ID}
+        clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
 
 scaffolder:
 # see https://backstage.io/docs/features/software-templates/configuration for software template options
@@ -118,16 +132,18 @@ catalog:
         - allow: [ Template ]
 
     - type: url
+      target: https://github.com/sourcefuse/refarch-devops-infra/blob/main/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+
+    - type: url
       target: https://github.com/sourcefuse/terraform-aws-refarch-cloudfront/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
-      tags: [Backend]
-
     - type: url
       target: https://github.com/sourcefuse/terraform-k8s-app/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
-      tags: [Backend]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-ref-arch-bootstrap/blob/main/catalog-info.yaml
@@ -145,7 +161,7 @@ catalog:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-sourceloop-apps/blob/main/catalog-info.yml
+      target: https://github.com/sourcefuse/terraform-sourceloop-apps/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
 
@@ -188,3 +204,8 @@ catalog:
       target: https://github.com/sourcefuse/terraform-aws-refarch-opensearch/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
+########################################################################################################################
+## KEEP THIS COMMENTED OUT
+########################################################################################################################
+#    - type: github-discovery
+#      target: https://github.com/sourcefuse
