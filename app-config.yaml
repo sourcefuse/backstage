@@ -94,7 +94,7 @@ catalog:
         #        filters:
         #          branch: 'main' # string
         #          repository: '.*' # Regex
-        validateLocationsExist: false # optional boolean
+        validateLocationsExist: true # optional boolean
   rules:
     - allow: [ Component, System, API, Group, User, Resource, Location ]
   locations:
