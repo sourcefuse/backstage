@@ -23,7 +23,6 @@ RUN yarn install --frozen-lockfile --network-timeout 600000 && rm -rf "$(yarn ca
 COPY . .
 
 RUN yarn tsc
-RUN #yarn --cwd packages/backend backstage-cli backend:bundle --build-dependencies
 RUN yarn --cwd packages/backend backstage-cli package build
 
 # Stage 3 - Build the actual backend image and install production dependencies
