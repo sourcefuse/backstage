@@ -31,7 +31,7 @@ export default async function createPlugin(
             logger: env.logger,
             // optional: alternatively, use scheduler with schedule defined in app-config.yaml
             schedule: env.scheduler.createScheduledTaskRunner({
-                frequency: { minutes: 30 },
+                frequency: { minutes: 1440 },
                 timeout: { minutes: 3 },
             }),
             // optional: alternatively, use schedule
