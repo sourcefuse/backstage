@@ -204,6 +204,10 @@ catalog:
       target: https://github.com/sourcefuse/terraform-aws-refarch-opensearch/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
+    - type: url
+      target: https://github.com/sourcefuse/arc-api-backstage-templates/blob/main/templates/microservices-monorepo-template.yaml
+      rules:
+        - allow: [Template]
 ########################################################################################################################
 ## KEEP THIS COMMENTED OUT
 ########################################################################################################################
