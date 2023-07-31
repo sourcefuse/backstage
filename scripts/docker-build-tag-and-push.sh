@@ -5,14 +5,14 @@ set -e
 # optional
 : "${AWS_REGION:=us-east-1}"
 : "${DOCKER_COMPOSE_FILE:=./docker-compose.yml}"
-: "${ENVIRONMENT:=dev}"
+: "${ENVIRONMENT:=poc}"
 
 ## required
 : "${AWS_ACCOUNT_ID:-$AWS_ACCOUNT_ID}"
 : "${IMAGE_TAG:-$IMAGE_TAG}"
 
 ECR_REGISTRY_ENDPOINT="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
-IMAGE_NAME="$ECR_REGISTRY_ENDPOINT/sf-refarch-$ENVIRONMENT-sourcefuse-backstage"
+IMAGE_NAME="$ECR_REGISTRY_ENDPOINT/arc-$ENVIRONMENT-sourcefuse-backstage"
 
 echo "Account: $AWS_ACCOUNT_ID"
 
