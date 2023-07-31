@@ -1,4 +1,4 @@
-import { createTemplateAction } from '@backstage/plugin-scaffolder-backend';
+import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
 import { container } from '../utils/container';
 import { WorkerPool } from 'workerpool';
 import { POOL } from '../keys';
@@ -58,7 +58,7 @@ export function createMicroserviceAction() {
           'microservice',
           [name, ctx.workspacePath, services, databaseType, sourceloop, facade],
           {
-            on: payload => {
+            on: (payload: {[x: string]: unknown}) => {
               ctx.logger.info(payload.message);
             },
           },

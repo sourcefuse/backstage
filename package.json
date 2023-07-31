@@ -3,26 +3,27 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": "14 || 16"
+    "node": "16 || 18"
   },
   "scripts": {
     "dev": "concurrently \"yarn start\" \"yarn start-backend\"",
     "start": "yarn workspace app start",
     "start-backend": "yarn workspace backend start",
-    "build": "lerna run build",
+    "build:backend": "yarn workspace backend build",
+    "build:all": "backstage-cli repo build --all",
     "build-image": "yarn workspace backend build-image",
     "tsc": "tsc",
     "tsc:full": "tsc --skipLibCheck false --incremental false",
-    "clean": "backstage-cli clean && lerna run clean",
-    "diff": "lerna run diff --",
-    "test": "backstage-cli test",
-    "test:all": "lerna run test -- --coverage",
-    "lint": "lerna run lint --since origin/master --",
-    "lint:all": "lerna run lint --",
+    "clean": "backstage-cli repo clean",
+    "test": "backstage-cli repo test",
+    "test:all": "backstage-cli repo test --coverage",
+    "lint": "backstage-cli repo lint --since origin/main",
+    "lint:all": "backstage-cli repo lint",
     "prettier:check": "prettier --check .",
     "create-plugin": "backstage-cli create-plugin --scope internal",
     "remove-plugin": "backstage-cli remove-plugin",
-    "setup-hooks": "husky install"
+    "setup-hooks": "husky install",
+    "new": "backstage-cli new --scope internal"
   },
   "workspaces": {
     "packages": [
@@ -31,7 +32,7 @@
     ]
   },
   "devDependencies": {
-    "@backstage/cli": "^0.11.0",
+    "@backstage/cli": "^0.22.7",
     "@commitlint/cli": "^17.0.0",
     "@commitlint/config-conventional": "^17.0.0",
     "@commitlint/config-lerna-scopes": "^17.0.0",
@@ -41,7 +42,9 @@
     "cz-format-extension": "^1.5.0",
     "husky": "^8.0.1",
     "lerna": "^4.0.0",
-    "prettier": "^2.3.2"
+    "node-gyp": "^9.0.0",
+    "prettier": "^2.3.2",
+    "typescript": "~5.0.0"
   },
   "prettier": "@spotify/prettier-config",
   "lint-staged": {
@@ -57,5 +60,6 @@
     "commitizen": {
       "path": "cz-format-extension"
     }
-  }
+  },
+  "dependencies": {}
 }
