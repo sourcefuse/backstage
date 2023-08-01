@@ -260,3 +260,7 @@ catalog:
       target: https://github.com/sourcefuse/telemed-app-ui/blob/main/template.yaml
       rules:
         - allow: [ Template ]
+    - type: url
+      target: https://github.com/sourcefuse/telemed-app-api/blob/main/template.yaml
+      rules:
+        - allow: [ Template ]
