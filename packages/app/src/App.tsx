@@ -2,14 +2,12 @@ import React from 'react';
 import { Navigate, Route } from 'react-router-dom';
 import './App.css';
 import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
-import {
-  createTheme,
-  lightTheme,
-  BackstageTheme,
-} from '@backstage/theme';
-import CssBaseline from "@material-ui/core/CssBaseline";
+import { createTheme, lightTheme, BackstageTheme } from '@backstage/theme';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { BackstageOverrides } from '@backstage/core-components';
+import loginBg from './assets/images/login-bg.jpg';
+import sfLogoMinimal from './assets/images/sf-minimal-logo.png';
 
 import {
   CatalogEntityPage,
@@ -38,14 +36,19 @@ import { entityPage } from './components/catalog/EntityPage';
 import { searchPage } from './components/search/SearchPage';
 import { Root } from './components/Root';
 
-import { AlertDisplay, OAuthRequestDialog, SignInProviderConfig, SignInPage } from '@backstage/core-components';
+import {
+  AlertDisplay,
+  OAuthRequestDialog,
+  SignInProviderConfig,
+  SignInPage,
+} from '@backstage/core-components';
 import { createApp } from '@backstage/app-defaults';
 import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
-import {githubAuthApiRef} from '@backstage/core-plugin-api';
-
+import { githubAuthApiRef } from '@backstage/core-plugin-api';
+import { Box } from '@material-ui/core';
 
 /* My Custom Theme */
 const customTheme = createTheme({
@@ -96,9 +99,8 @@ const customTheme = createTheme({
   defaultPageTheme: 'home',
 });
 
-export const createCustomThemeOverrides = (
-  // theme: BackstageTheme,
-): BackstageOverrides => {
+export const createCustomThemeOverrides = (): // theme: BackstageTheme,
+BackstageOverrides => {
   return {
     BackstageHeader: {
       header: {
@@ -118,73 +120,73 @@ export const createCustomThemeOverrides = (
         marginTop: 0,
       },
     },
-    BackstageContentHeader:{
-      title:{
+    BackstageContentHeader: {
+      title: {
         fontSize: '20px',
       },
     },
-    BackstageTableToolbar:{
-      root:{
+    BackstageTableToolbar: {
+      root: {
         padding: '16px 0px 16px 20px',
       },
     },
-    BackstageSidebar:{
-      drawer:{
+    BackstageSidebar: {
+      drawer: {
         background: '#FFFFFF',
         borderRight: '1px solid #D1D1D1',
       },
     },
-    MuiPaper:{
-      elevation1:{
+    MuiPaper: {
+      elevation1: {
         boxShadow: '0px 0px 3px 1px rgba(0,0,0,0.2)',
       },
     },
-    MuiTypography:{
-      body1:{
+    MuiTypography: {
+      body1: {
         fontSize: '0.875rem',
       },
-      h5:{
+      h5: {
         fontSize: '16px',
       },
     },
-    MuiFormLabel:{
-      root:{
+    MuiFormLabel: {
+      root: {
         fontSize: '13px!important',
         lineHeight: '17.7px',
         fontWeight: 'lighter',
       },
     },
-    MuiSelect:{
-      select:{
+    MuiSelect: {
+      select: {
         padding: '7px 26px 7px 12px!important',
-        formLabel:{
+        formLabel: {
           fontWeight: 'lighter',
         },
       },
     },
-    MuiTableCell:{
-      root:{
+    MuiTableCell: {
+      root: {
         whiteSpace: 'nowrap',
       },
     },
-    BackstageSelect:{
-      root:{
-        formLabel:{
+    BackstageSelect: {
+      root: {
+        formLabel: {
           fontWeight: 'lighter',
         },
       },
     },
-    BackstageSidebarItem:{
-      root:{
+    BackstageSidebarItem: {
+      root: {
         textDecoration: 'none',
         color: '#222222',
       },
-      selected:{
+      selected: {
         position: 'relative',
         borderLeft: 'none!important',
         backgroundColor: '#F6F6F6',
         color: '#E81823!important',
-        '&:after':{
+        '&:after': {
           content: '""',
           width: '2px',
           height: '100%',
@@ -194,7 +196,7 @@ export const createCustomThemeOverrides = (
           right: '0px',
         },
       },
-      iconContainer:{
+      iconContainer: {
         marginLeft: '0px!important',
       },
       label: {
@@ -202,7 +204,7 @@ export const createCustomThemeOverrides = (
         fontWeight: 400,
         lineHeight: '13.4px',
       },
-      buttonItem:{
+      buttonItem: {
         width: '90%!important',
         margin: '0 auto 20px',
         border: '1px solid #D1D1D1',
@@ -217,14 +219,14 @@ export const createCustomThemeOverrides = (
       contained: {
         boxShadow: 'none',
       },
-      containedPrimary:{
-        '&:hover':{
+      containedPrimary: {
+        '&:hover': {
           backgroundColor: '#0057BE',
         },
-        '&:active':{
+        '&:active': {
           backgroundColor: '#004899',
         },
-      }
+      },
     },
   };
 };
@@ -242,21 +244,77 @@ const customfinalTheme: BackstageTheme = {
 };
 
 const githubProvider: SignInProviderConfig = {
-    id: 'github-auth-provider',
-    title: 'GitHub',
-    message: 'Sign in using GitHub',
-    apiRef: githubAuthApiRef,
+  id: 'github-auth-provider',
+  title: 'GitHub',
+  message: 'Sign in using GitHub',
+  apiRef: githubAuthApiRef,
 };
+
+const css = `
+body{
+  background-image: url(${loginBg});
+  background-size: cover;
+  background-position: center;
+}
+.sign-in-box > main{
+  align-items: center;
+  min-width: 400px;
+  height: auto;
+}
+
+.sign-in-box > main > header{
+  display: none;
+}
+
+`;
 
 const app = createApp({
   apis,
   components: {
     SignInPage: props => (
-        <SignInPage
-            {...props}
-            auto
-            provider={githubProvider}
-        />
+      <Box
+        style={{
+          display: 'grid',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+        className="sign-in-page"
+      >
+        <style>{css}</style>
+        <Box
+          style={{
+            display: 'grid',
+            alignSelf: 'center',
+            padding: '3rem',
+            boxShadow:
+              'rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px',
+            background: 'rgba(255,255,255,0.5)',
+            borderRadius: '15px',
+            justifyContent: 'center',
+          }}
+          className="sign-in-box"
+        >
+          <Box
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div>
+              <img
+                src={sfLogoMinimal}
+                width={60}
+                alt="SourceFuse Backstage"
+                style={{ margin: '0 auto' }}
+              />
+            </div>
+            <h1>BackStage</h1>
+          </Box>
+          <SignInPage {...props} provider={githubProvider} />
+        </Box>
+      </Box>
     ),
   },
   bindRoutes({ bind }) {
@@ -274,24 +332,26 @@ const app = createApp({
       catalogIndex: catalogPlugin.routes.catalogIndex,
     });
   },
-  themes: [{
-    id: 'custom-theme',
-    title: 'My Custom Theme',
-    variant: 'light',
-    Provider: ({ children }) => (
-      <ThemeProvider theme={customfinalTheme}>
-        <CssBaseline />
-        {children}
-      </ThemeProvider>
-    ),
-  }]
+  themes: [
+    {
+      id: 'custom-theme',
+      title: 'My Custom Theme',
+      variant: 'light',
+      Provider: ({ children }) => (
+        <ThemeProvider theme={customfinalTheme}>
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
+      ),
+    },
+  ],
 });
 
 const routes = (
   <FlatRoutes>
     <Route path="/" element={<Navigate to="catalog" />} />
     <Route path="/catalog" element={<CatalogIndexPage />} />
-      {/* <CustomCatalogPage />
+    {/* <CustomCatalogPage />
     </Route> */}
     <Route
       path="/catalog/:namespace/:kind/:name"
