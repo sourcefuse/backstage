@@ -197,16 +197,61 @@ catalog:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-ref-arch-waf/blob/main/catalog-info.yml
-      rules:
-        - allow: [ Component ]
-
-    - type: url
       target: https://github.com/sourcefuse/terraform-aws-cloud-custodian/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-refarch-opensearch/blob/main/catalog-info.yml
+      rules:
+        - allow: [ Component ]
+
+    - type: url
+      target: https://github.com/sourcefuse/loopback4-vault/blob/master/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+
+    - type: url
+      target: https://github.com/sourcefuse/loopback4-s3/blob/master/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+
+    - type: url
+      target: https://github.com/sourcefuse/loopback4-audit-log/blob/master/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+
+    - type: url
+      target: https://github.com/sourcefuse/loopback4-notifications/blob/master/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+
+    - type: url
+      target: https://github.com/sourcefuse/loopback4-helmet/blob/master/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+
+    - type: url
+      target: https://github.com/sourcefuse/loopback4-soft-delete/blob/master/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+
+    - type: url
+      target: https://github.com/sourcefuse/loopback4-kafka-client/blob/master/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+
+    - type: url
+      target: https://github.com/sourcefuse/loopback4-ratelimiter/blob/master/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+
+    - type: url
+      target: https://github.com/sourcefuse/loopback4-authorization/blob/master/catalog-info.yaml
+      rules:
+        - allow: [ Component ]
+
+    - type: url
+      target: https://github.com/sourcefuse/loopback4-authentication/blob/master/catalog-info.yaml
       rules:
         - allow: [ Component ]
