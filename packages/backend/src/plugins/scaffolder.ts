@@ -7,6 +7,7 @@ import { createMicroserviceAction } from './sourceloop-ms';
 import { createScaffoldAction } from './sourceloop-scaffold';
 // import { DockerContainerRunner } from '@backstage/backend-common';
 import { ScmIntegrations } from '@backstage/integration';
+import { createNewFileAction } from './create-new-file.action';
 
 export default async function createPlugin(
   env: PluginEnvironment,
@@ -34,6 +35,7 @@ export default async function createPlugin(
         reader: env.reader,
         integrations,
       }),
+      createNewFileAction(),
     ],
   });
 }
