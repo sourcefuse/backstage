@@ -255,3 +255,8 @@ catalog:
       target: https://github.com/sourcefuse/loopback4-authentication/blob/master/catalog-info.yaml
       rules:
         - allow: [ Component ]
+
+    - type: url
+      target: https://github.com/sourcefuse/telemed-app-ui/blob/main/template.yaml
+      rules:
+        - allow: [ Template ]
