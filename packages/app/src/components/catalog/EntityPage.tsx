@@ -55,6 +55,12 @@ import {
 
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
 import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
+import { EntityTeamPullRequestsCard } from '@backstage/plugin-github-pull-requests-board';
+import {
+  EntityGithubPullRequestsContent,
+  EntityGithubPullRequestsOverviewCard,
+} from '@roadiehq/backstage-plugin-github-pull-requests';
+
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -127,6 +133,9 @@ const overviewContent = (
     <Grid item md={8} xs={12}>
       <EntityHasSubcomponentsCard variant="gridItem" />
     </Grid>
+    <Grid item md={12}>
+      <EntityGithubPullRequestsOverviewCard />
+    </Grid>
   </Grid>
 );
 
@@ -165,6 +174,14 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
     </EntityLayout.Route>
+    <EntityLayout.Route
+      path="/pull-requests"
+      title="Pull Requests"
+      // Uncomment the line below if you'd like to only show the tab on entities with the correct annotations already set
+      // if={isGithubPullRequestsAvailable}
+    >
+        <EntityGithubPullRequestsContent />
+      </EntityLayout.Route>
   </EntityLayout>
 );
 
@@ -292,6 +309,9 @@ const groupPage = (
         </Grid>
         <Grid item xs={12}>
           <EntityMembersListCard />
+        </Grid>
+        <Grid item xs={12}>
+          <EntityTeamPullRequestsCard />
         </Grid>
       </Grid>
     </EntityLayout.Route>
