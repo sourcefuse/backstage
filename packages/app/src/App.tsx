@@ -49,6 +49,7 @@ import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
 import { githubAuthApiRef } from '@backstage/core-plugin-api';
 import { Box } from '@material-ui/core';
+import { EntitySnykContent } from 'backstage-plugin-snyk';
 
 /* My Custom Theme */
 const customTheme = createTheme({
@@ -374,6 +375,7 @@ const routes = (
       path="/tech-radar"
       element={<TechRadarPage width={1500} height={800} />}
     />
+    <Route path="/snyk" element={<EntitySnykContent />}/>
     <Route
       path="/catalog-import"
       element={

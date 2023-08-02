@@ -73,6 +73,13 @@ auth:
 scaffolder:
 # see https://backstage.io/docs/features/software-templates/configuration for software template options
 
+proxy:
+  '/snyk':
+    target: https://api.snyk.io/
+    headers:
+      User-Agent: tech-services/backstage-plugin/1.0
+      Authorization: token ${SNYK_TOKEN}
+
 catalog:
   providers:
     github:
