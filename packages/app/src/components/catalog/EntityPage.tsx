@@ -60,6 +60,7 @@ import {
   EntityGithubPullRequestsContent,
   EntityGithubPullRequestsOverviewCard,
 } from '@roadiehq/backstage-plugin-github-pull-requests';
+import { SnykOverview, EntitySnykContent, isSnykAvailable } from 'backstage-plugin-snyk';
 
 
 const techdocsContent = (
@@ -99,6 +100,13 @@ const cicdContent = (
 
 const entityWarningContent = (
   <>
+    <EntitySwitch>
+      <EntitySwitch.Case if={isSnykAvailable}>
+        <Grid item md={6}>
+          <SnykOverview />
+        </Grid>
+      </EntitySwitch.Case>
+    </EntitySwitch>
     <EntitySwitch>
       <EntitySwitch.Case if={isOrphan}>
         <Grid item xs={12}>
@@ -173,6 +181,9 @@ const serviceEntityPage = (
 
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
+    </EntityLayout.Route>
+    <EntityLayout.Route path="/snyk" title="Security">
+      <EntitySnykContent />
     </EntityLayout.Route>
     <EntityLayout.Route
       path="/pull-requests"

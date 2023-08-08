@@ -55,5 +55,5 @@ docker-compose up --build
 
 You can also specify the environment file, just be sure to handle the formatting of the RSA private key correctly.
 ```shell
-docker-compose --env_file=.env.local up --build 
+docker-compose --env-file=.env.local up --build 
 ```
