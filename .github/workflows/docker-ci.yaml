@@ -14,8 +14,7 @@ jobs:
     name: build-image
     runs-on:
       - self-hosted
-      - refarch
-      - dev
+      - arc
 
     steps:
       - name: Checkout
