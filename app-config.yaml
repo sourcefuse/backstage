@@ -1,7 +1,7 @@
 # Backstage override configuration for your local development environment
 app:
   title: SourceFuse Backstage
-  baseUrl: ${BASE_URL}
+  baseUrl: ${FRONTEND_BASE_URL}
 
 organization:
   name: SourceFuse
@@ -20,7 +20,7 @@ backend:
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
-    origin: ${BASE_URL}
+    origin: ${FRONTEND_BASE_URL}
     methods: [ GET, POST, PUT, DELETE ]
     credentials: true
   database:
@@ -43,6 +43,7 @@ integrations:
   github:
     - host: github.com
       token: ${GITHUB_TOKEN}
+      orgs: [ sourcefuse ]
 #      apps:
 #        - appId: ${INTEGRATION_GITHUB_APP_ID}
 #          webhookUrl: ${INTEGRATION_GITHUB_WEBHOOK_URL}
