@@ -21,6 +21,7 @@ npm run build:all
 Create a file named `.env.local`. Populate the values below with the ones appropriate for your GitHub organization.
 ```text
 BASE_URL='http://localhost:7007'
+FRONTEND_BASE_URL='http://localhost:3000'
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=changeme
 AUTH_GITHUB_CLIENT_ID=GitHub app client_id
@@ -31,6 +32,7 @@ PGADMIN_PORT=5050
 PGADMIN_LISTEN_ADDRESS=0.0.0.0
 INTEGRATION_GITHUB_APP_ID=GitHub app App ID
 INTEGRATION_GITHUB_WEBHOOK_URL=https://smee.io/pvDM8sHcDxmhMLvfxax
+ENABLE_GITHUB_SYNC=Set true or false if you want to sync with github
 INTEGRATION_GITHUB_CLIENT_ID=GitHub app client_id
 INTEGRATION_GITHUB_CLIENT_SECRET=GitHub app client secret
 INTEGRATION_GITHUB_WEBHOOK_SECRET=GitHub app webhook secret
