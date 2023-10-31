@@ -104,15 +104,8 @@ export const createCustomThemeOverrides = (): // theme: BackstageTheme,
 BackstageOverrides => {
   return {
     BackstageHeader: {
-      header: {
-        padding: '14px 24px',
-        boxShadow: 'none',
-        backgroundImage: 'none',
-        // borderBottom: `4px solid ${theme.palette.primary.main}`,
-      },
       title: {
         fontSize: '30px',
-        color: '#000000',
       },
       subtitle: {
         fontSize: '12px',
