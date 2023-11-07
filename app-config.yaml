@@ -148,7 +148,7 @@ catalog:
         - allow: [ Template ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-refarch-cloudfront/blob/main/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-arc-cloudfront/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
       tags: [ Backend ]
@@ -165,12 +165,12 @@ catalog:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-ref-arch-db/blob/main/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-arc-db/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-refarch-tags/blob/main/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-arc-tags/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
 
@@ -180,37 +180,37 @@ catalog:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-refarch-cloudfront/blob/main/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-arc-cloudfront/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-refarch-ecs/blob/main/catalog-info.yaml
+      target: https://github.com/sourcefuse/terraform-aws-arc-ecs/blob/main/catalog-info.yaml
       rules:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-ref-arch-network/blob/main/catalog-info.yml
+      target: https://github.com/sourcefuse/terraform-aws-arc-network/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-ref-arch-eks/blob/main/catalog-info.yml
+      target: https://github.com/sourcefuse/terraform-aws-arc-eks/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-module-aws-bootstrap/blob/main/catalog-info.yml
+      target: https://github.com/sourcefuse/terraform-aws-arc-bootstrap/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-cloud-custodian/blob/main/catalog-info.yml
+      target: https://github.com/sourcefuse/terraform-aws-arc-cloud-custodian/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 
     - type: url
-      target: https://github.com/sourcefuse/terraform-aws-refarch-opensearch/blob/main/catalog-info.yml
+      target: https://github.com/sourcefuse/terraform-aws-arc-opensearch/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 
