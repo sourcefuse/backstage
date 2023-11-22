@@ -21,6 +21,7 @@ services:
       INTEGRATION_GITHUB_PRIVATE_KEY: ${INTEGRATION_GITHUB_PRIVATE_KEY-secret}
       SNYK_TOKEN: ${SNYK_TOKEN-secret}
       BASE_URL: ${BASE_URL-http://localhost:7007}
+      ENABLE_GITHUB_SYNC: "true"
     ports:
       - '7007:7007'
     networks:
