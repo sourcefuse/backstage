@@ -1,5 +1,5 @@
 # Stage 1 - Create yarn install skeleton layer
-FROM node:16 AS packages
+FROM node:18 AS packages
 
 WORKDIR /app
 COPY package.json yarn.lock ./
@@ -11,9 +11,10 @@ COPY packages packages
 RUN find packages \! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} \+
 
 # Stage 2 - Install dependencies and build packages
-FROM node:16 AS build
+FROM node:18 AS build
 
 ARG BASE_URL="http://localhost:7007"
+ARG FRONTEND_BASE_URL="http://localhost:3000"
 
 WORKDIR /app
 COPY --from=packages /app .
@@ -26,7 +27,7 @@ RUN yarn tsc
 RUN yarn --cwd packages/backend backstage-cli package build
 
 # Stage 3 - Build the actual backend image and install production dependencies
-FROM node:16-buster-slim
+FROM node:18-buster-slim
 
 WORKDIR /app
 
