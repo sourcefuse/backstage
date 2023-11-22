@@ -1,7 +1,7 @@
 # Backstage override configuration for your local development environment
 app:
   title: SourceFuse Backstage
-  baseUrl: ${FRONTEND_BASE_URL}
+  baseUrl: ${BASE_URL}
 
 organization:
   name: SourceFuse
@@ -41,16 +41,16 @@ backend:
 
 integrations:
   github:
-    - host: github.com
-      token: ${GITHUB_TOKEN}
-      orgs: [ sourcefuse ]
-#      apps:
-#        - appId: ${INTEGRATION_GITHUB_APP_ID}
-#          webhookUrl: ${INTEGRATION_GITHUB_WEBHOOK_URL}
-#          clientId: ${INTEGRATION_GITHUB_CLIENT_ID}
-#          clientSecret: ${INTEGRATION_GITHUB_CLIENT_SECRET}
-#          webhookSecret: ${INTEGRATION_GITHUB_WEBHOOK_SECRET}
-#          privateKey: ${INTEGRATION_GITHUB_PRIVATE_KEY}
+#    - host: github.com
+#      token: ${GITHUB_TOKEN}
+#      orgs: [ sourcefuse ]
+    apps:
+      - appId: ${INTEGRATION_GITHUB_APP_ID}
+        webhookUrl: ${INTEGRATION_GITHUB_WEBHOOK_URL}
+        clientId: ${INTEGRATION_GITHUB_CLIENT_ID}
+        clientSecret: ${INTEGRATION_GITHUB_CLIENT_SECRET}
+        webhookSecret: ${INTEGRATION_GITHUB_WEBHOOK_SECRET}
+        privateKey: ${INTEGRATION_GITHUB_PRIVATE_KEY}
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
@@ -92,7 +92,7 @@ catalog:
 #        filters:
 #          branch: 'main' # string
 #          repository: '.*' # Regex
-#        schedule: # optional; same options as in TaskScheduleDefinition
+#        schedule: # optional; same options as in TaskScheduleDefinitionll
 #          # supports cron, ISO duration, "human duration" as used in code
 #          frequency: { minutes: 1440 }
 #          # supports ISO duration, "human duration" as used in code
