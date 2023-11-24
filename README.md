@@ -21,7 +21,7 @@ npm run build:all
 Create a file named `.env.local`. Populate the values below with the ones appropriate for your GitHub organization.
 ```text
 BASE_URL='http://localhost:7007'
-FRONTEND_BASE_URL='http://localhost:7007'
+FRONTEND_BASE_URL='http://localhost:3000'
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=changeme
 AUTH_GITHUB_CLIENT_ID=GitHub app client_id
