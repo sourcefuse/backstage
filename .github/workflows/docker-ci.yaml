@@ -20,16 +20,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.SF_REF_ARCH_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.SF_REF_ARCH_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.SF_REF_ARCH_AWS_REGION }}
+#      - name: Configure AWS Credentials
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          aws-access-key-id: ${{ secrets.SF_REF_ARCH_AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.SF_REF_ARCH_SECRET_ACCESS_KEY }}
+#          aws-region: ${{ secrets.SF_REF_ARCH_AWS_REGION }}
 
-      - name: Build, tag, and push image to Amazon ECR
-        env:
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-        run: |
-          export IMAGE_TAG=$(cat version.json | jq -r .version)
-          ./scripts/docker-build-tag-and-push.sh
+#      - name: Build, tag, and push image to Amazon ECR
+#        env:
+#          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+#        run: |
+#          export IMAGE_TAG=$(cat version.json | jq -r .version)
+#          ./scripts/docker-build-tag-and-push.sh
+      - name: docker-compose build
+        run: docker-compose build
