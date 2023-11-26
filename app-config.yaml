@@ -1,7 +1,7 @@
 # Backstage override configuration for your local development environment
 app:
   title: SourceFuse Backstage
-  baseUrl: ${BASE_URL}
+  baseUrl: ${FRONTEND_BASE_URL}
 
 organization:
   name: SourceFuse
