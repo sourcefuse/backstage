@@ -14,6 +14,7 @@ RUN find packages \! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {
 FROM node:18 AS build
 
 ARG BASE_URL="http://localhost:7007"
+ARG FRONTEND_BASE_URL="http://localhost:7007"
 
 WORKDIR /app
 COPY --from=packages /app .
