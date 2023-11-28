@@ -43,7 +43,8 @@ export default async function createPlugin(
 
     const {processingEngine, router} = await builder.build();
     await processingEngine.start();
-    if (process.env.ENABLE_GITHUB_SYNC) {
+    const githubSyncEnv = process.env.ENABLE_GITHUB_SYNC;
+    if (githubSyncEnv && !['0', 'false', 'no', 'n', ''].includes(githubSyncEnv.toLowerCase())) {
         await gitProvider.read();
     }
     return router;
