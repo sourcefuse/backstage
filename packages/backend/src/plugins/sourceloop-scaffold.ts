@@ -1,7 +1,6 @@
 import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
-import { container } from '../utils/container';
-import { WorkerPool } from 'workerpool';
-import { POOL } from '../keys';
+
+const utils=require('../utils');
 
 export function createScaffoldAction() {
   return createTemplateAction({
@@ -36,15 +35,24 @@ export function createScaffoldAction() {
     },
     async handler(ctx: any) {
       ctx.logger.info(`Templating using Yeoman generator: ${ctx.input.name}`);
-      const pool = container.get<WorkerPool>(POOL);
-
-      await pool.exec('scaffold', [
-        ctx.input.name,
-        ctx.workspacePath,
-        ctx.input.issuePrefix,
-        ctx.input.repoUrl.owner,
-        ctx.input.description,
-      ]);
+  
+      const name= ctx.input.name;
+      const cwd=ctx.workspacePath;
+      const issuePrefix=ctx.input.issuePrefix;
+      const owner=ctx.input.repoUrl.owner;
+      const description=ctx.input.description;
+      const env = utils.getEnv(cwd, 'scaffold');
+      const originalCwd = process.cwd();
+      process.chdir(cwd);
+      await utils.runWithEnv(env, 'scaffold', [], {
+        name,
+        cwd,
+        issuePrefix,
+        owner,
+        description,
+        integrateWithBackstage: true,
+      });
+      process.chdir(originalCwd);
     },
   });
 }
