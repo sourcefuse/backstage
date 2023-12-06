@@ -31,5 +31,6 @@ docker tag sourcefuse/sourcefuse-backstage:latest $IMAGE_NAME:$IMAGE_TAG
 
 printf "\nPushing $IMAGE_NAME:$IMAGE_TAG to ECR...\n"
 docker push $IMAGE_NAME:$IMAGE_TAG
+docker push sourcefuse/sourcefuse-backstage:latest
 
 echo "::set-output name=image::$IMAGE_NAME:$IMAGE_TAG"
