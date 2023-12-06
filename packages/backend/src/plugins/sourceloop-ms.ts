@@ -1,7 +1,6 @@
 import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
-import { container } from '../utils/container';
-import { WorkerPool } from 'workerpool';
-import { POOL } from '../keys';
+
+const utils=require('../utils');
 
 export function createMicroserviceAction() {
   return createTemplateAction({
@@ -48,21 +47,64 @@ export function createMicroserviceAction() {
     },
     async handler(ctx: any) {
       const services = ctx.input.services;
-      const name = ctx.input.project;
+      const prefix = ctx.input.project;
       const databaseType = ctx.input.datasourceType;
       const sourceloop = ctx.input.sourceloop;
       const facade = ctx.input.facade;
+      const cwd=ctx.workspacePath;
       if (services) {
-        const pool = container.get<WorkerPool>(POOL);
-        await pool.exec(
-          'microservice',
-          [name, ctx.workspacePath, services, databaseType, sourceloop, facade],
-          {
-            on: (payload: {[x: string]: unknown}) => {
-              ctx.logger.info(payload.message);
-            },
-          },
-        );
+
+        const env = utils.getEnv(cwd, 'microservice');
+        const originalCwd = process.cwd();
+        process.chdir(cwd);
+        for (const service of services) {
+          if (sourceloop) {
+            ctx.logger.info(`Generating service based on ${service}`);
+            await utils.runWithEnv(env, 'microservice', [service, '-y'], {
+              uniquePrefix: prefix,
+              baseService: service,
+              datasourceType: databaseType,
+              datasourceName: 'db',
+              facade: false,
+              includeMigrations: true,
+              config: JSON.stringify({
+                applicationName: service,
+                description: `Sourceloop based ${service}`,
+                ...utils.buildOptions,
+              }),
+            });
+            ctx.logger.info('Done');
+          } else {
+            if(facade) {
+              ctx.logger.info(`Generating facade: ${service}`);
+              await utils.runWithEnv(env, 'microservice', [service.name, '-y'], {
+                uniquePrefix: prefix,
+                facade: true,
+                config: JSON.stringify({
+                  applicationName: service.name,
+                  description: `Sourceloop based ${service.name}`,
+                  ...utils.buildOptions,
+                }),
+              });
+              ctx.logger.info(`Done generating facade: ${service}`);
+            } else {
+              ctx.logger.info(`Generating microservice: ${service.name}`);
+              await utils.runWithEnv(env, 'microservice', [service.name, '-y'], {
+                uniquePrefix: prefix,
+                datasourceType: databaseType,
+                datasourceName: 'db',
+                facade: false,
+                config: JSON.stringify({
+                  applicationName: service.name,
+                  description: `Sourceloop based ${service.name}`,
+                  ...utils.buildOptions,
+                }),
+              });
+              ctx.logger.info(`Done generating microservice: ${service.name}`);
+            }
+          }
+        }
+        process.chdir(originalCwd);
         ctx.logger.info('Done generating all services.');
       }
     },
