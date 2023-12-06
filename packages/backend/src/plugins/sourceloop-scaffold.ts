@@ -1,6 +1,8 @@
 import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
 
 const utils=require('../utils');
+import { GITHUB_DOCKER_BUILD_ACTION } from '../constant';
+import { writeFile,mkdir } from 'fs';
 
 export function createScaffoldAction() {
   return createTemplateAction({
@@ -34,6 +36,7 @@ export function createScaffoldAction() {
       },
     },
     async handler(ctx: any) {
+      const { signal } = ctx;
       ctx.logger.info(`Templating using Yeoman generator: ${ctx.input.name}`);
   
       const name= ctx.input.name;
@@ -53,6 +56,13 @@ export function createScaffoldAction() {
         integrateWithBackstage: true,
       });
       process.chdir(originalCwd);
+      await mkdir(`${ctx.workspacePath}/.github/workflows`,()=>{});
+      await writeFile( 
+        `${ctx.workspacePath}/.github/workflows/build-image.yaml`,
+        GITHUB_DOCKER_BUILD_ACTION,
+        { signal },
+        _ => {},
+      );
     },
   });
 }
