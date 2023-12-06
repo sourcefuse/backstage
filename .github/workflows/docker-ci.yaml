@@ -33,5 +33,6 @@ jobs:
         run: |
           export IMAGE_TAG=$(cat version.json | jq -r .version)
           ./scripts/docker-build-tag-and-push.sh
+          
       # - name: docker-compose build
       #   run: docker-compose build
