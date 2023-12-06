@@ -29,6 +29,12 @@ docker-compose -f $DOCKER_COMPOSE_FILE build
 printf "\nTagging image $IMAGE_NAME:$IMAGE_TAG...\n"
 docker tag sourcefuse/sourcefuse-backstage:latest $IMAGE_NAME:$IMAGE_TAG
 
+aws ecr get-login-password \
+  --region $AWS_REGION \
+  | docker login \
+      --username AWS \
+      --password-stdin $ECR_REGISTRY_ENDPOINT
+
 printf "\nPushing $IMAGE_NAME:$IMAGE_TAG to ECR...\n"
 docker push $IMAGE_NAME:$IMAGE_TAG
 docker push sourcefuse/sourcefuse-backstage:latest
