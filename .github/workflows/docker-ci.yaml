@@ -28,7 +28,9 @@ jobs:
           aws-region: ${{ secrets.SF_REF_ARCH_AWS_REGION }}
           
       - name: Print Secret Value
-        run: echo "AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}"
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        run: echo "AWS_ACCOUNT_ID: $AWS_ACCOUNT_ID"
         
       - name: Build, tag, and push image to Amazon ECR
         env:
