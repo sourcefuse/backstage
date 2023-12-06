@@ -27,7 +27,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.SF_REF_ARCH_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.SF_REF_ARCH_AWS_REGION }}
           
-      - name: check
+      - name: Print Secret Value
         run: echo "AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}"
         
       - name: Build, tag, and push image to Amazon ECR
