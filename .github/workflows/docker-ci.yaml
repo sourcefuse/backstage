@@ -30,7 +30,8 @@ jobs:
       - name: Print Secret Value
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-        run: echo "AWS_ACCOUNT_ID: $AWS_ACCOUNT_ID"
+        run: |
+          echo "AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}"
         
       - name: Build, tag, and push image to Amazon ECR
         env:
