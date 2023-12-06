@@ -18,7 +18,7 @@ ARG BASE_URL="http://localhost:7007"
 WORKDIR /app
 COPY --from=packages /app .
 RUN apt-get update -y && apt-get install software-properties-common make gcc g++ -y
-RUN yarn install --frozen-lockfile --network-timeout 600000 && rm -rf "$(yarn cache dir)"
+RUN yarn install --frozen-lockfile --network-timeout 60000 && rm -rf "$(yarn cache dir)"
 
 COPY . .
 
@@ -41,7 +41,7 @@ RUN pip3 install mkdocs-techdocs-core==1.0.1
 COPY --from=build /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton.tar.gz ./
 RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
 
-RUN yarn install --frozen-lockfile --production --network-timeout 600000 && rm -rf "$(yarn cache dir)"
+RUN yarn install --frozen-lockfile --production --network-timeout 60000 && rm -rf "$(yarn cache dir)"
 
 # Copy the built packages from the build stage
 COPY --from=build /app/packages/backend/dist/bundle.tar.gz .
