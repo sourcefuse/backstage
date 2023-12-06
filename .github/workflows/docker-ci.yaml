@@ -26,7 +26,10 @@ jobs:
           aws-access-key-id: ${{ secrets.SF_REF_ARCH_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.SF_REF_ARCH_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.SF_REF_ARCH_AWS_REGION }}
-
+          
+      - name: check
+        run: echo "AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}"
+        
       - name: Build, tag, and push image to Amazon ECR
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
