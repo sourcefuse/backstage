@@ -1,6 +1,6 @@
 import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
 
-const utils=require('../utility');
+const utils=require('../utility.ts');
 
 export function createMicroserviceAction() {
   return createTemplateAction({
