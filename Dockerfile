@@ -46,7 +46,7 @@ RUN yarn install --frozen-lockfile --production --network-timeout 600000 && rm -
 
 # Copy the built packages from the build stage
 COPY --from=build /app/packages/backend/dist/bundle.tar.gz .
-COPY --from=build /app/packages/backend/src/workers /app/packages/backend/workers
+# COPY --from=build /app/packages/backend/src/workers /app/packages/backend/workers
 RUN tar xzf bundle.tar.gz && rm bundle.tar.gz
 
 # Copy any other files that we need at runtime
