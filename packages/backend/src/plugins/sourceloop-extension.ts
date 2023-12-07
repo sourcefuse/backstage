@@ -1,7 +1,7 @@
 import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
 
 
-const utils=require('../utils');
+const utils=require('../utility');
 
 export function createExtensionAction() {
   return createTemplateAction({
