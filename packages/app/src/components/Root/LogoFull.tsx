@@ -5,7 +5,7 @@ const useStyles = makeStyles({
   backstagelogoHolder: {
     width: '100%',
     padding: '10px',
-    background: '#383838',
+    background: '#black',
     borderRadius: '4px',
   },
   svgback: {
@@ -13,7 +13,7 @@ const useStyles = makeStyles({
     height: 30,
   },
   pathback: {
-    fill: '#7df3e1',
+    fill: '#E81823',
   },
 });
 const LogoFull = () => {

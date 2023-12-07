@@ -104,15 +104,40 @@ export const createCustomThemeOverrides = (): // theme: BackstageTheme,
 BackstageOverrides => {
   return {
     BackstageHeader: {
+      header: {
+        padding: '24px',
+        boxShadow: 'none',
+        backgroundImage: 'none',
+
+        // borderBottom: `4px solid ${theme.palette.primary.main}`,
+      },
+      type:{
+        color:"#000000"
+      },
       title: {
         fontSize: '30px',
+        color: '#000000',
       },
       subtitle: {
         fontSize: '12px',
-        color: '#525252',
+        color: '#000000',
         fontWeight: 400,
         marginTop: 0,
       },
+    },
+
+    BackstageHeaderLabel: {
+      value: {
+        color: 'black',
+      },
+      label: {
+        color: 'black',
+      }
+    },    
+    MuiSvgIcon: {
+      root: {
+        color: 'black',
+      }
     },
     BackstageContentHeader: {
       title: {
@@ -207,6 +232,9 @@ BackstageOverrides => {
       },
     },
     MuiButton: {
+      textPrimary:{
+        color:'#E81823'
+      },
       root: {
         borderRadius: 4,
       },
@@ -214,11 +242,12 @@ BackstageOverrides => {
         boxShadow: 'none',
       },
       containedPrimary: {
+        backgroundColor:'#E81823',
         '&:hover': {
-          backgroundColor: '#0057BE',
+          backgroundColor: '#E81823',
         },
         '&:active': {
-          backgroundColor: '#004899',
+          backgroundColor: '#E81823',
         },
       },
     },
