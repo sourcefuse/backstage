@@ -24,7 +24,8 @@ aws ecr get-login-password \
       --password-stdin $ECR_REGISTRY_ENDPOINT
 
 printf "\nBuilding docker images...\n"
-docker-compose -f $DOCKER_COMPOSE_FILE build
+#docker-compose -f $DOCKER_COMPOSE_FILE build
+docker build -t sourcefuse/sourcefuse-backstage:latest .
 
 printf "\nTagging image $IMAGE_NAME:$IMAGE_TAG...\n"
 docker tag sourcefuse/sourcefuse-backstage:latest $IMAGE_NAME:$IMAGE_TAG
