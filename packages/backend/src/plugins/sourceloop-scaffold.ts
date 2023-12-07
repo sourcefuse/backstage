@@ -1,6 +1,6 @@
 import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
 
-const utils=require('../utility.ts');
+import * as utils from '../utility';
 import { GITHUB_DOCKER_BUILD_ACTION } from '../constant';
 import { writeFile,mkdir } from 'fs';
 
