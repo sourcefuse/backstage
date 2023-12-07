@@ -39,14 +39,10 @@ jobs:
      
 
       - name: setup packages
-        run: "npm i --ignore-scripts"
-
-      - name: lerna bootstrap
-        run: "npx lerna bootstrap --no-ci --concurrency 2"
-      
+        run: "npm i"
 
       - name: lerna build
-        run: "npx lerna run build --stream --concurrency 2"
+        run: "npm run build --workspaces --if-present"
 
       - name: lerna docker builder
         run: "npx lerna run docker:build --stream --concurrency 2"
@@ -56,7 +52,8 @@ jobs:
 
       - name: lerna docker push
         run: "npx lerna run docker:push --stream --concurrency 2"
-`
+`;
+
 
 
 
