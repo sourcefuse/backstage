@@ -9163,10 +9163,10 @@
     semver "^7.0.0"
     tslib "^2"
 
-"@sourceloop/cli@^6.0.1":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@sourceloop/cli/-/cli-6.0.1.tgz#5e4fc625460e281ccf3eba963fa4f2da3e619960"
-  integrity sha512-EkI2PLaBQcZS9Od1E/ZpWGQfhehujoT87XSXi6hfwvOyMHkHeNW9JrM/gYHJdzGc4gFvYS9iCWChriRBTtBnFg==
+"@sourceloop/cli@^6.0.2":
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/@sourceloop/cli/-/cli-6.0.2.tgz#ba0378d6954b4d7e3961c610f34eb067ac34967d"
+  integrity sha512-ebTqQGkwOgRFXWOajO3TBqkIR5W44RTtaHDg+cCjnxWrk5e14JdBST5KRUZe6LpnOcuvM3F5WsVuGw9vQ2TVeQ==
   dependencies:
     "@loopback/cli" "^5.2.1"
     "@oclif/command" "^1.8.16"
