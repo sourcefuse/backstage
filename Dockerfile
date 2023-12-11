@@ -37,9 +37,7 @@ RUN apt-get update && \
     yarn config set python /usr/bin/python3
 RUN pip3 install --upgrade setuptools wheel
 RUN pip3 install mkdocs-techdocs-core==1.0.1
-RUN pip3 install mkdocs
-RUN pip3 install mkdocs-include-markdown-plugin
-RUN pip3 install mkdocs-awesome-pages-plugin
+RUN pip3 install mkdocs mkdocs-include-markdown-plugin mkdocs-awesome-pages-plugin
 
 # Copy the install dependencies from the build stage and context
 COPY --from=build /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton.tar.gz ./
