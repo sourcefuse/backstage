@@ -1,7 +1,7 @@
 import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
-import { container } from '../utils/container';
-import { WorkerPool } from 'workerpool';
-import { POOL } from '../keys';
+
+
+import * as utils from '../utility';
 
 export function createExtensionAction() {
   return createTemplateAction({
@@ -21,15 +21,30 @@ export function createExtensionAction() {
       },
     },
     async handler(ctx: any) {
+
       const extensions = ctx.input.extensions;
+      const cwd=ctx.workspacePath;
       if (extensions) {
-        const pool = container.get<WorkerPool>(POOL);
-        const promises = extensions.map((extension: { name: string }) =>
-          pool.exec('extension', [extension.name, ctx.workspacePath]),
-        );
+        const promises = extensions.map(async (extension: { name: string }) =>{
+
+          const name=extension.name;
+          const env = utils.getEnv(cwd, 'extension');
+          const originalCwd = process.cwd();
+          process.chdir(cwd);
+          await utils.runWithEnv(env, 'extension', [name, '-y'], {
+            name,
+            config: JSON.stringify({
+              applicationName: name,
+              description: `${name} extension`,
+              ...utils.buildOptions,
+            }),
+          });
+          process.chdir(originalCwd);
+        });
         await Promise.all(promises);
         ctx.logger.info('Done generating all extensions.');
       }
+
     },
   });
 }

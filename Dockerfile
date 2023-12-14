@@ -37,6 +37,7 @@ RUN apt-get update && \
     yarn config set python /usr/bin/python3
 RUN pip3 install --upgrade setuptools wheel
 RUN pip3 install mkdocs-techdocs-core==1.0.1
+RUN pip3 install mkdocs mkdocs-include-markdown-plugin mkdocs-awesome-pages-plugin
 
 # Copy the install dependencies from the build stage and context
 COPY --from=build /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton.tar.gz ./
@@ -46,7 +47,7 @@ RUN yarn install --frozen-lockfile --production --network-timeout 600000 && rm -
 
 # Copy the built packages from the build stage
 COPY --from=build /app/packages/backend/dist/bundle.tar.gz .
-COPY --from=build /app/packages/backend/src/workers /app/packages/backend/workers
+# COPY --from=build /app/packages/backend/src/workers /app/packages/backend/workers
 RUN tar xzf bundle.tar.gz && rm bundle.tar.gz
 
 # Copy any other files that we need at runtime
