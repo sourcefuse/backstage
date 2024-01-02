@@ -54,10 +54,12 @@ export function createMicroserviceAction() {
       const cwd=ctx.workspacePath;
       if (services) {
 
-        const env = utils.getEnv(cwd, 'microservice');
-        const originalCwd = process.cwd();
-        process.chdir(cwd);
+        let originalCwd ="";
         for (const service of services) {
+          // create new env for a new service
+          const env = utils.getEnv(cwd, 'microservice');
+          originalCwd = process.cwd();
+          process.chdir(cwd);
           if (sourceloop) {
             ctx.logger.info(`Generating service based on ${service}`);
             await utils.runWithEnv(env, 'microservice', [service, '-y'], {
@@ -103,8 +105,9 @@ export function createMicroserviceAction() {
               ctx.logger.info(`Done generating microservice: ${service.name}`);
             }
           }
+          process.chdir(originalCwd);
         }
-        process.chdir(originalCwd);
+        
         ctx.logger.info('Done generating all services.');
       }
     },
