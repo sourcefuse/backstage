@@ -31,8 +31,8 @@ backend:
       port: ${POSTGRES_PORT}
       user: ${POSTGRES_USER}
       password: ${POSTGRES_PASSWORD}
-      # https://node-postgres.com/features/ssl
-      #ssl: require # see https://www.postgresql.org/docs/current/libpq-ssl.html Table 33.1. SSL Mode Descriptions (e.g. require)
+        # https://node-postgres.com/features/ssl
+        #ssl: require # see https://www.postgresql.org/docs/current/libpq-ssl.html Table 33.1. SSL Mode Descriptions (e.g. require)
       #ca: # if you have a CA file and want to verify it you can uncomment this section
       #$file: <file-path>/ca/server.crt
   cache:
@@ -42,13 +42,15 @@ backend:
 integrations:
   github:
     - host: github.com
-      apps:
-        - appId: ${INTEGRATION_GITHUB_APP_ID}
-          webhookUrl: ${INTEGRATION_GITHUB_WEBHOOK_URL}
-          clientId: ${INTEGRATION_GITHUB_CLIENT_ID}
-          clientSecret: ${INTEGRATION_GITHUB_CLIENT_SECRET}
-          webhookSecret: ${INTEGRATION_GITHUB_WEBHOOK_SECRET}
-          privateKey: ${INTEGRATION_GITHUB_PRIVATE_KEY}
+      token: ${GITHUB_TOKEN}
+      orgs: [ sourcefuse ]
+#      apps:
+#        - appId: ${INTEGRATION_GITHUB_APP_ID}
+#          webhookUrl: ${INTEGRATION_GITHUB_WEBHOOK_URL}
+#          clientId: ${INTEGRATION_GITHUB_CLIENT_ID}
+#          clientSecret: ${INTEGRATION_GITHUB_CLIENT_SECRET}
+#          webhookSecret: ${INTEGRATION_GITHUB_WEBHOOK_SECRET}
+#          privateKey: ${INTEGRATION_GITHUB_PRIVATE_KEY}
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
@@ -81,27 +83,27 @@ proxy:
       Authorization: token ${SNYK_TOKEN}
 
 catalog:
-  #  providers:
-  #    github:
-  #      # the provider ID can be any camelCase string
-  #      providerId:
-  #        organization: 'sourcefuse' # string
-  #        catalogPath: '/catalog-info.yaml' # string
-  #        filters:
-  #          branch: 'main' # string
-  #          repository: '.*' # Regex
-  #        schedule: # optional; same options as in TaskScheduleDefinitionll
-  #          # supports cron, ISO duration, "human duration" as used in code
-  #          frequency: { minutes: 1440 }
-  #          # supports ISO duration, "human duration" as used in code
-  #          timeout: { minutes: 3 }
-  #      validateLocationsExist:
-  #        organization: 'sourcefuse' # string
-  #        catalogPath: '/catalog-info.yaml' # string
-  #        #        filters:
-  #        #          branch: 'main' # string
-  #        #          repository: '.*' # Regex
-  #        validateLocationsExist: true # optional boolean
+#  providers:
+#    github:
+#      # the provider ID can be any camelCase string
+#      providerId:
+#        organization: 'sourcefuse' # string
+#        catalogPath: '/catalog-info.yaml' # string
+#        filters:
+#          branch: 'main' # string
+#          repository: '.*' # Regex
+#        schedule: # optional; same options as in TaskScheduleDefinition
+#          # supports cron, ISO duration, "human duration" as used in code
+#          frequency: { minutes: 1440 }
+#          # supports ISO duration, "human duration" as used in code
+#          timeout: { minutes: 3 }
+#      validateLocationsExist:
+#        organization: 'sourcefuse' # string
+#        catalogPath: '/catalog-info.yaml' # string
+#        #        filters:
+#        #          branch: 'main' # string
+#        #          repository: '.*' # Regex
+#        validateLocationsExist: true # optional boolean
   rules:
     - allow: [ Component, System, API, Group, User, Resource, Location ]
   locations:
