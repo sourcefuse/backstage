@@ -27,17 +27,21 @@ RUN yarn tsc
 RUN yarn --cwd packages/backend backstage-cli package build
 
 # Stage 3 - Build the actual backend image and install production dependencies
-FROM node:18-buster-slim
+#FROM node:18-buster-slim
+FROM nikolaik/python-nodejs:python3.10-nodejs18-slim
 
 WORKDIR /app
 
+ARG baseUrl="http://localhost:7007"
+
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git libsqlite3-dev python3 python3-pip build-essential && \
+    apt-get install -y --no-install-recommends git libsqlite3-dev -y && \
+    apt-get install -y python3.10 python3-pip build-essential && \
     rm -rf /var/lib/apt/lists/* && \
-    yarn config set python /usr/bin/python3
-RUN pip3 install --upgrade setuptools wheel
-RUN pip3 install mkdocs-techdocs-core==1.0.1
-RUN pip3 install mkdocs mkdocs-include-markdown-plugin mkdocs-awesome-pages-plugin
+    yarn config set python /usr/bin/python3 && \
+    pip3 install --upgrade setuptools wheel && \
+    pip3 install mkdocs-techdocs-core==1.0.1 && \
+    pip3 install mkdocs mkdocs-include-markdown-plugin mkdocs-awesome-pages-plugin
 
 # Copy the install dependencies from the build stage and context
 COPY --from=build /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton.tar.gz ./
@@ -47,6 +51,7 @@ RUN yarn install --frozen-lockfile --production --network-timeout 600000 && rm -
 
 # Copy the built packages from the build stage
 COPY --from=build /app/packages/backend/dist/bundle.tar.gz .
+
 # COPY --from=build /app/packages/backend/src/workers /app/packages/backend/workers
 RUN tar xzf bundle.tar.gz && rm bundle.tar.gz
 
