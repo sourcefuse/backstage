@@ -16,7 +16,6 @@ output "vpc_cidr_block" {
   value       = data.aws_vpc.vpc.cidr_block
 }
 
-
 output "private_subnet_ids" {
   description = "Private subnet IDs"
   value       = data.aws_subnets.private.ids
