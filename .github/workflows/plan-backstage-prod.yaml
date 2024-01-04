@@ -94,7 +94,7 @@ jobs:
           path: "terraform/prod-${{ steps.workflow_vars.outputs.plan_id }}.tfplan"
         continue-on-error: false
 
-      - name: Update plan output for ${{ vars.PLAN_ENV }} to pr
+      - name: Update plan output to pr
         uses: mshick/add-pr-comment@v2
         with:
           message-id: prod-tfplan
