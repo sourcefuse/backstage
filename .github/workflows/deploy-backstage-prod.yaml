@@ -8,7 +8,7 @@ on:  # yamllint disable-line rule:truthy
       - feature/ci-cd  # TODO - remove
     paths:
       - 'terraform/*'
-      - '.github/workflows/deploy-backstage.yaml'
+      - '.github/workflows/deploy-backstage-prod.yaml'
   workflow_dispatch:
 
 concurrency:
