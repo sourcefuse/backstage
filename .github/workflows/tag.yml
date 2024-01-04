@@ -12,12 +12,14 @@ jobs:
     runs-on:
       - self-hosted
       - arc
+    ## for a full list of permissions, see: https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs#defining-access-for-the-github_token-scopes
     permissions:
       id-token: write
-      contents: read
+      contents: write
       pull-requests: write
     steps:
       - uses: actions/checkout@master
+
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@master
         env:
