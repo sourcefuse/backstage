@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 EXTRA_ARGS=""
 plan_id=$(git rev-parse --short "$GITHUB_SHA")
 INIT=false
