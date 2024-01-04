@@ -75,7 +75,7 @@ jobs:
       - name: Initialize backend
         shell: bash
         run: |
-          ENV=prod ./scripts/action-init-plan-apply.sh -i
+          ./scripts/action-init-plan-apply.sh -i prod
         continue-on-error: false
 
       # Running plan
@@ -83,7 +83,7 @@ jobs:
         id: prod_plan
         shell: bash
         run: |
-          ENV=prod ./scripts/action-init-plan-apply.sh -a prod
+          ./scripts/action-init-plan-apply.sh -a prod
         continue-on-error: false
 
         #publish plan to artifacts

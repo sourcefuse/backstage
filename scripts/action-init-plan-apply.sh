@@ -12,7 +12,7 @@ while getopts "hip:a:z:" option; do
     help
     ;;
     i) #initialise backend
-    export ENV=poc
+    export ENV=$OPTARG
     INIT=true
     ;;
     p) #run plan
