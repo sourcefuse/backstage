@@ -83,7 +83,7 @@ jobs:
         id: prod_plan
         shell: bash
         run: |
-          ENV=prod ./scripts/action-init-plan-apply.ps1 -a prod
+          ENV=prod ./scripts/action-init-plan-apply.sh -a prod
         continue-on-error: false
 
         #publish plan to artifacts
