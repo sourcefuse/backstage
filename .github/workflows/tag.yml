@@ -12,6 +12,10 @@ jobs:
     runs-on:
       - self-hosted
       - arc
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@master
       - name: Bump version and push tag
