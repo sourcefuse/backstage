@@ -1,4 +1,4 @@
-# backstage-ecs
+# Backstage ECS
 
 ## Overview
 
@@ -22,8 +22,8 @@ Deployment of Backstage to an ECS Cluster
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_backstage"></a> [backstage](#module\_backstage) | sourcefuse/arc-backstage-ecs-app/aws | 0.2.2 |
-| <a name="module_ecs_common_data"></a> [ecs\_common\_data](#module\_ecs\_common\_data) | ../ecs-common-data | n/a |
+| <a name="module_backstage"></a> [backstage](#module\_backstage) | sourcefuse/arc-backstage-ecs-app/aws | 0.2.3 |
+| <a name="module_ecs_common_data"></a> [ecs\_common\_data](#module\_ecs\_common\_data) | ./ecs-common-data | n/a |
 | <a name="module_tags"></a> [tags](#module\_tags) | sourcefuse/arc-tags/aws | 1.2.3 |
 
 ## Resources
@@ -54,7 +54,6 @@ Deployment of Backstage to an ECS Cluster
 | <a name="input_private_key_secret_name"></a> [private\_key\_secret\_name](#input\_private\_key\_secret\_name) | Name of the secret in AWS Secrets Manager that contains Backstage private key for GitHub authentication. The secret should be stored as plain text in ASM. | `string` | `"arc/poc/sf-arc-poc2-backstage-private-key"` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS region | `string` | `"us-east-1"` | no |
 | <a name="input_route_53_private_zone"></a> [route\_53\_private\_zone](#input\_route\_53\_private\_zone) | Used with `name` field to get a private Hosted Zone | `bool` | `false` | no |
-| <a name="input_route_53_profile_name"></a> [route\_53\_profile\_name](#input\_route\_53\_profile\_name) | Profile where the Route 53 Zone lives. | `string` | `"poc2"` | no |
 | <a name="input_route_53_zone_name"></a> [route\_53\_zone\_name](#input\_route\_53\_zone\_name) | Route53 zone name used for looking up and creating an `A` record for the health check service | `string` | `"arc-poc.link"` | no |
 | <a name="input_secret_name"></a> [secret\_name](#input\_secret\_name) | Name of the secret in AWS Secrets Manager that contains Backstage secrets, such as POSTGRES\_USER and POSTGRES\_PASSWORD | `string` | `"arc/poc/sf-arc-poc2-backstage"` | no |
 

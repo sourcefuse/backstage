@@ -38,7 +38,7 @@ export function createScaffoldAction() {
     async handler(ctx: any) {
       const { signal } = ctx;
       ctx.logger.info(`Templating using Yeoman generator: ${ctx.input.name}`);
-  
+
       const name= ctx.input.name;
       const cwd=ctx.workspacePath;
       const issuePrefix=ctx.input.issuePrefix;
@@ -57,7 +57,7 @@ export function createScaffoldAction() {
       });
       process.chdir(originalCwd);
       await mkdir(`${ctx.workspacePath}/.github/workflows`,()=>{});
-      await writeFile( 
+      await writeFile(
         `${ctx.workspacePath}/.github/workflows/build-image.yaml`,
         GITHUB_DOCKER_BUILD_ACTION,
         { signal },

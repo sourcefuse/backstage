@@ -8,11 +8,11 @@ set -e
 : "${ENVIRONMENT:=poc}"
 
 ## required
-: "${AWS_ACCOUNT_ID:-$AWS_ACCOUNT_ID}"
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 : "${IMAGE_TAG:-$IMAGE_TAG}"
 
 ECR_REGISTRY_ENDPOINT="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
-IMAGE_NAME="$ECR_REGISTRY_ENDPOINT/arc-$ENVIRONMENT-sourcefuse-backstage"
+IMAGE_NAME="$ECR_REGISTRY_ENDPOINT/sourcefuse-backstage"
 
 echo "Account: $AWS_ACCOUNT_ID"
 

@@ -1,0 +1,102 @@
+---
+name:  "Plan Backstage Prod"
+
+on:  # yamllint disable-line rule:truthy
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'terraform/*'
+      - '.github/workflows/plan-backstage-prod.yaml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ## run terraform plan
+  plan:
+    name: Plan - Prod
+    runs-on:
+      - prod
+    outputs:
+      plan_id: ${{ steps.workflow_vars.outputs.plan_id }}
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # install aws cli
+      - name: Install AWS CLI
+        shell: bash
+        run: ./scripts/dependencies/install-aws-cli.sh
+        continue-on-error: false
+
+      # install tfenv
+      - name: Install tfenv
+        shell: bash
+        run: ./scripts/dependencies/install-tfenv.sh
+        continue-on-error: false
+
+      ## configure ssh for cloning terraform modules
+      - name: Setup SSH Keys and known_hosts
+        #  Copied from https://github.com/maddox/actions/blob/master/ssh/entrypoint.sh
+        run: |
+          SSH_PATH="$HOME/.ssh"
+
+          mkdir -p "$SSH_PATH"
+          touch "$SSH_PATH/known_hosts"
+
+          echo "$PRIVATE_KEY" > "$SSH_PATH/id_rsa"
+
+          chmod 700 "$SSH_PATH"
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          chmod 600 "$SSH_PATH/known_hosts"
+          chmod 400 "$SSH_PATH/id_rsa"
+
+          eval $(ssh-agent)
+          ssh-add "$SSH_PATH/id_rsa"
+        continue-on-error: false
+        env:
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Setup plan id for plan exports
+      - name: Set outputs
+        id: workflow_vars
+        run: |
+          echo "plan_id=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
+
+      # initialize backend
+      - name: Initialize backend
+        shell: bash
+        run: |
+          ./scripts/action-init-plan-apply.sh -i prod
+        continue-on-error: false
+
+      # Running plan
+      - name: Plan against Prod
+        id: prod_plan
+        shell: bash
+        run: |
+          ./scripts/action-init-plan-apply.sh -p prod
+        continue-on-error: false
+
+        #publish plan to artifacts
+      - name: Publish Terraform Plan
+        uses: actions/upload-artifact@v3
+        with:
+          name: "prod-${{ steps.workflow_vars.outputs.plan_id }}.tfplan"
+          path: "terraform/prod-${{ steps.workflow_vars.outputs.plan_id }}.tfplan"
+        continue-on-error: false
+
+      - name: Update plan output to pr
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-id: prod-tfplan
+          message-path: "terraform/prod-plan-output.txt"
+        continue-on-error: false
