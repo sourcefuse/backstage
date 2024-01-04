@@ -1,0 +1,26 @@
+name: Docker Push
+
+on:            # yamllint disable-line rule:truthy
+  push:
+    tags:
+      - '**'
+
+jobs:
+  build_and_push_prod:
+    name: Build & Push Image - Prod
+    runs-on:
+      - prod
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set output
+        id: vars
+        run: echo "git_tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+
+      - name: Build, Tag, and Push
+        run: |
+          export IMAGE_TAG=${{ steps.vars.outputs.git_tag }}
+          export ENVIRONMENT=prod
+          ./scripts/docker-build-tag-and-push.sh
