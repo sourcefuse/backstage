@@ -6,7 +6,7 @@ INIT=false
 PLAN=false
 APPLY=false
 
-while getopts "hip:a:z:" option; do
+while getopts "hi:p:a:z:" option; do
   case $option in
     h) #show help
     help
@@ -22,9 +22,6 @@ while getopts "hip:a:z:" option; do
     a) #run apply
     export ENV=$OPTARG
     APPLY=true
-    ;;
-    d) #set directory
-    DIRECTORY=$OPTARG
     ;;
     z) #pass extra arguments
     EXTRA_ARGS=$OPTARG
@@ -50,7 +47,7 @@ help () {
    printf "Script to run terraform actions in github actions. Source this with arguments\n"
 
    printf "\n"
-   printf "Syntax: [-h|i|p|a|d|z]\n"
+   printf "Syntax: [-h|i|p|a|z]\n"
    printf "options:\n"
    printf "h     Print this help menu.\n"
    printf "i     run terraform init\n"
