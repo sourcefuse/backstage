@@ -78,7 +78,6 @@ jobs:
       - name: Initialize backend
         shell: bash
         run: |
-          terraform -v
           ENV=prod ./scripts/action-init-plan-apply.sh -i
         continue-on-error: false
 
