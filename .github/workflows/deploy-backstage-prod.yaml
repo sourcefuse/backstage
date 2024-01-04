@@ -76,7 +76,7 @@ jobs:
       - name: Initialize backend
         shell: bash
         run: |
-          cd terraform/backstage-ecs
+          cd terraform/
           terraform init -backend-config config.prod.hcl
         continue-on-error: false
 
@@ -85,7 +85,7 @@ jobs:
         id: env_plan
         shell: bash
         run: |
-          cd terraform/backstage-ecs
+          cd terraform/
           terraform workspace select prod || terraform workspace new prod
           terraform plan -var-file prod.tfvars -out=prod-backstage-ecs-${{ steps.workflow_vars.outputs.plan_id }}.tfplan
         continue-on-error: false
@@ -95,12 +95,12 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: "prod-backstage-ecs-${{ steps.workflow_vars.outputs.plan_id }}.tfplan"
-          path: "terraform/backstage-ecs/prod-backstage-ecs-${{ steps.workflow_vars.outputs.plan_id }}.tfplan"
+          path: "terraform/prod-backstage-ecs-${{ steps.workflow_vars.outputs.plan_id }}.tfplan"
         continue-on-error: false
 
 #      - name: Update plan output for ${{ vars.PLAN_ENV }} to pr
 #        uses: mshick/add-pr-comment@v2
 #        with:
 #          message-id: prod-backstage-ecs-tfplan
-#          message-path: "terraform/backstage-ecs/prod-plan-output.txt"
+#          message-path: "terraform/prod-plan-output.txt"
 #        continue-on-error: false
