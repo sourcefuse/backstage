@@ -107,7 +107,7 @@ export function createMicroserviceAction() {
           }
           process.chdir(originalCwd);
         }
-        
+
         ctx.logger.info('Done generating all services.');
       }
     },
