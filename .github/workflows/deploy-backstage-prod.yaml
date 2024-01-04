@@ -15,11 +15,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ## run terraform plan
+  ## run terraform apply
   plan:
-    name: Plan - Prod
+    name: Deploy - Prod
     runs-on:
       - prod
+    environment:
+      name: prod
     outputs:
       plan_id: ${{ steps.workflow_vars.outputs.plan_id }}
     permissions:
