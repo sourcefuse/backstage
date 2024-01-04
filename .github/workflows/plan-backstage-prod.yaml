@@ -7,7 +7,7 @@ on:  # yamllint disable-line rule:truthy
       - main
   push:
     branches:
-      - feature/ci-cd  #  TODO - remove this
+      - feature/ci-cd  # TODO - remove this
     paths:
       - 'terraform/*'
       - '.github/workflows/plan-backstage-prod.yaml'
