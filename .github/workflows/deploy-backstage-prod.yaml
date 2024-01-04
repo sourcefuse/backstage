@@ -1,5 +1,5 @@
 ---
-name:  "Deploy Backstage"
+name:  "Deploy Backstage Prod"
 
 on:  # yamllint disable-line rule:truthy
   push:

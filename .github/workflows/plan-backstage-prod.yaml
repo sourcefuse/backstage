@@ -1,5 +1,5 @@
 ---
-name:  "Plan Backstage Deploy"
+name:  "Plan Backstage Prod"
 
 on:  # yamllint disable-line rule:truthy
   pull_request:
