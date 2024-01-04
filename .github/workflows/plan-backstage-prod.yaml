@@ -1,13 +1,16 @@
 ---
-name:  "Deploy Backstage"
+name:  "Plan Backstage Deploy"
 
 on:  # yamllint disable-line rule:truthy
-  push:
+  pull_request:
     branches:
       - main
+  push:
+    branches:
+      - feature/ci-cd  # TODO - remove this
     paths:
       - 'terraform/*'
-      - '.github/workflows/deploy-backstage-prod.yaml'
+      - '.github/workflows/plan-backstage-prod.yaml'
   workflow_dispatch:
 
 concurrency:
@@ -84,7 +87,7 @@ jobs:
         id: prod_plan
         shell: bash
         run: |
-          ENV=prod ./scripts/action-init-plan-apply.ps1 -a prod
+          ENV=prod ./scripts/action-init-plan-apply.ps1 -p prod
         continue-on-error: false
 
         #publish plan to artifacts
