@@ -1,6 +1,7 @@
-###############################################
-## imports
-################################################
+data "aws_route53_zone" "default" {
+  name = local.route_53_zone
+}
+
 ## network
 data "aws_vpc" "vpc" {
   filter {
@@ -9,7 +10,6 @@ data "aws_vpc" "vpc" {
   }
 }
 
-## network
 data "aws_subnets" "public" {
   filter {
     name = "tag:Name"
@@ -29,11 +29,3 @@ data "aws_subnets" "private" {
     ]
   }
 }
-
-## route 53
-#data "aws_route53_zone" "this" {
-#  name         = local.route_53_zone
-#  private_zone = var.route_53_private_zone
-#
-#  provider = aws.route_53
-#}
