@@ -1,14 +1,14 @@
 ---
 name:  "Deploy Backstage Prod"
 
-on:  # yamllint disable-line rule:truthy
-  push:
-    branches:
-      - main
+on:            # yamllint disable-line rule:truthy
+  workflow_run:
+    workflows: ["Docker Push"]
+    types:
+      - completed
     paths:
       - 'terraform/*'
       - '.github/workflows/deploy-backstage-prod.yaml'
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

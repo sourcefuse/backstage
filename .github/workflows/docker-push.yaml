@@ -1,3 +1,4 @@
+---
 name: Docker Push
 
 on:            # yamllint disable-line rule:truthy
