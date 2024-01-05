@@ -13,6 +13,7 @@ locals {
               "ec2:*",
               "ecs:*",
               "route53:*",
+              "ssm:*",
               "secretsmanager:*"
             ],
             "Effect" : "Allow",

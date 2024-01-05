@@ -10,6 +10,8 @@ jobs:
   build_and_push_prod:
     name: Build & Push Image - Prod
     runs-on: ubuntu-latest
+    environment:
+      name: prod
 
     steps:
       - name: Checkout
@@ -18,6 +20,14 @@ jobs:
       - name: Set output
         id: vars
         run: echo "git_tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+
+      # configure iam
+      - name: Configure IAM Role
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT }}:role/arc-prod-terraform-backstage-deploy
+          aws-region: us-east-1
+        continue-on-error: false
 
       - name: Build, Tag, and Push
         run: |
