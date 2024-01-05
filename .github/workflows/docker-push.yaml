@@ -10,10 +10,48 @@ on:            # yamllint disable-line rule:truthy
     types:
       - completed
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  build_and_push_poc:
+    name: Build & Push Image - POC
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set output
+        id: vars
+        run: echo "git_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+
+      # configure iam
+      - name: Configure IAM Role
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.POC_BACKSTAGE_DEPLOY_ARN }}
+          aws-region: us-east-1
+        continue-on-error: false
+
+      - name: Build, Tag, and Push
+        run: |
+          export IMAGE_TAG=${{ steps.vars.outputs.git_tag }}
+          export ENVIRONMENT=poc
+          ./scripts/docker-build-tag-and-push.sh
+
+
   build_and_push_prod:
     name: Build & Push Image - Prod
     runs-on: ubuntu-latest
+    needs:
+      - build_and_push_poc
     permissions:
       id-token: write
       contents: read

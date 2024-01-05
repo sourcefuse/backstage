@@ -10,12 +10,7 @@ locals {
         "Statement" : [
           {
             "Action" : [
-              "ec2:*",
-              "ecs:*",
-              "ecr:*",
-              "route53:*",
-              "ssm:*",
-              "secretsmanager:*"
+              "*"
             ],
             "Effect" : "Allow",
             "Resource" : ["*"]
