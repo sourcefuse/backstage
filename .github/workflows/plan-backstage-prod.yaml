@@ -82,6 +82,12 @@ jobs:
           aws-region: us-east-1
         continue-on-error: false
 
+      - name: Create AWS config
+        shell: pwsh
+        run: |
+          ./scripts/action-credentials-to-file.ps1 ${{ vars.PLAN_ENV }}
+        continue-on-error: false
+
       # initialize backend
       - name: Initialize backend
         shell: bash
