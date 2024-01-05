@@ -2,6 +2,9 @@
 name:  "Plan Backstage Prod"
 
 on:  # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - feature/ci-cd  # TODO - remove this
   pull_request:
     branches:
       - main
@@ -70,6 +73,14 @@ jobs:
         id: workflow_vars
         run: |
           echo "plan_id=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
+
+      # configure iam
+      - name: Configure IAM Role
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ vars.BACKSTAGE_DEPLOY_ARN }}
+          aws-region: us-east-1
+        continue-on-error: false
 
       # initialize backend
       - name: Initialize backend
