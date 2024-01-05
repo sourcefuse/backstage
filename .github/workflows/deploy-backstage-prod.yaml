@@ -15,11 +15,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ## run terraform apply
   plan:
     name: Deploy - Prod
-    runs-on:
-      - prod
+    runs-on: ubuntu-latest
     environment:
       name: prod
     outputs:
@@ -45,33 +43,20 @@ jobs:
         run: ./scripts/dependencies/install-tfenv.sh
         continue-on-error: false
 
-      ## configure ssh for cloning terraform modules
-      - name: Setup SSH Keys and known_hosts
-        #  Copied from https://github.com/maddox/actions/blob/master/ssh/entrypoint.sh
-        run: |
-          SSH_PATH="$HOME/.ssh"
-
-          mkdir -p "$SSH_PATH"
-          touch "$SSH_PATH/known_hosts"
-
-          echo "$PRIVATE_KEY" > "$SSH_PATH/id_rsa"
-
-          chmod 700 "$SSH_PATH"
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          chmod 600 "$SSH_PATH/known_hosts"
-          chmod 400 "$SSH_PATH/id_rsa"
-
-          eval $(ssh-agent)
-          ssh-add "$SSH_PATH/id_rsa"
-        continue-on-error: false
-        env:
-          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
       # Setup plan id for plan exports
       - name: Set outputs
         id: workflow_vars
         run: |
           echo "plan_id=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
+          echo "git_tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+
+      # configure iam
+      - name: Configure IAM Role
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.BACKSTAGE_DEPLOY_ARN }}
+          aws-region: us-east-1
+        continue-on-error: false
 
       # initialize backend
       - name: Initialize backend
@@ -96,9 +81,13 @@ jobs:
           path: "terraform/prod-${{ steps.workflow_vars.outputs.plan_id }}.tfplan"
         continue-on-error: false
 
-      - name: Update plan output to pr
-        uses: mshick/add-pr-comment@v2
-        with:
-          message-id: prod-tfplan
-          message-path: "terraform/prod-plan-output.txt"
+      # Running apply
+      - name: Deploy against Prod
+        id: prod_apply
+        shell: bash
+        run: |
+          export ECR_REGISTRY_ENDPOINT="${{ secrets.AWS_ACCOUNT }}.dkr.ecr.us-east-1.amazonaws.com"
+          export IMAGE_NAME="$ECR_REGISTRY_ENDPOINT/sourcefuse-backstage"
+          export IMAGE_TAG=${{ steps.workflow_vars.outputs.git_tag }}
+          ./scripts/action-init-plan-apply.sh -a prod -var=container_image=$IMAGE_NAME:$IMAGE_TAG
         continue-on-error: false

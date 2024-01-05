@@ -9,9 +9,8 @@ on:            # yamllint disable-line rule:truthy
 jobs:
   build:
     name: Build Image
-    runs-on:
-      - self-hosted
-      - arc
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2

@@ -18,8 +18,9 @@ jobs:
   ## run terraform plan
   plan:
     name: Plan - Prod
-    runs-on:
-      - prod
+    runs-on: ubuntu-latest
+    environment:
+      name: prod
     outputs:
       plan_id: ${{ steps.workflow_vars.outputs.plan_id }}
     permissions:
@@ -43,33 +44,19 @@ jobs:
         run: ./scripts/dependencies/install-tfenv.sh
         continue-on-error: false
 
-      ## configure ssh for cloning terraform modules
-      - name: Setup SSH Keys and known_hosts
-        #  Copied from https://github.com/maddox/actions/blob/master/ssh/entrypoint.sh
-        run: |
-          SSH_PATH="$HOME/.ssh"
-
-          mkdir -p "$SSH_PATH"
-          touch "$SSH_PATH/known_hosts"
-
-          echo "$PRIVATE_KEY" > "$SSH_PATH/id_rsa"
-
-          chmod 700 "$SSH_PATH"
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          chmod 600 "$SSH_PATH/known_hosts"
-          chmod 400 "$SSH_PATH/id_rsa"
-
-          eval $(ssh-agent)
-          ssh-add "$SSH_PATH/id_rsa"
-        continue-on-error: false
-        env:
-          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
       # Setup plan id for plan exports
       - name: Set outputs
         id: workflow_vars
         run: |
           echo "plan_id=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
+
+      # configure iam
+      - name: Configure IAM Role
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.BACKSTAGE_DEPLOY_ARN }}
+          aws-region: us-east-1
+        continue-on-error: false
 
       # initialize backend
       - name: Initialize backend
