@@ -46,28 +46,6 @@ jobs:
         run: ./scripts/dependencies/install-tfenv.sh
         continue-on-error: false
 
-#      ## configure ssh for cloning terraform modules
-#      - name: Setup SSH Keys and known_hosts
-#        #  Copied from https://github.com/maddox/actions/blob/master/ssh/entrypoint.sh
-#        run: |
-#          SSH_PATH="$HOME/.ssh"
-#
-#          mkdir -p "$SSH_PATH"
-#          touch "$SSH_PATH/known_hosts"
-#
-#          echo "$PRIVATE_KEY" > "$SSH_PATH/id_rsa"
-#
-#          chmod 700 "$SSH_PATH"
-#          ssh-keyscan github.com >> ~/.ssh/known_hosts
-#          chmod 600 "$SSH_PATH/known_hosts"
-#          chmod 400 "$SSH_PATH/id_rsa"
-#
-#          eval $(ssh-agent)
-#          ssh-add "$SSH_PATH/id_rsa"
-#        continue-on-error: false
-#        env:
-#          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
       # Setup plan id for plan exports
       - name: Set outputs
         id: workflow_vars
@@ -78,7 +56,7 @@ jobs:
       - name: Configure IAM Role
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::235465132804:role/arc-prod-terraform-backstage-deploy
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT }}:role/arc-prod-terraform-backstage-deploy
           aws-region: us-east-1
         continue-on-error: false
 
