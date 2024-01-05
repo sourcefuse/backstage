@@ -11,6 +11,10 @@ jobs:
   build_and_push_prod:
     name: Build & Push Image - Prod
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout
