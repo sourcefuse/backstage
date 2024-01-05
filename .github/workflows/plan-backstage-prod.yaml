@@ -22,7 +22,8 @@ jobs:
   plan:
     name: Plan - Prod
     runs-on: ubuntu-latest
-
+    environment:
+      name: prod
     outputs:
       plan_id: ${{ steps.workflow_vars.outputs.plan_id }}
     permissions:
