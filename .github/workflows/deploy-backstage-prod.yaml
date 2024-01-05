@@ -49,7 +49,7 @@ jobs:
         id: workflow_vars
         run: |
           echo "plan_id=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
-          echo "git_tag=${github.ref_name}" >> $GITHUB_OUTPUT
+          echo "git_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 
       # configure iam
       - name: Configure IAM Role
