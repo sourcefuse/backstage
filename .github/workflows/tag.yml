@@ -9,9 +9,8 @@ on:            # yamllint disable-line rule:truthy
 jobs:
   ## tag
   tag:
-    runs-on:
-      - self-hosted
-      - arc
+    runs-on: ubuntu-latest
+
     ## for a full list of permissions, see: https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs#defining-access-for-the-github_token-scopes
     permissions:
       id-token: write

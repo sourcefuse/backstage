@@ -2,6 +2,9 @@
 name: Docker Build
 
 on:            # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - feature/ci-cd  # TODO - remove this
   pull_request:
     branches:
       - main
@@ -9,9 +12,8 @@ on:            # yamllint disable-line rule:truthy
 jobs:
   build:
     name: Build Image
-    runs-on:
-      - self-hosted
-      - arc
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2

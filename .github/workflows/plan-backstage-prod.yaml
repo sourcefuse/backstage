@@ -18,8 +18,8 @@ jobs:
   ## run terraform plan
   plan:
     name: Plan - Prod
-    runs-on:
-      - prod
+    runs-on: ubuntu-latest
+
     outputs:
       plan_id: ${{ steps.workflow_vars.outputs.plan_id }}
     permissions:
