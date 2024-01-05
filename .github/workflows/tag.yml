@@ -5,7 +5,7 @@ on:            # yamllint disable-line rule:truthy
   push:
     branches:
       - main
-      - feature/ci-cd
+      - feature/ci-cd  # TODO - remove
 
 jobs:
   ## tag
