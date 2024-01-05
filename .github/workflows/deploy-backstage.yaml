@@ -71,7 +71,10 @@ jobs:
         id: poc_plan
         shell: bash
         run: |
-          ./scripts/action-init-plan-apply.sh -p poc
+          export ECR_REGISTRY_ENDPOINT="${{ secrets.AWS_ACCOUNT }}.dkr.ecr.us-east-1.amazonaws.com"
+          export IMAGE_NAME="$ECR_REGISTRY_ENDPOINT/sourcefuse-backstage"
+          export IMAGE_TAG=${{ steps.workflow_vars.outputs.git_tag }}
+          ./scripts/action-init-plan-apply.sh -p poc -z -var=container_image=$IMAGE_NAME:$IMAGE_TAG
         continue-on-error: false
 
         #publish plan to artifacts
@@ -87,10 +90,7 @@ jobs:
         id: poc_apply
         shell: bash
         run: |
-          export ECR_REGISTRY_ENDPOINT="${{ secrets.AWS_ACCOUNT }}.dkr.ecr.us-east-1.amazonaws.com"
-          export IMAGE_NAME="$ECR_REGISTRY_ENDPOINT/sourcefuse-backstage"
-          export IMAGE_TAG=${{ steps.workflow_vars.outputs.git_tag }}
-          ./scripts/action-init-plan-apply.sh -a poc -z -var=container_image=$IMAGE_NAME:$IMAGE_TAG
+          ./scripts/action-init-plan-apply.sh -a poc
         continue-on-error: false
 
   deploy_prod:
@@ -151,7 +151,10 @@ jobs:
         id: prod_plan
         shell: bash
         run: |
-          ./scripts/action-init-plan-apply.sh -p prod
+          export ECR_REGISTRY_ENDPOINT="${{ secrets.AWS_ACCOUNT }}.dkr.ecr.us-east-1.amazonaws.com"
+          export IMAGE_NAME="$ECR_REGISTRY_ENDPOINT/sourcefuse-backstage"
+          export IMAGE_TAG=${{ steps.workflow_vars.outputs.git_tag }}
+          ./scripts/action-init-plan-apply.sh -p prod -z -var=container_image=$IMAGE_NAME:$IMAGE_TAG
         continue-on-error: false
 
         #publish plan to artifacts
@@ -167,8 +170,5 @@ jobs:
         id: prod_apply
         shell: bash
         run: |
-          export ECR_REGISTRY_ENDPOINT="${{ secrets.AWS_ACCOUNT }}.dkr.ecr.us-east-1.amazonaws.com"
-          export IMAGE_NAME="$ECR_REGISTRY_ENDPOINT/sourcefuse-backstage"
-          export IMAGE_TAG=${{ steps.workflow_vars.outputs.git_tag }}
-          ./scripts/action-init-plan-apply.sh -a prod -z -var=container_image=$IMAGE_NAME:$IMAGE_TAG
+          ./scripts/action-init-plan-apply.sh -a prod
         continue-on-error: false
