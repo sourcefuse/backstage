@@ -76,15 +76,15 @@ jobs:
       - name: Configure IAM Role
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: ${{ vars.BACKSTAGE_DEPLOY_ARN }}
+          role-to-assume: ${{ secrets.BACKSTAGE_DEPLOY_ARN }}
           aws-region: us-east-1
         continue-on-error: false
 
-      - name: Create AWS config
-        shell: pwsh
-        run: |
-          ./scripts/action-credentials-to-file.ps1 ${{ vars.PLAN_ENV }}
-        continue-on-error: false
+#      - name: Create AWS config
+#        shell: pwsh
+#        run: |
+#          ./scripts/action-credentials-to-file.ps1 ${{ vars.PLAN_ENV }}
+#        continue-on-error: false
 
       # initialize backend
       - name: Initialize backend
