@@ -2,9 +2,6 @@
 name: Docker Build
 
 on:            # yamllint disable-line rule:truthy
-  push:
-    branches:
-      - feature/ci-cd  # TODO - remove this
   pull_request:
     branches:
       - main
