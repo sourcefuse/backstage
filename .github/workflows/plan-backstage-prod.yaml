@@ -19,8 +19,6 @@ jobs:
   plan:
     name: Plan - Prod
     runs-on: ubuntu-latest
-    environment:
-      name: prod
     outputs:
       plan_id: ${{ steps.workflow_vars.outputs.plan_id }}
     permissions:
@@ -54,7 +52,7 @@ jobs:
       - name: Configure IAM Role
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: ${{ secrets.BACKSTAGE_DEPLOY_ARN }}
+          role-to-assume: ${{ secrets.PROD_BACKSTAGE_DEPLOY_ARN }}
           aws-region: us-east-1
         continue-on-error: false
 

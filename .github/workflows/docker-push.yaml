@@ -11,8 +11,6 @@ jobs:
   build_and_push_prod:
     name: Build & Push Image - Prod
     runs-on: ubuntu-latest
-    environment:
-      name: prod
 
     steps:
       - name: Checkout
@@ -26,7 +24,7 @@ jobs:
       - name: Configure IAM Role
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: ${{ secrets.BACKSTAGE_DEPLOY_ARN }}
+          role-to-assume: ${{ secrets.PROD_BACKSTAGE_DEPLOY_ARN }}
           aws-region: us-east-1
         continue-on-error: false
 
