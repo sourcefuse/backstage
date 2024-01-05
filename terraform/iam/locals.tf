@@ -12,6 +12,7 @@ locals {
             "Action" : [
               "ec2:*",
               "ecs:*",
+              "ecr:*",
               "route53:*",
               "ssm:*",
               "secretsmanager:*"
