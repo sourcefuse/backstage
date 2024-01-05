@@ -26,6 +26,7 @@ jobs:
       id-token: write
       contents: read
       pull-requests: write
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout
@@ -48,7 +49,7 @@ jobs:
         id: workflow_vars
         run: |
           echo "plan_id=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
-          echo "git_tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+          echo "git_tag=${github.ref_name}" >> $GITHUB_OUTPUT
 
       # configure iam
       - name: Configure IAM Role
@@ -70,7 +71,7 @@ jobs:
         id: prod_plan
         shell: bash
         run: |
-          ./scripts/action-init-plan-apply.sh -a prod
+          ./scripts/action-init-plan-apply.sh -p prod
         continue-on-error: false
 
         #publish plan to artifacts

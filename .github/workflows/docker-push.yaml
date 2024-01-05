@@ -22,7 +22,7 @@ jobs:
 
       - name: Set output
         id: vars
-        run: echo "git_tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+        run: echo "git_tag=${github.ref_name}" >> $GITHUB_OUTPUT
 
       # configure iam
       - name: Configure IAM Role
