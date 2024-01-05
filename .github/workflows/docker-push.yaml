@@ -2,10 +2,9 @@
 name: Docker Push
 
 on:            # yamllint disable-line rule:truthy
-  workflow_run:
-    workflows: ["Tag"]
-    types:
-      - completed
+  push:
+    tags:
+      - '**'
 
 jobs:
   build_and_push_prod:
