@@ -22,7 +22,7 @@ Deployment of Backstage to an ECS Cluster
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_backstage"></a> [backstage](#module\_backstage) | sourcefuse/arc-backstage-ecs-app/aws | 0.2.5 |
+| <a name="module_backstage"></a> [backstage](#module\_backstage) | sourcefuse/arc-backstage-ecs-app/aws | 0.2.6 |
 | <a name="module_ecs_common_data"></a> [ecs\_common\_data](#module\_ecs\_common\_data) | ./ecs-common-data | n/a |
 | <a name="module_tags"></a> [tags](#module\_tags) | sourcefuse/arc-tags/aws | 1.2.3 |
 
