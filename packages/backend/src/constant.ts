@@ -16,10 +16,10 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     env:
-      IMAGE_REPO_NAME: \${{ secrets.DOCKERHUB_USERNAME }} 
+      IMAGE_REPO_NAME: \${{ secrets.DOCKERHUB_USERNAME }}
       NR_ENABLED: 0
 
-      
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -29,14 +29,14 @@ jobs:
           node-version: "18"
           cache: "npm"
           cache-dependency-path: "**/package-lock.json"
-        
-        
+
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-     
+
 
       - name: setup packages
         run: "npm i"
@@ -53,11 +53,3 @@ jobs:
       - name: lerna docker push
         run: "npx lerna run docker:push --stream --concurrency 2"
 `;
-
-
-
-
-
-
-
-

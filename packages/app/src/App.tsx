@@ -133,7 +133,7 @@ BackstageOverrides => {
       label: {
         color: 'black',
       }
-    },    
+    },
     MuiSvgIcon: {
       root: {
         color: 'black',

@@ -1,0 +1,27 @@
+---
+name: Tag
+
+on:            # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - main
+
+jobs:
+  ## tag
+  tag:
+    runs-on: ubuntu-latest
+
+    ## for a full list of permissions, see: https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs#defining-access-for-the-github_token-scopes
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+          REPO_OWNER: sourcefuse
