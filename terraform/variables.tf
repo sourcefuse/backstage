@@ -65,10 +65,10 @@ variable "app_host_name" {
   default     = "dx.arc-poc.link"
 }
 
-variable "container_image" {
+variable "container_image_override" {
   type        = string
-  description = "url for image being used to setup backstage"
-  default     = "spotify/backstage-cookiecutter"
+  description = "Container image URL where the image is located"
+  default     = null
 
 }
 
