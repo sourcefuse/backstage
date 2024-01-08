@@ -1,3 +1,8 @@
+data "aws_ssm_parameter" "container_image" {
+  count = var.container_image_override != null ? 1 : 0
+  name = "/${var.environment}/backstage/container-image"
+}
+
 data "aws_route53_zone" "default" {
   name = local.route_53_zone
 }
