@@ -58,7 +58,7 @@ module "backstage" {
   route_53_zone_name        = var.route_53_zone_name
   subnet_ids                = module.ecs_common_data.private_subnet_ids
   vpc_id                    = module.ecs_common_data.vpc_id
-  container_image           = var.container_image_override != null ? one(data.aws_ssm_parameter.container_image[*].value) : var.container_image_override
+  container_image           = var.container_image_override == null ? one(data.aws_ssm_parameter.container_image[*].value) : var.container_image_override
   tags                      = module.tags.tags
   task_definition_cpu       = 2048
   task_definition_memory    = 4096
