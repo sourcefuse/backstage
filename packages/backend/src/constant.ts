@@ -1,4 +1,5 @@
 export const GITHUB_DOCKER_BUILD_ACTION = `
+
 # This is a basic workflow to help you get started with Actions
 
 name: Build and Push Image
@@ -18,6 +19,7 @@ jobs:
     env:
       IMAGE_REPO_NAME: \${{ secrets.DOCKERHUB_USERNAME }}
       NR_ENABLED: 0
+      REPOSITORY_URI: \${{ secrets.REPOSITORY_URI }}
 
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -45,11 +47,14 @@ jobs:
         run: "npm run build --workspaces --if-present"
 
       - name: lerna docker builder
-        run: "npx lerna run docker:build --stream --concurrency 2"
+        run: "npm run docker:build"
 
-      - name: docker login
-        run: "sudo docker login -u \\"\${{ secrets.DOCKERHUB_USERNAME }}\\"  -p \\"\${{ secrets.DOCKERHUB_TOKEN }}\\" docker.io"
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: \${{ secrets.DOCKERHUB_USERNAME }}
+          password: \${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: lerna docker push
-        run: "npx lerna run docker:push --stream --concurrency 2"
+        run: "npx lerna run docker:push"
 `;
