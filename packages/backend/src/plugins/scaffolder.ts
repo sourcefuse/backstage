@@ -5,7 +5,6 @@ import type { PluginEnvironment } from '../types';
 import { createExtensionAction } from './sourceloop-extension';
 import { createMicroserviceAction } from './sourceloop-ms';
 import { createScaffoldAction } from './sourceloop-scaffold';
-// import { DockerContainerRunner } from '@backstage/backend-common';
 // eslint-disable-next-line @backstage/no-undeclared-imports
 import { ScmIntegrations } from '@backstage/integration';
 import { createNewFileAction } from './create-new-file.action';
