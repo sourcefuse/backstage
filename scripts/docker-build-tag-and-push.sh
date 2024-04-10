@@ -17,8 +17,8 @@ IMAGE_NAME="$DOCKER_USERNAME/backstage"
 echo "Docker Registry: $DOCKER_REGISTRY"
 
 printf "\nLogging in to Docker Hub...\n"
-echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-# docker login --username "$DOCKER_USERNAME" --password-stdin "$DOCKER_PASSWORD"
+# echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
+docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
 
 printf "\nBuilding docker images...\n"
