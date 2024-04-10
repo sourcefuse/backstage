@@ -30,7 +30,7 @@ jobs:
 
       - name: Set output
         id: vars
-        run: echo "git_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        run: echo "git_tag=${RANDOM.NUMBER:1}.${RANDOM.NUMBER:1}.${RANDOM.NUMBER:1}" >> $GITHUB_OUTPUT
 
       # configure iam
       - name: Configure IAM Role
