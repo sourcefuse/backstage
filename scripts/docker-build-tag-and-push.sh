@@ -18,7 +18,7 @@ echo "Docker Registry: $DOCKER_REGISTRY"
 
 printf "\nLogging in to Docker Hub...\n"
 echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-docker login --username "$DOCKER_USERNAME" --password-stdin "$DOCKER_PASSWORD"
+# docker login --username "$DOCKER_USERNAME" --password-stdin "$DOCKER_PASSWORD"
 
 
 printf "\nBuilding docker images...\n"
