@@ -7,18 +7,18 @@ set -e
 : "${ENVIRONMENT:=poc}"
 
 # Required
-: "${DOCKER_USERNAME:-$DOCKERHUB_USERNAME}"
-: "${DOCKER_PASSWORD:-$DOCKERHUB_TOKEN}"
+: "${DOCKERHUB_USERNAME:-$DOCKERHUB_USERNAME}"
+: "${DOCKERHUB_TOKEN:-$DOCKERHUB_TOKEN}"
 : "${IMAGE_TAG:-$IMAGE_TAG}"
 
 DOCKER_REGISTRY="docker.io"
-IMAGE_NAME="$DOCKER_USERNAME/backstage"
+IMAGE_NAME="sourcefuse/backstage"
 
 echo "Docker Registry: $DOCKER_REGISTRY"
 
 printf "\nLogging in to Docker Hub...\n"
 # echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
 
 
 printf "\nBuilding docker images...\n"
