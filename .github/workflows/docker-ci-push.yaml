@@ -31,7 +31,7 @@ jobs:
       - name: Set output
         id: vars
         run: |
-          echo "git_tag=${RANDOM.NUMBER:1}.${RANDOM.NUMBER:1}.${RANDOM.NUMBER:1}" >> $GITHUB_OUTPUT
+          echo "git_tag=5.3.0" >> $GITHUB_OUTPUT
           echo "DOCKERHUB_TOKEN=${{ secrets.SF_REF_ARCH_DOCKERHUB_TOKEN }}" >> $GITHUB_OUTPUT
           echo "DOCKERHUB_USERNAME=${{ secrets.SF_REF_ARCH_DOCKERHUB_USERNAME }}" >> $GITHUB_OUTPUT
 
