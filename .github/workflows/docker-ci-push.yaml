@@ -30,7 +30,10 @@ jobs:
 
       - name: Set output
         id: vars
-        run: echo "git_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        run: |
+          echo "git_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "DOCKERHUB_TOKEN=${{ secrets.SF_REF_ARCH_DOCKERHUB_TOKEN }}" >> $GITHUB_OUTPUT
+          echo "DOCKERHUB_USERNAME=${{ secrets.SF_REF_ARCH_DOCKERHUB_USERNAME }}" >> $GITHUB_OUTPUT
 
       # configure iam
       - name: Configure IAM Role
@@ -44,9 +47,9 @@ jobs:
         run: |
           export IMAGE_TAG=${{ steps.vars.outputs.git_tag }}
           export ENVIRONMENT=poc
-          export DOCKERHUB_TOKEN=${{ secrets.SF_REF_ARCH_DOCKERHUB_TOKEN }}
-          export DOCKERHUB_USERNAME=${{ secrets.SF_REF_ARCH_DOCKERHUB_USERNAME }}
-          export POC_BACKSTAGE_DEPLOY_ARNg=${{ secrets.POC_BACKSTAGE_DEPLOY_ARNg }}
+          export DOCKERHUB_TOKEN=${{ steps.vars.outputs.DOCKERHUB_TOKEN }}
+          export DOCKERHUB_USERNAME=${{ steps.vars.outputs.DOCKERHUB_USERNAME }}
+          export POC_BACKSTAGE_DEPLOY_ARN=${{ secrets.POC_BACKSTAGE_DEPLOY_ARN }}
           ./scripts/docker-build-tag-and-push.sh
 
 
