@@ -47,8 +47,8 @@ jobs:
         run: |
           export IMAGE_TAG=${{ steps.vars.outputs.git_tag }}
           export ENVIRONMENT=poc
-          export DOCKERHUB_TOKEN=${{ steps.vars.outputs.DOCKERHUB_TOKEN }}
-          export DOCKERHUB_USERNAME=${{ steps.vars.outputs.DOCKERHUB_USERNAME }}
+          export DOCKERHUB_TOKEN=${{ secrets.SF_ARCH_DOCKERHUB_PASSWORD }}
+          export DOCKERHUB_USERNAME=${{ secrets.SF_ARCH_DOCKERHUB_USERNAME }}
           export POC_BACKSTAGE_DEPLOY_ARN=${{ secrets.POC_BACKSTAGE_DEPLOY_ARN }}
           ./scripts/docker-build-tag-and-push.sh
 
