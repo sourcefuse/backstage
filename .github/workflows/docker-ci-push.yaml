@@ -46,6 +46,7 @@ jobs:
           export ENVIRONMENT=poc
           export DOCKERHUB_TOKEN=${{ secrets.SF_REF_ARCH_DOCKERHUB_TOKEN }}
           export DOCKERHUB_USERNAME=${{ secrets.SF_REF_ARCH_DOCKERHUB_USERNAME }}
+          export POC_BACKSTAGE_DEPLOY_ARNg=${{ secrets.POC_BACKSTAGE_DEPLOY_ARNg }}
           ./scripts/docker-build-tag-and-push.sh
 
 
