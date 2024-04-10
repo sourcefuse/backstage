@@ -27,6 +27,7 @@ printf "\nBuilding docker images...\n"
 docker-compose -f $DOCKER_COMPOSE_FILE build
 
 printf "\nTagging image $IMAGE_NAME:$IMAGE_TAG...\n"
+docker images
 docker tag sourcefuse/backstage:latest $IMAGE_NAME:$IMAGE_TAG
 
 printf "\nPushing $IMAGE_NAME:$IMAGE_TAG to Docker Hub...\n"
