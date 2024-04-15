@@ -44,6 +44,8 @@ jobs:
         run: |
           export IMAGE_TAG=${{ steps.vars.outputs.git_tag }}
           export ENVIRONMENT=poc
+          export DOCKERHUB_USERNAME=${{ secrets.SF_ARCH_DOCKERHUB_USERNAME }}
+          export DOCKERHUB_PASSWORD=${{ secrets.SF_ARCH_DOCKERHUB_PASSWORD }}
           ./scripts/docker-build-tag-and-push.sh
 
 
@@ -75,5 +77,8 @@ jobs:
       - name: Build, Tag, and Push
         run: |
           export IMAGE_TAG=${{ steps.vars.outputs.git_tag }}
-          export ENVIRONMENT=prod
+          export ENVIRONMENT=poc
+          export DOCKERHUB_USERNAME=${{ secrets.SF_ARCH_DOCKERHUB_USERNAME }}
+          export DOCKERHUB_PASSWORD=${{ secrets.SF_ARCH_DOCKERHUB_PASSWORD }}
           ./scripts/docker-build-tag-and-push.sh
+
