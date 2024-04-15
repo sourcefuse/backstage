@@ -11,15 +11,12 @@ set -e
 : "${DOCKER_PASSWORD:=$DOCKERHUB_TOKEN}"
 : "${IMAGE_TAG:-$IMAGE_TAG}"
 
-DOCKER_REGISTRY="docker.io"
-IMAGE_NAME="$DOCKER_USERNAME/backstage"
+DOCKERHUB_REGISTRY="docker.io"
+IMAGE_NAME="$DOCKERHUB_REGISTRY/$DOCKER_USERNAME/backstage"
+
+echo "Docker Registry: $DOCKERHUB_REGISTRY ...\n"
 
 printf "\nLogging in to Docker Hub... -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ImangeName $IMAGE_NAME Imagetag $IMAGE_TAG ...\n"
-
-echo "Docker Registry: $DOCKER_REGISTRY"
-
-printf "\nLogging in to Docker Hub... -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ...\n"
-# echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
 docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
 
@@ -35,7 +32,7 @@ docker push $IMAGE_NAME:$IMAGE_TAG
 
 printf "\nAdding $IMAGE_NAME:$IMAGE_TAG to SSM Parameter...\n"
 aws ssm put-parameter \
-  --name "/${ENVIRONMENT}/backstage/container-image-new" \
+  --name "/${ENVIRONMENT}/backstage/container-image" \
   --description "Container image reference for downstream deployments" \
   --value "$IMAGE_NAME:$IMAGE_TAG" \
   --type String \
