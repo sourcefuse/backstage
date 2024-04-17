@@ -125,11 +125,6 @@ catalog:
         - allow: [ Template ]
 
     - type: url
-      target: https://github.com/sourcefuse/sf-software-templates/blob/main/scaffolder-templates/react-boilerplate/template.yaml
-      rules:
-        - allow: [ Template ]
-
-    - type: url
       target: https://github.com/sourcefuse/sf-software-templates/blob/main/scaffolder-templates/terraform-aws-ref-arch-bootstrap/template.yaml
       rules:
         - allow: [ Template ]
@@ -198,11 +193,6 @@ catalog:
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-arc-eks/blob/main/catalog-info.yml
-      rules:
-        - allow: [ Component ]
-
-    - type: url
-      target: https://github.com/sourcefuse/terraform-aws-arc-bootstrap/blob/main/catalog-info.yml
       rules:
         - allow: [ Component ]
 
