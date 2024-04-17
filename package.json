@@ -23,7 +23,12 @@
     "create-plugin": "backstage-cli create-plugin --scope internal",
     "remove-plugin": "backstage-cli remove-plugin",
     "setup-hooks": "husky install",
-    "new": "backstage-cli new --scope internal"
+    "new": "backstage-cli new --scope internal",
+    "infra:init": "cd terraform && terraform init",
+    "infra:plan": "cd terraform && terraform plan",
+    "infra:apply": "cd terraform && terraform apply",
+    "infra:destroy": "cd terraform && terraform destroy",
+    "prepare": "husky install"
   },
   "workspaces": {
     "packages": [
@@ -59,6 +64,13 @@
   "config": {
     "commitizen": {
       "path": "cz-format-extension"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint:all && npm run test:all",
+      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
   "dependencies": {}

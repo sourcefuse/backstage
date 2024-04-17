@@ -3,7 +3,7 @@ version: '3.4'
 services:
   backstage:
     container_name: backstage_container
-    image: sourcefuse/sourcefuse-backstage
+    image: sourcefuse/backstage
     build: .
     environment:
       ENVIRONMENT: production
