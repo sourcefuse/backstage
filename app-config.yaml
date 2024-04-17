@@ -125,11 +125,6 @@ catalog:
         - allow: [ Template ]
 
     - type: url
-      target: https://github.com/sourcefuse/sf-software-templates/blob/main/scaffolder-templates/terraform-aws-ref-arch-bootstrap/template.yaml
-      rules:
-        - allow: [ Template ]
-
-    - type: url
       target: https://github.com/sourcefuse/sf-software-templates/blob/main/scaffolder-templates/microservice-repo-bootstrap/template.yaml
       rules:
         - allow: [ Template ]
@@ -155,11 +150,6 @@ catalog:
       rules:
         - allow: [ Component ]
       tags: [ Backend ]
-
-    - type: url
-      target: https://github.com/sourcefuse/terraform-aws-ref-arch-bootstrap/blob/main/catalog-info.yaml
-      rules:
-        - allow: [ Component ]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-arc-db/blob/main/catalog-info.yaml
