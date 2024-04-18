@@ -28,7 +28,8 @@
     "infra:plan": "cd terraform && terraform plan",
     "infra:apply": "cd terraform && terraform apply",
     "infra:destroy": "cd terraform && terraform destroy",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "postinstall": "patch-package"
   },
   "workspaces": {
     "packages": [
@@ -48,6 +49,8 @@
     "husky": "^8.0.1",
     "lerna": "^4.0.0",
     "node-gyp": "^9.0.0",
+    "patch-package": "^8.0.0",
+    "postinstall-postinstall": "^2.1.0",
     "prettier": "^2.3.2",
     "typescript": "~5.0.0"
   },
