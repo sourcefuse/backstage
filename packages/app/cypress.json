@@ -2,5 +2,9 @@
   "baseUrl": "http://localhost:3001",
   "fixturesFolder": false,
   "pluginsFile": false,
-  "retries": 3
+  "retries": 3,
+  "env": {
+    "FRONTEND_BASE_URL":"http://localhost:3000",
+    "ORGANIZATION":"sadaru-tech-org1"
+  }
 }
