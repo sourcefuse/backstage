@@ -9,7 +9,7 @@ describe('SourceFuse Backstage Template Execution', () => {
     cy.contains('Create a New Component', { timeout: timeOutVal }).should(
       'be.visible',
     );
-    cy.get('input#root_function_id', { timeout: 50000 }).type(
+    cy.get('input#root_function_id', { timeout: timeOutVal }).type(
       `lambda-bolierplate-${randVal}`,
     );
     cy.get('input#root_backstage_namespace').type(
