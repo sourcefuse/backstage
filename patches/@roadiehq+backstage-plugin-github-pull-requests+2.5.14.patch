@@ -1,7 +1,16 @@
 diff --git a/node_modules/@roadiehq/backstage-plugin-github-pull-requests/dist/esm/index-ec5c2bf2.esm.js b/node_modules/@roadiehq/backstage-plugin-github-pull-requests/dist/esm/index-ec5c2bf2.esm.js
-index 3b7d6bf..bae63d7 100644
+index 3b7d6bf..0a71da8 100644
 --- a/node_modules/@roadiehq/backstage-plugin-github-pull-requests/dist/esm/index-ec5c2bf2.esm.js
 +++ b/node_modules/@roadiehq/backstage-plugin-github-pull-requests/dist/esm/index-ec5c2bf2.esm.js
+@@ -165,7 +165,7 @@ function usePullRequests({
+     retry,
+     error
+   } = useAsyncRetry(async () => {
+-    const token = await auth.getAccessToken(["repo"]);
++    const token = await auth.getAccessToken(["read:user"]);
+     if (!repo) {
+       return [];
+     }
 @@ -604,7 +604,7 @@ function usePullRequestsStatistics({
      value: statsData,
      error
