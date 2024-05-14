@@ -34,6 +34,7 @@ index 2b93a75..87bbcb8 100644
 +              access: 'admin'
 +            }
 +          ];
+          console.log("i m in collaborators----",collaborators,payloadUser,loggedInUserId);
 +      }
 +      // End default collaborator script
        const octokitOptions = await getOctokitOptions({
