@@ -1,6 +1,6 @@
 # Stage 1 - Create yarn install skeleton layer
 FROM node:18 AS packages
-RUN npm config set unsafe-perm true
+RUN yarn config set unsafe-perm true
 
 WORKDIR /app
 COPY package.json yarn.lock ./
