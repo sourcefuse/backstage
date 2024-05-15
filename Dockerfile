@@ -1,5 +1,6 @@
 # Stage 1 - Create yarn install skeleton layer
 FROM node:18 AS packages
+RUN yarn config set unsafe-perm true
 
 WORKDIR /app
 COPY package.json yarn.lock ./
@@ -20,6 +21,7 @@ WORKDIR /app
 COPY --from=packages /app .
 RUN apt-get update -y && apt-get install software-properties-common make gcc g++ -y
 RUN yarn install  --network-timeout 600000 && rm -rf "$(yarn cache dir)"
+
 
 COPY . .
 
@@ -48,6 +50,7 @@ COPY --from=build /app/yarn.lock /app/package.json /app/packages/backend/dist/sk
 RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
 
 RUN yarn install --network-timeout 600000 && rm -rf "$(yarn cache dir)"
+
 
 # Copy the built packages from the build stage
 COPY --from=build /app/packages/backend/dist/bundle.tar.gz .
