@@ -1,5 +1,7 @@
 # Stage 1 - Create yarn install skeleton layer
 FROM node:18 AS packages
+RUN groupadd -r app && useradd -r -g app app
+USER app
 
 WORKDIR /app
 COPY package.json yarn.lock ./
