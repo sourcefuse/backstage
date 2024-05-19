@@ -1,6 +1,5 @@
 # Stage 1 - Create yarn install skeleton layer
 FROM node:18 AS packages
-RUN yarn config set unsafe-perm true
 
 WORKDIR /app
 COPY package.json yarn.lock ./
@@ -22,9 +21,8 @@ COPY --from=packages /app .
 RUN apt-get update -y && apt-get install software-properties-common make gcc g++ -y
 RUN yarn install  --network-timeout 600000 && rm -rf "$(yarn cache dir)"
 
-
 COPY . .
-
+RUN yarn run postinstall
 RUN yarn tsc
 RUN yarn --cwd packages/backend backstage-cli package build
 
@@ -45,12 +43,17 @@ RUN apt-get update && \
     pip3 install mkdocs-techdocs-core==1.0.1 && \
     pip3 install mkdocs mkdocs-include-markdown-plugin mkdocs-awesome-pages-plugin
 
+
 # Copy the install dependencies from the build stage and context
 COPY --from=build /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton.tar.gz ./
+
 RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
 
+COPY --from=packages /app .
 RUN yarn install --network-timeout 600000 && rm -rf "$(yarn cache dir)"
 
+COPY . .
+RUN yarn run postinstall
 
 # Copy the built packages from the build stage
 COPY --from=build /app/packages/backend/dist/bundle.tar.gz .

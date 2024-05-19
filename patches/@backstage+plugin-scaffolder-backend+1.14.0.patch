@@ -22,9 +22,8 @@ index 2b93a75..87bbcb8 100644
          token: providedToken,
          requiredCommitSigning = false
        } = ctx.input;
-+      let collaborators = ctx.input.collaborators; 
++      let collaborators = ctx.input.collaborators;
 +      // If collaborators not added from template.. below script would add current logged in github userId as collaborator with admin role
-+      console.log("i m  out collaborators----",collaborators,ctx.secrets?.backstageToken); 
 +      if (!collaborators) {
 +        const payloadUser = ctx.secrets?.backstageToken ? await jose.decodeJwt(ctx.secrets.backstageToken) : null;
 +        let loggedInUserId = payloadUser?.sub?.split('/')[1];
@@ -34,7 +33,7 @@ index 2b93a75..87bbcb8 100644
 +              user: loggedInUserId,
 +              access: 'admin'
 +            }
-+          ];  console.log("i m in collaborators----",collaborators,payloadUser,loggedInUserId);        
++          ];
 +      }
 +      // End default collaborator script
        const octokitOptions = await getOctokitOptions({
