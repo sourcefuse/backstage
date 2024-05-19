@@ -43,10 +43,8 @@ RUN apt-get update && \
     pip3 install mkdocs-techdocs-core==1.0.1 && \
     pip3 install mkdocs mkdocs-include-markdown-plugin mkdocs-awesome-pages-plugin
 
-
 # Copy the install dependencies from the build stage and context
 COPY --from=build /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton.tar.gz ./
-
 RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
 
 COPY --from=packages /app .
@@ -56,6 +54,7 @@ RUN yarn run postinstall
 # Copy the built packages from the build stage
 COPY --from=build /app/packages/backend/dist/bundle.tar.gz .
 
+# COPY --from=build /app/packages/backend/src/workers /app/packages/backend/workers
 RUN tar xzf bundle.tar.gz && rm bundle.tar.gz
 
 # Copy any other files that we need at runtime
