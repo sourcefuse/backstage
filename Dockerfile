@@ -6,6 +6,7 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 
 COPY packages packages
+COPY patches patches
 # Comment this out if you don't have any internal plugins
 #COPY plugins plugins
 
@@ -22,9 +23,9 @@ COPY --from=packages /app .
 RUN apt-get update -y && apt-get install software-properties-common make gcc g++ -y
 RUN yarn install  --network-timeout 600000 && rm -rf "$(yarn cache dir)"
 
-
 COPY . .
 
+RUN yarn run postinstall
 RUN yarn tsc
 RUN yarn --cwd packages/backend backstage-cli package build
 
@@ -49,8 +50,10 @@ RUN apt-get update && \
 COPY --from=build /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton.tar.gz ./
 RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
 
+COPY --from=packages /app .
 RUN yarn install --network-timeout 600000 && rm -rf "$(yarn cache dir)"
-
+COPY ./patches ./patches
+RUN yarn run postinstall
 
 # Copy the built packages from the build stage
 COPY --from=build /app/packages/backend/dist/bundle.tar.gz .
