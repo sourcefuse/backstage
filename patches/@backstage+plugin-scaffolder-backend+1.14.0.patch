@@ -1,5 +1,5 @@
 diff --git a/node_modules/@backstage/plugin-scaffolder-backend/dist/cjs/ScaffolderEntitiesProcessor-021c5dcb.cjs.js b/node_modules/@backstage/plugin-scaffolder-backend/dist/cjs/ScaffolderEntitiesProcessor-021c5dcb.cjs.js
-index 2b93a75..87bbcb8 100644
+index 2b93a75..bd292cb 100644
 --- a/node_modules/@backstage/plugin-scaffolder-backend/dist/cjs/ScaffolderEntitiesProcessor-021c5dcb.cjs.js
 +++ b/node_modules/@backstage/plugin-scaffolder-backend/dist/cjs/ScaffolderEntitiesProcessor-021c5dcb.cjs.js
 @@ -42,6 +42,7 @@ var pluginPermissionCommon = require('@backstage/plugin-permission-common');
@@ -7,9 +7,9 @@ index 2b93a75..87bbcb8 100644
  var os = require('os');
  var pluginCatalogNode = require('@backstage/plugin-catalog-node');
 +var jose = require('jose');
-
+ 
  function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
+ 
 @@ -3555,7 +3556,6 @@ function createPublishGithubAction(options) {
          squashMergeCommitMessage = "COMMIT_MESSAGES",
          allowRebaseMerge = true,
@@ -34,8 +34,8 @@ index 2b93a75..87bbcb8 100644
 +              access: 'admin'
 +            }
 +          ];
-+      }
-+      // End default collaborator script
++        }
++        // End default collaborator script
        const octokitOptions = await getOctokitOptions({
          integrations,
          credentialsProvider: githubCredentialsProvider,
