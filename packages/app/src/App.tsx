@@ -41,7 +41,7 @@ import {
   OAuthRequestDialog,
   SignInProviderConfig,
   SignInPage,
-  // AutoLogout
+  AutoLogout
 } from '@backstage/core-components';
 import { createApp } from '@backstage/app-defaults';
 import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
@@ -51,7 +51,6 @@ import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/
 import { githubAuthApiRef } from '@backstage/core-plugin-api';
 import { Box } from '@material-ui/core';
 import { EntitySnykContent } from 'backstage-plugin-snyk';
-import { AutoLogout} from '@backstage/core-components';
 
 /* My Custom Theme */
 const customTheme = createTheme({
