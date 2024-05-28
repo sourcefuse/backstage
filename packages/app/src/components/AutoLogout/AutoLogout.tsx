@@ -39,7 +39,7 @@ import { DefaultTimestampStore, TimestampStore } from './timestampStore';
 type AutoLogoutTrackableEvent = EventsType;
 
 /** @public */
-// sonarignore:start
+
 export type AutoLogoutProps = {
   /**
    * Enable/disable the AutoLogoutMechanism.
@@ -100,7 +100,7 @@ const ConditionalAutoLogout = ({
   lastSeenOnlineStore,
 }: AutoLogoutInternalProps): JSX.Element => {
   const promptBeforeIdleMillis = promptBeforeIdleSeconds * 1000;
-  const promptBeforeIdle = promptBeforeIdleMillis > 0 ? true : false; // NOSONAR
+  const promptBeforeIdle = promptBeforeIdleMillis > 0 ? true : false;
 
   const onPrompt = () => {
     // onPrompt will be called `promptBeforeIdle` milliseconds before `timeout`.
