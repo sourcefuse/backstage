@@ -42,10 +42,12 @@ export const StillTherePrompt = (props: StillTherePromptProps) => {
     setRemainingTime,
   } = props;
 
+  // sonarignore:start
   useEffect(() => {
     const interval = setInterval(() => {
       setRemainingTime(Math.ceil(idleTimer.getRemainingTime()));
     }, 500);
+  // sonarignore:end
 
     return () => {
       clearInterval(interval);

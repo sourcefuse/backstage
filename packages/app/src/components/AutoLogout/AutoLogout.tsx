@@ -39,40 +39,42 @@ import { DefaultTimestampStore, TimestampStore } from './timestampStore';
 type AutoLogoutTrackableEvent = EventsType;
 
 /** @public */
+// sonarignore:start
 export type AutoLogoutProps = {
   /**
    * Enable/disable the AutoLogoutMechanism.
    * defauls to true.
    */
-  enabled?: boolean; // NOSONAR
+  enabled?: boolean;
   /**
    * The amount of time (in minutes) of inactivity
    * after which the user is automatically logged out.
    * defaults to 60 minutes.
    */
-  idleTimeoutMinutes?: number; // NOSONAR
+  idleTimeoutMinutes?: number;
   /**
    * The number of seconds before the idleTimeout expires,
    * at which the user will be alerted by a Dialog that
    * they are about to be logged out.
    * defaults to 10 seconds
    */
-  promptBeforeIdleSeconds?: number; // NOSONAR
+  promptBeforeIdleSeconds?: number;
   /**
    * Enable/disable the usage of Node's worker thread timers instead of main thread timers.
    * This is helpful if you notice that the your browser is killing inactive tab's timers, like the one used by AutoLogout.
    * If you experience some browser incompatibility, you may try to set this to false.
    * defaults to true.
    */
-  useWorkerTimers?: boolean; // NOSONAR
+  useWorkerTimers?: boolean;
   /**
    * Enable/disable the autologout for disconnected users.
    * disconnected users are the ones that are logged in but have no Backstage tab open in their browsers.
    * If enabled, disconnected users will be automatically logged out after `idleTimeoutMinutes`
    * defaults to true
    */
-  logoutIfDisconnected?: boolean; // NOSONAR
+  logoutIfDisconnected?: boolean;
 };
+// sonarignore:end
 
 type AutoLogoutInternalProps = Omit<Required<AutoLogoutProps>, 'enabled'> & {
   events: AutoLogoutTrackableEvent[];
@@ -244,6 +246,7 @@ export const AutoLogout = (props: AutoLogoutProps): JSX.Element | null => {
     isLoggedIn(identityApi);
   }, [identityApi]);
 
+  // sonarignore:start
   const {
     enabled,
     idleTimeoutMinutes,
@@ -253,7 +256,7 @@ export const AutoLogout = (props: AutoLogoutProps): JSX.Element | null => {
   }: AutoLogoutProps = useMemo(() => {
     return parseConfig(configApi, props);
   }, [configApi, props]);
-
+  // sonarignore:end
   useEffect(() => {
     if (idleTimeoutMinutes < 0.5) {
       throw new Error(
