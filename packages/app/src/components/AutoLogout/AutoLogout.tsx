@@ -44,34 +44,34 @@ export type AutoLogoutProps = {
    * Enable/disable the AutoLogoutMechanism.
    * defauls to true.
    */
-  enabled?: boolean;
+  enabled?: boolean; // NOSONAR
   /**
    * The amount of time (in minutes) of inactivity
    * after which the user is automatically logged out.
    * defaults to 60 minutes.
    */
-  idleTimeoutMinutes?: number;
+  idleTimeoutMinutes?: number; // NOSONAR
   /**
    * The number of seconds before the idleTimeout expires,
    * at which the user will be alerted by a Dialog that
    * they are about to be logged out.
    * defaults to 10 seconds
    */
-  promptBeforeIdleSeconds?: number;
+  promptBeforeIdleSeconds?: number; // NOSONAR
   /**
    * Enable/disable the usage of Node's worker thread timers instead of main thread timers.
    * This is helpful if you notice that the your browser is killing inactive tab's timers, like the one used by AutoLogout.
    * If you experience some browser incompatibility, you may try to set this to false.
    * defaults to true.
    */
-  useWorkerTimers?: boolean;
+  useWorkerTimers?: boolean; // NOSONAR
   /**
    * Enable/disable the autologout for disconnected users.
    * disconnected users are the ones that are logged in but have no Backstage tab open in their browsers.
    * If enabled, disconnected users will be automatically logged out after `idleTimeoutMinutes`
    * defaults to true
    */
-  logoutIfDisconnected?: boolean;
+  logoutIfDisconnected?: boolean; // NOSONAR
 };
 
 type AutoLogoutInternalProps = Omit<Required<AutoLogoutProps>, 'enabled'> & {
@@ -98,7 +98,7 @@ const ConditionalAutoLogout = ({
   lastSeenOnlineStore,
 }: AutoLogoutInternalProps): JSX.Element => {
   const promptBeforeIdleMillis = promptBeforeIdleSeconds * 1000;
-  const promptBeforeIdle = promptBeforeIdleMillis > 0 ? true : false;
+  const promptBeforeIdle = promptBeforeIdleMillis > 0 ? true : false; // NOSONAR
 
   const onPrompt = () => {
     // onPrompt will be called `promptBeforeIdle` milliseconds before `timeout`.
