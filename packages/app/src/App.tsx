@@ -8,6 +8,7 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import { BackstageOverrides } from '@backstage/core-components';
 import loginBg from './assets/images/login-bg.jpg';
 import sfLogoMinimal from './assets/images/sf-minimal-logo.png';
+import { PermissionWrapper } from './PermissionWrapper';
 
 import {
   CatalogEntityPage,
@@ -111,8 +112,8 @@ BackstageOverrides => {
 
         // borderBottom: `4px solid ${theme.palette.primary.main}`,
       },
-      type:{
-        color:"#000000"
+      type: {
+        color: '#000000',
       },
       title: {
         fontSize: '30px',
@@ -132,12 +133,12 @@ BackstageOverrides => {
       },
       label: {
         color: 'black',
-      }
+      },
     },
     MuiSvgIcon: {
       root: {
         color: 'black',
-      }
+      },
     },
     BackstageContentHeader: {
       title: {
@@ -232,8 +233,8 @@ BackstageOverrides => {
       },
     },
     MuiButton: {
-      textPrimary:{
-        color:'#E81823'
+      textPrimary: {
+        color: '#E81823',
       },
       root: {
         borderRadius: 4,
@@ -242,7 +243,7 @@ BackstageOverrides => {
         boxShadow: 'none',
       },
       containedPrimary: {
-        backgroundColor:'#E81823',
+        backgroundColor: '#E81823',
         '&:hover': {
           backgroundColor: '#E81823',
         },
@@ -392,12 +393,20 @@ const routes = (
       </TechDocsAddons>
     </Route>
     <Route path="/create" element={<ScaffolderPage />} />
+    <Route
+      path="/create/templates/default"
+      element={
+        <PermissionWrapper permission="scaffoldPermission">
+          <ScaffolderPage />
+        </PermissionWrapper>
+      }
+    />
     <Route path="/api-docs" element={<ApiExplorerPage />} />
     <Route
       path="/tech-radar"
       element={<TechRadarPage width={1500} height={800} />}
     />
-    <Route path="/snyk" element={<EntitySnykContent />}/>
+    <Route path="/snyk" element={<EntitySnykContent />} />
     <Route
       path="/catalog-import"
       element={
