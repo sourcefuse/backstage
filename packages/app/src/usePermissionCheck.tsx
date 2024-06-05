@@ -14,8 +14,6 @@ export const usePermissionCheck = (permission: string) => {
 
   useEffect(() => {
     const checkPermission = async () => {
-      const userIdDetail = await identityApi.getBackstageIdentity();
-
       const authDetail = await identityApi.getCredentials();
       const backendUrl = config.getOptionalString('backend.baseUrl');
       const response = await fetch(
@@ -26,7 +24,6 @@ export const usePermissionCheck = (permission: string) => {
             'Content-Type': 'application/json',
             authorization: authDetail.token as string,
           },
-          // body: JSON.stringify({  permission }),
         },
       );
       if (response.ok) {
