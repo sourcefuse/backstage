@@ -7,6 +7,10 @@ locals {
         value = "https://api.github.com"
       },
       {
+        name  = "GITHUB_ORGANIZATION"
+        value = "sourcefuse"
+      },
+      {
         name  = "REPO_CREATOR_TEAM"
         value = data.aws_ssm_parameter.repo_name.value
       },

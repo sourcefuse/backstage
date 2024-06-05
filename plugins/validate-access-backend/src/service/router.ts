@@ -13,16 +13,13 @@ export async function createRouter(
   options: RouterOptions,
 ): Promise<express.Router> {
   const { logger } = options;
+
   const router = Router();
   router.use(express.json());
 
   router.get('/health', (_, response) => {
     logger.info('PONG!');
     response.json({ status: 'ok' });
-  });
-  router.get('/hello', async (_, res) => {
-    logger.info('Hello endpoint was called');
-    res.json({ message: 'Hello from my-backend-plugin!' });
   });
 
   router.get('/validateuser', async (_, res) => {

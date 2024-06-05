@@ -4,6 +4,8 @@ import request from 'supertest';
 
 import { createRouter } from './router';
 
+const STATUS_OK = 200;
+
 describe('createRouter', () => {
   let app: express.Express;
 
@@ -22,7 +24,7 @@ describe('createRouter', () => {
     it('returns ok', async () => {
       const response = await request(app).get('/health');
 
-      expect(response.status).toEqual(200);
+      expect(response.status).toEqual(STATUS_OK);
       expect(response.body).toEqual({ status: 'ok' });
     });
   });
