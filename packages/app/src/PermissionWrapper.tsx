@@ -7,7 +7,7 @@ interface IPermissionWrapper {
   children?: ReactNode;
   permission?: string;
 }
-export const PermissionWrapper = ({ children, permission }: any) => {
+export const PermissionWrapper = ({ children, permission }: IPermissionWrapper) => { // NOSONAR
   const hasPermission = usePermissionCheck(permission as string);
 
   if (hasPermission === null) {
@@ -15,7 +15,7 @@ export const PermissionWrapper = ({ children, permission }: any) => {
   }
 
   if (!hasPermission) {
-    return <div>Permission Denied</div>; // Render a "Permission Denied" message
+    return <div>Permission Denied......</div>; // Render a "Permission Denied" message
   }
 
   return children;
