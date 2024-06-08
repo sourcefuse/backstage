@@ -8,7 +8,7 @@ COPY package.json yarn.lock ./
 COPY packages packages
 COPY patches patches
 # Comment this out if you don't have any internal plugins
-#COPY plugins plugins
+COPY plugins plugins
 
 RUN find packages \! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} \+
 
@@ -51,8 +51,10 @@ COPY --from=build /app/yarn.lock /app/package.json /app/packages/backend/dist/sk
 RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
 
 COPY --from=packages /app .
+COPY ./plugins ./plugins
 RUN yarn install --network-timeout 600000 && rm -rf "$(yarn cache dir)"
 COPY ./patches ./patches
+
 RUN yarn run postinstall
 
 # Copy the built packages from the build stage

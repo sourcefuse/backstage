@@ -2,6 +2,5 @@
 node_modules
 #packages
 !packages/backend/dist
-plugins
 .env.local*
 *.pem
