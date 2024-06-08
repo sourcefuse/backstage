@@ -50,6 +50,7 @@ import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/
 import { githubAuthApiRef } from '@backstage/core-plugin-api';
 import { Box } from '@material-ui/core';
 import { EntitySnykContent } from 'backstage-plugin-snyk';
+import { AutoLogout } from './components/AutoLogout';
 
 /* My Custom Theme */
 const customTheme = createTheme({
@@ -111,8 +112,8 @@ BackstageOverrides => {
 
         // borderBottom: `4px solid ${theme.palette.primary.main}`,
       },
-      type:{
-        color:"#000000"
+      type: {
+        color: '#000000',
       },
       title: {
         fontSize: '30px',
@@ -132,12 +133,12 @@ BackstageOverrides => {
       },
       label: {
         color: 'black',
-      }
+      },
     },
     MuiSvgIcon: {
       root: {
         color: 'black',
-      }
+      },
     },
     BackstageContentHeader: {
       title: {
@@ -232,8 +233,8 @@ BackstageOverrides => {
       },
     },
     MuiButton: {
-      textPrimary:{
-        color:'#E81823'
+      textPrimary: {
+        color: '#E81823',
       },
       root: {
         borderRadius: 4,
@@ -242,7 +243,7 @@ BackstageOverrides => {
         boxShadow: 'none',
       },
       containedPrimary: {
-        backgroundColor:'#E81823',
+        backgroundColor: '#E81823',
         '&:hover': {
           backgroundColor: '#E81823',
         },
@@ -397,7 +398,7 @@ const routes = (
       path="/tech-radar"
       element={<TechRadarPage width={1500} height={800} />}
     />
-    <Route path="/snyk" element={<EntitySnykContent />}/>
+    <Route path="/snyk" element={<EntitySnykContent />} />
     <Route
       path="/catalog-import"
       element={
@@ -418,6 +419,12 @@ export default app.createRoot(
   <>
     <AlertDisplay />
     <OAuthRequestDialog />
+    <AutoLogout
+      idleTimeoutMinutes={30}
+      promptBeforeIdleSeconds={30}
+      useWorkerTimers={false}
+      logoutIfDisconnected={false}
+    />
     <AppRouter>
       <Root>{routes}</Root>
     </AppRouter>
