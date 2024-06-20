@@ -8,6 +8,7 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import { BackstageOverrides } from '@backstage/core-components';
 import loginBg from './assets/images/login-bg.jpg';
 import sfLogoMinimal from './assets/images/sf-minimal-logo.png';
+import { PermissionWrapper } from './PermissionWrapper';
 
 import {
   CatalogEntityPage,
@@ -393,6 +394,14 @@ const routes = (
       </TechDocsAddons>
     </Route>
     <Route path="/create" element={<ScaffolderPage />} />
+    <Route
+      path="/create/templates/default"
+      element={
+        <PermissionWrapper permission="scaffoldPermission">
+          <ScaffolderPage />
+        </PermissionWrapper>
+      }
+    />
     <Route path="/api-docs" element={<ApiExplorerPage />} />
     <Route
       path="/tech-radar"

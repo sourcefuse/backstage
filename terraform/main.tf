@@ -45,7 +45,7 @@ module "ecs_common_data" {
 ################################################################################
 module "backstage" {
   source                    = "sourcefuse/arc-backstage-ecs-app/aws"
-  version                   = "0.2.6"
+  version                   = "0.2.7"
   alb_dns_name              = module.ecs_common_data.alb_dns_name
   alb_zone_id               = module.ecs_common_data.alb_dns_zone_id
   app_host_name             = var.app_host_name
@@ -66,4 +66,5 @@ module "backstage" {
   private_key_secret_name   = var.private_key_secret_name
   health_check_path_pattern = "/healthcheck"
   desired_count             = 2
+  environment_variables     = local.environment_variables
 }
