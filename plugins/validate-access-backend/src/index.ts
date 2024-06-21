@@ -1,4 +1,3 @@
-export * from './service/router';
 import { createRouter } from './service/router';
 import { PluginEnvironment } from './types';
 
