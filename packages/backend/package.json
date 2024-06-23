@@ -38,6 +38,7 @@
     "@backstage/plugin-search-backend-node": "^1.2.1",
     "@backstage/plugin-techdocs-backend": "^1.6.2",
     "@gitbeaker/node": "^34.6.0",
+    "@internal/plugin-validate-access-backend": "^0.1.0",
     "@octokit/rest": "^18.5.3",
     "@sourceloop/cli": "^7.1.4",
     "app": "link:../app",
