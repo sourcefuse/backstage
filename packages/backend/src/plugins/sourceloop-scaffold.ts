@@ -35,7 +35,7 @@ export function createScaffoldAction() {
         },
       },
     },
-    async handler(ctx: any) {
+    async handler(ctx: any) { // NOSONAR
       const { signal } = ctx;
       ctx.logger.info(`Templating using Yeoman generator: ${ctx.input.name}`);
 

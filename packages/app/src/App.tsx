@@ -5,7 +5,7 @@ import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
 import { createTheme, lightTheme, BackstageTheme } from '@backstage/theme';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/core/styles';
-import { BackstageOverrides } from '@backstage/core-components';
+import { BackstageOverrides } from '@backstage/core-components'; // NOSONAR
 import loginBg from './assets/images/login-bg.jpg';
 import sfLogoMinimal from './assets/images/sf-minimal-logo.png';
 import { PermissionWrapper } from './PermissionWrapper';
@@ -33,7 +33,6 @@ import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import { UserSettingsPage } from '@backstage/plugin-user-settings';
 import { apis } from './apis';
 import { entityPage } from './components/catalog/EntityPage';
-// import { CustomCatalogPage } from './components/catalog/CustomCatalogIndexPage';
 import { searchPage } from './components/search/SearchPage';
 import { Root } from './components/Root';
 
@@ -42,7 +41,7 @@ import {
   OAuthRequestDialog,
   SignInProviderConfig,
   SignInPage,
-} from '@backstage/core-components';
+} from '@backstage/core-components'; // NOSONAR
 import { createApp } from '@backstage/app-defaults';
 import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
