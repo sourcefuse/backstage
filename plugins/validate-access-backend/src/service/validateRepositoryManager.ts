@@ -18,7 +18,7 @@ export const isUserAllowed = async (
     const userAccess = response.data;
     return (
       userAccess.role &&
-      ['member', 'admin'].includes(userAccess.role) &&
+      ['member', 'admin', 'maintainer'].includes(userAccess.role) &&
       userAccess.state === 'active'
     );
   } catch (error) {
