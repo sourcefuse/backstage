@@ -30,8 +30,9 @@ export async function createRouter(
         userIdentityDetails?.sub?.split('/')[1] as string,
       );
       res.json({ allowed: userAllowed });
+    } else {
+      res.json({ allowed: false });
     }
-    res.json({ allowed: false });
   });
 
   router.use(errorHandler());
