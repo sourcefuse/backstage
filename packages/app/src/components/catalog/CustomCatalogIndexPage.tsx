@@ -23,16 +23,9 @@ import {
     TableColumn,
     TableProps,
   } from '@backstage/core-components';
-  // import {
-  //   createExternalRouteRef,
-  // } from '@backstage/core-plugin-api';
-  // import {
-  //   usePluginOptions
-  // } from '@backstage/core-plugin-api/alpha';
   import {
     configApiRef,
     useApi,
-    // useRouteRef
   } from '@backstage/core-plugin-api';
   import {
     CatalogFilterLayout,
@@ -78,12 +71,6 @@ import { EntityLanguagePicker } from '../../filters/language.filter';
     }: CatalogPageProps) => {
     const orgName =
       useApi(configApiRef).getOptionalString('organization.name') ?? 'Backstage';
-    // const createComponentLink = useRouteRef(createExternalRouteRef({
-    //   id: 'create-component',
-    //   optional: true,
-    // }));
-
-    // const { createButtonTitle } = usePluginOptions<CatalogPluginOptions>();
 
     return (
       <PageWithHeader title={`${orgName} Catalog`} themeId="home">

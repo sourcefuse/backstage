@@ -1,6 +1,4 @@
 import { DefaultEntityFilters, EntityFilter, useEntityList } from '@backstage/plugin-catalog-react';
-// import { Entity } from '@backstage/catalog-model';
-// import React, { ReactNode } from 'react';
 import React from 'react';
 import { FormControl, Typography, FormGroup, FormControlLabel, Checkbox } from '@material-ui/core';
 
@@ -9,12 +7,7 @@ class EntityLanguageFilter implements EntityFilter {
   getCatalogFilters(): Record<string, string | symbol | (string | symbol)[]> {
     return { 'spec.language': this.values }
   } ;
-  // filterEntity(entity: Entity): boolean {
-  //   return true;
-  //   // const spec = entity.metadata.spec;
-  //   // if (spec && spec.language?) {}
-  //   // return spec !== undefined && this.values.includes(spec?.language);
-  // }
+
 }
 
 export type CustomFilters = DefaultEntityFilters & {
