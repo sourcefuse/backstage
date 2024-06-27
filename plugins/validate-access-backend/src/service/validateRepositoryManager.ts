@@ -6,6 +6,7 @@ export const isUserAllowed = async (
 ): Promise<boolean> => {
   try {
     const token = process.env.GITHUB_TOKEN; // GitHub token with appropriate permissions
+    console.log(`${process.env.GITHUB_API_URL}/orgs/${process.env.GITHUB_ORGANIZATION}/teams/${process.env.REPO_CREATOR_TEAM}/memberships/${user}`);
     const response = await axios.get(
       `${process.env.GITHUB_API_URL}/orgs/${process.env.GITHUB_ORGANIZATION}/teams/${process.env.REPO_CREATOR_TEAM}/memberships/${user}`,
       {
@@ -14,7 +15,7 @@ export const isUserAllowed = async (
         },
       },
     );
-
+    console.log('response.data-------',response,response.data); 
     const userAccess = response.data;
     return (
       userAccess.role &&
