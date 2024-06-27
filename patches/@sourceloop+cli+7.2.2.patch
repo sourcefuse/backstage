@@ -1,0 +1,24 @@
+diff --git a/node_modules/@sourceloop/cli/lib/generators/scaffold/index.js b/node_modules/@sourceloop/cli/lib/generators/scaffold/index.js
+index a2f1db9..2a370df 100644
+--- a/node_modules/@sourceloop/cli/lib/generators/scaffold/index.js
++++ b/node_modules/@sourceloop/cli/lib/generators/scaffold/index.js
+@@ -29,10 +29,19 @@ class ScaffoldGenerator extends base_generator_1.BaseGenerator {
+                 path: require.resolve('../backstage-integration'),
+             }, this.options);
+         }
++
++        await this._addDocs();
+     }
+     async install() {
+         await this.spawnCommand('npm', ['i']);
+     }
++    async _addDocs() {
++        const sourcePath = `${this.destinationRoot()}/README.md`;
++        const destinationPath = `${this.destinationRoot()}/docs/README.md`;
++        /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
++        //@ts-ignore
++        await this.fs.copyTplAsync(sourcePath, destinationPath);
++    }
+     _setRoot() {
+         if (this.options.cwd) {
+             this.destinationRoot(this.options.cwd);

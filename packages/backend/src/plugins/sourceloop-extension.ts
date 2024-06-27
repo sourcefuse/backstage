@@ -20,7 +20,7 @@ export function createExtensionAction() {
         },
       },
     },
-    async handler(ctx: any) {
+    async handler(ctx: any) { // NOSONAR
 
       const extensions = ctx.input.extensions;
       const cwd=ctx.workspacePath;
