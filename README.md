@@ -38,6 +38,8 @@ INTEGRATION_GITHUB_CLIENT_SECRET=GitHub app client secret
 INTEGRATION_GITHUB_WEBHOOK_SECRET=GitHub app webhook secret
 AWS_ACCOUNT_ID=AWS Account ID to Push the Image
 IMAGE_TAG=Tag for the Docker Image
+REPO_CREATOR_TEAM=Team having access for scaffolding
+GITHUB_ORGANIZATION=Github organization
 ```
 
 Load the variables into a shell session for ease.
