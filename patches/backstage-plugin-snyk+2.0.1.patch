@@ -1,5 +1,5 @@
 diff --git a/node_modules/backstage-plugin-snyk/dist/api/index.d.ts b/node_modules/backstage-plugin-snyk/dist/api/index.d.ts
-index 1b0ec3c..0b89901 100644
+index 1b0ec3c..31f3593 100644
 --- a/node_modules/backstage-plugin-snyk/dist/api/index.d.ts
 +++ b/node_modules/backstage-plugin-snyk/dist/api/index.d.ts
 @@ -14,6 +14,7 @@ export interface SnykApi {
@@ -19,7 +19,7 @@ index 1b0ec3c..0b89901 100644
      ProjectDetails(orgName: string, projectId: string): Promise<any>;
      GetOrgSlug(orgId: string): Promise<string>;
 diff --git a/node_modules/backstage-plugin-snyk/dist/api/index.js b/node_modules/backstage-plugin-snyk/dist/api/index.js
-index 88d2fdb..b908f80 100644
+index 88d2fdb..165d827 100644
 --- a/node_modules/backstage-plugin-snyk/dist/api/index.js
 +++ b/node_modules/backstage-plugin-snyk/dist/api/index.js
 @@ -134,5 +134,20 @@ export class SnykApiClient {
@@ -43,8 +43,25 @@ index 88d2fdb..b908f80 100644
 +    }
  }
  //# sourceMappingURL=index.js.map
+\ No newline at end of file
+diff --git a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js b/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js
+index 82bd75f..161d4ff 100644
+--- a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js
++++ b/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js
+@@ -60,9 +60,10 @@ export const SnykEntityComponent = () => {
+     }
+     const tabs = [];
+     const snykApi = useApi(snykApiRef);
+-    const orgId = ((_c = entity === null || entity === void 0 ? void 0 : entity.metadata.annotations) === null || _c === void 0 ? void 0 : _c[SNYK_ANNOTATION_ORG]) || "null";
++    let orgId = ((_c = entity === null || entity === void 0 ? void 0 : entity.metadata.annotations) === null || _c === void 0 ? void 0 : _c[SNYK_ANNOTATION_ORG]) || "null";
+     const { value, loading, error } = useAsync(async () => {
+         var _a, _b;
++        orgId = await snykApi.GetSnykOrgId();
+         const fullProjectList = await snykApi.ProjectsList(orgId, ((_a = entity.metadata.annotations) === null || _a === void 0 ? void 0 : _a[SNYK_ANNOTATION_TARGETNAME]) || ((_b = entity.metadata.annotations) === null || _b === void 0 ? void 0 : _b[SNYK_ANNOTATION_TARGETID]) || '');
+         const orgSlug = await snykApi.GetOrgSlug(orgId);
+         return { fullProjectList, orgSlug };
 diff --git a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykOverviewComponent.js b/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykOverviewComponent.js
-index ec32168..34ee03d 100644
+index ec32168..f715721 100644
 --- a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykOverviewComponent.js
 +++ b/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykOverviewComponent.js
 @@ -28,7 +28,7 @@ export const SnykOverviewComponent = ({ entity }) => {
