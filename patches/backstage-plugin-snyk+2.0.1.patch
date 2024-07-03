@@ -19,10 +19,10 @@ index 1b0ec3c..31f3593 100644
      ProjectDetails(orgName: string, projectId: string): Promise<any>;
      GetOrgSlug(orgId: string): Promise<string>;
 diff --git a/node_modules/backstage-plugin-snyk/dist/api/index.js b/node_modules/backstage-plugin-snyk/dist/api/index.js
-index 88d2fdb..3e3b9ee 100644
+index 88d2fdb..96c6da8 100644
 --- a/node_modules/backstage-plugin-snyk/dist/api/index.js
 +++ b/node_modules/backstage-plugin-snyk/dist/api/index.js
-@@ -134,5 +134,21 @@ export class SnykApiClient {
+@@ -134,5 +134,20 @@ export class SnykApiClient {
          const jsonResponse = await response.json();
          return jsonResponse;
      }
@@ -32,9 +32,8 @@ index 88d2fdb..3e3b9ee 100644
 +        const response = await fetch(`${apiUrl}`, {
 +            headers: this.headers,
 +        });
-+        console.log("response**************", apiUrl, response.status, response);
 +        if (response.status >= 400 && response.status < 600) {
-+            throw new Error(`Error ${response.status} - Failed fetching ProjectDetails snyk data`);
++            throw new Error(`Error ${response.status} - Failed fetching snyk org id`);
 +        }
 +
 +        const jsonResponse = await response.json();
