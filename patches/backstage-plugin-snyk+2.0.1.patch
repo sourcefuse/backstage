@@ -44,22 +44,52 @@ index 88d2fdb..96c6da8 100644
  }
  //# sourceMappingURL=index.js.map
 diff --git a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js b/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js
-index 82bd75f..8a0f7be 100644
+index 82bd75f..24a5788 100644
 --- a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js
 +++ b/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js
-@@ -63,9 +63,10 @@ export const SnykEntityComponent = () => {
-     const orgId = ((_c = entity === null || entity === void 0 ? void 0 : entity.metadata.annotations) === null || _c === void 0 ? void 0 : _c[SNYK_ANNOTATION_ORG]) || "null";
+@@ -60,19 +60,34 @@ export const SnykEntityComponent = () => {
+     }
+     const tabs = [];
+     const snykApi = useApi(snykApiRef);
+-    const orgId = ((_c = entity === null || entity === void 0 ? void 0 : entity.metadata.annotations) === null || _c === void 0 ? void 0 : _c[SNYK_ANNOTATION_ORG]) || "null";
++    let orgId = ((_c = entity === null || entity === void 0 ? void 0 : entity.metadata.annotations) === null || _c === void 0 ? void 0 : _c[SNYK_ANNOTATION_ORG]) || "null";
++    // const { value, loading, error } = useAsync(async () => {
++    //     var _a, _b;
++    //     orgId = await snykApi.GetSnykOrgId();
++    //     const fullProjectList = await snykApi.ProjectsList(orgId, ((_a = entity.metadata.annotations) === null || _a === void 0 ? void 0 : _a[SNYK_ANNOTATION_TARGETNAME]) || ((_b = entity.metadata.annotations) === null || _b === void 0 ? void 0 : _b[SNYK_ANNOTATION_TARGETID]) || '');
++    //     console.log("fullProjectList**************", orgId, fullProjectList, )
++    //     const orgSlug = await snykApi.GetOrgSlug(orgId);
++    //     console.log("orgSlug**************", orgId, orgSlug, )
++    //     return { fullProjectList, orgSlug };
++    // });
      const { value, loading, error } = useAsync(async () => {
-         var _a, _b;
-+        const orgID = await snykApi.GetSnykOrgId();
-         const fullProjectList = await snykApi.ProjectsList(orgId, ((_a = entity.metadata.annotations) === null || _a === void 0 ? void 0 : _a[SNYK_ANNOTATION_TARGETNAME]) || ((_b = entity.metadata.annotations) === null || _b === void 0 ? void 0 : _b[SNYK_ANNOTATION_TARGETID]) || '');
-         const orgSlug = await snykApi.GetOrgSlug(orgId);
+-        var _a, _b;
+-        const fullProjectList = await snykApi.ProjectsList(orgId, ((_a = entity.metadata.annotations) === null || _a === void 0 ? void 0 : _a[SNYK_ANNOTATION_TARGETNAME]) || ((_b = entity.metadata.annotations) === null || _b === void 0 ? void 0 : _b[SNYK_ANNOTATION_TARGETID]) || '');
+-        const orgSlug = await snykApi.GetOrgSlug(orgId);
 -        return { fullProjectList, orgSlug };
-+        return { orgID, fullProjectList, orgSlug };
-     });
+-    });
++      var _a, _b;
++      let aggregatedIssuesCount = {
++          critical: 0,
++          high: 0,
++          medium: 0,
++          low: 0,
++      };
++      const orgID = await snykApi.GetSnykOrgId();
++      const fullProjectList = await snykApi.ProjectsList(orgID, ((_a = entity.metadata.annotations) === null || _a === void 0 ? void 0 : _a[SNYK_ANNOTATION_TARGETNAME]) || ((_b = entity.metadata.annotations) === null || _b === void 0 ? void 0 : _b[SNYK_ANNOTATION_TARGETID]) || '');
++      const orgSlug = await snykApi.GetOrgSlug(orgID);
++      return { orgID, fullProjectList, orgSlug };
++  });
      if (loading) {
          return (React.createElement(Content, null,
-@@ -82,7 +83,7 @@ export const SnykEntityComponent = () => {
+             React.createElement(Progress, null)));
+     }
+     else if (error) {
+-        console.log(error);
+         return React.createElement(Alert, { severity: "error" }, error.message);
+     }
+     const projectList = value === null || value === void 0 ? void 0 : value.fullProjectList;
+@@ -82,7 +97,7 @@ export const SnykEntityComponent = () => {
          tabs.push({
              name: utils.extractTargetShortname(project.attributes.name || "unknown"),
              icon: getIconForProjectType(project.attributes.origin || ""),
