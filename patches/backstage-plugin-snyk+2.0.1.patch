@@ -1,0 +1,66 @@
+diff --git a/node_modules/backstage-plugin-snyk/dist/api/index.d.ts b/node_modules/backstage-plugin-snyk/dist/api/index.d.ts
+index 1b0ec3c..0b89901 100644
+--- a/node_modules/backstage-plugin-snyk/dist/api/index.d.ts
++++ b/node_modules/backstage-plugin-snyk/dist/api/index.d.ts
+@@ -14,6 +14,7 @@ export interface SnykApi {
+     ProjectsList(orgName: string, repoName: string): Promise<any>;
+     GetDependencyGraph(orgName: string, projectId: string): Promise<any>;
+     GetSnykAppHost(): string;
++    GetSnykOrgId(): Promise<any>;
+     GetOrgSlug(orgId: string): Promise<string>;
+ }
+ export declare class SnykApiClient implements SnykApi {
+@@ -24,6 +25,7 @@ export declare class SnykApiClient implements SnykApi {
+     constructor(options: Options);
+     private getApiUrl;
+     GetSnykAppHost(): string;
++    GetSnykOrgId(): Promise<any>;
+     ListAllAggregatedIssues(orgId: string, projectId: string): Promise<any>;
+     ProjectDetails(orgName: string, projectId: string): Promise<any>;
+     GetOrgSlug(orgId: string): Promise<string>;
+diff --git a/node_modules/backstage-plugin-snyk/dist/api/index.js b/node_modules/backstage-plugin-snyk/dist/api/index.js
+index 88d2fdb..b908f80 100644
+--- a/node_modules/backstage-plugin-snyk/dist/api/index.js
++++ b/node_modules/backstage-plugin-snyk/dist/api/index.js
+@@ -134,5 +134,20 @@ export class SnykApiClient {
+         const jsonResponse = await response.json();
+         return jsonResponse;
+     }
++    async GetSnykOrgId() {
++        const backendBaseUrl = await this.getApiUrl();
++        const apiUrl = `${backendBaseUrl}/v1/orgs`;
++        const response = await fetch(`${apiUrl}`, {
++            headers: this.headers,
++        });
++        if (response.status >= 400 && response.status < 600) {
++            throw new Error(`Error ${response.status} - Failed fetching ProjectDetails snyk data`);
++        }
++
++        const jsonResponse = await response.json();
++        const orgs = jsonResponse.orgs;
++        const org = orgs.find(o => o.name === 'sourcefuse');
++        return (org && org.id) ? org.id : '';
++    }
+ }
+ //# sourceMappingURL=index.js.map
+diff --git a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykOverviewComponent.js b/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykOverviewComponent.js
+index ec32168..34ee03d 100644
+--- a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykOverviewComponent.js
++++ b/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykOverviewComponent.js
+@@ -28,7 +28,7 @@ export const SnykOverviewComponent = ({ entity }) => {
+                 React.createElement("img", { src: "https://i.gifer.com/yH.gif" }))));
+     }
+     const snykApi = useApi(snykApiRef);
+-    const orgId = ((_d = entity === null || entity === void 0 ? void 0 : entity.metadata.annotations) === null || _d === void 0 ? void 0 : _d[SNYK_ANNOTATION_ORG]) || "null";
++    // const orgId = ((_d = entity === null || entity === void 0 ? void 0 : entity.metadata.annotations) === null || _d === void 0 ? void 0 : _d[SNYK_ANNOTATION_ORG]) || "null";
+     const { value, loading, error } = useAsync(async () => {
+         var _a, _b;
+         let aggregatedIssuesCount = {
+@@ -37,6 +37,7 @@ export const SnykOverviewComponent = ({ entity }) => {
+             medium: 0,
+             low: 0,
+         };
++        const orgId = await snykApi.GetSnykOrgId();
+         const fullProjectList = await snykApi.ProjectsList(orgId, ((_a = entity.metadata.annotations) === null || _a === void 0 ? void 0 : _a[SNYK_ANNOTATION_TARGETNAME]) || ((_b = entity.metadata.annotations) === null || _b === void 0 ? void 0 : _b[SNYK_ANNOTATION_TARGETID]) || '');
+         const projectList = fullProjectList;
+         let projectsCount = 0;
