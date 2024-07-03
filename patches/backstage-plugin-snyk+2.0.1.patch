@@ -19,7 +19,7 @@ index 1b0ec3c..31f3593 100644
      ProjectDetails(orgName: string, projectId: string): Promise<any>;
      GetOrgSlug(orgId: string): Promise<string>;
 diff --git a/node_modules/backstage-plugin-snyk/dist/api/index.js b/node_modules/backstage-plugin-snyk/dist/api/index.js
-index 88d2fdb..165d827 100644
+index 88d2fdb..96c6da8 100644
 --- a/node_modules/backstage-plugin-snyk/dist/api/index.js
 +++ b/node_modules/backstage-plugin-snyk/dist/api/index.js
 @@ -134,5 +134,20 @@ export class SnykApiClient {
@@ -33,7 +33,7 @@ index 88d2fdb..165d827 100644
 +            headers: this.headers,
 +        });
 +        if (response.status >= 400 && response.status < 600) {
-+            throw new Error(`Error ${response.status} - Failed fetching ProjectDetails snyk data`);
++            throw new Error(`Error ${response.status} - Failed fetching snyk org id`);
 +        }
 +
 +        const jsonResponse = await response.json();
@@ -43,23 +43,31 @@ index 88d2fdb..165d827 100644
 +    }
  }
  //# sourceMappingURL=index.js.map
-\ No newline at end of file
 diff --git a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js b/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js
-index 82bd75f..161d4ff 100644
+index 82bd75f..8a0f7be 100644
 --- a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js
 +++ b/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js
-@@ -60,9 +60,10 @@ export const SnykEntityComponent = () => {
-     }
-     const tabs = [];
-     const snykApi = useApi(snykApiRef);
--    const orgId = ((_c = entity === null || entity === void 0 ? void 0 : entity.metadata.annotations) === null || _c === void 0 ? void 0 : _c[SNYK_ANNOTATION_ORG]) || "null";
-+    let orgId = ((_c = entity === null || entity === void 0 ? void 0 : entity.metadata.annotations) === null || _c === void 0 ? void 0 : _c[SNYK_ANNOTATION_ORG]) || "null";
+@@ -63,9 +63,10 @@ export const SnykEntityComponent = () => {
+     const orgId = ((_c = entity === null || entity === void 0 ? void 0 : entity.metadata.annotations) === null || _c === void 0 ? void 0 : _c[SNYK_ANNOTATION_ORG]) || "null";
      const { value, loading, error } = useAsync(async () => {
          var _a, _b;
-+        orgId = await snykApi.GetSnykOrgId();
++        const orgID = await snykApi.GetSnykOrgId();
          const fullProjectList = await snykApi.ProjectsList(orgId, ((_a = entity.metadata.annotations) === null || _a === void 0 ? void 0 : _a[SNYK_ANNOTATION_TARGETNAME]) || ((_b = entity.metadata.annotations) === null || _b === void 0 ? void 0 : _b[SNYK_ANNOTATION_TARGETID]) || '');
          const orgSlug = await snykApi.GetOrgSlug(orgId);
-         return { fullProjectList, orgSlug };
+-        return { fullProjectList, orgSlug };
++        return { orgID, fullProjectList, orgSlug };
+     });
+     if (loading) {
+         return (React.createElement(Content, null,
+@@ -82,7 +83,7 @@ export const SnykEntityComponent = () => {
+         tabs.push({
+             name: utils.extractTargetShortname(project.attributes.name || "unknown"),
+             icon: getIconForProjectType(project.attributes.origin || ""),
+-            tabContent: generateSnykTabForProject(snykApi, orgId, orgSlug, project.id, ((_a = entity.metadata.annotations) === null || _a === void 0 ? void 0 : _a[SNYK_ANNOTATION_TARGETNAME]) || ((_b = entity.metadata.annotations) === null || _b === void 0 ? void 0 : _b[SNYK_ANNOTATION_TARGETID]) || ''),
++            tabContent: generateSnykTabForProject(snykApi, value.orgID, orgSlug, project.id, ((_a = entity.metadata.annotations) === null || _a === void 0 ? void 0 : _a[SNYK_ANNOTATION_TARGETNAME]) || ((_b = entity.metadata.annotations) === null || _b === void 0 ? void 0 : _b[SNYK_ANNOTATION_TARGETID]) || ''),
+             type: project.attributes.type,
+         });
+     });
 diff --git a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykOverviewComponent.js b/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykOverviewComponent.js
 index ec32168..f715721 100644
 --- a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykOverviewComponent.js
