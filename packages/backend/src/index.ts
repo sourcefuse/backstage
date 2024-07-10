@@ -111,13 +111,13 @@ async function main() {
     .addRouter('', await app(appEnv));
 
   await service.start().catch(err => {
-    console.log(err);
+    console.log(err);  // NOSONAR
     process.exit(1);
   });
 }
 
 module.hot?.accept();
 main().catch(error => {
-  console.error('Backend failed to start up', error);
+  console.error('Backend failed to start up', error); // NOSONAR
   process.exit(1);
 });

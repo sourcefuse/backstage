@@ -1,4 +1,4 @@
-//TODO: invert this dependency so the top level module passes in the common data?
+//TODO: invert this dependency so the top level module passes in the common data?     // NOSONAR
 ################################################################
 ## defaults
 ################################################################
@@ -44,7 +44,7 @@ data "aws_subnets" "private" {
   }
 }
 
-//TODO: replace SSM lookups with data lookup after standardizing
+//TODO: replace SSM lookups with data lookup after standardizing    // NOSONAR
 data "aws_ssm_parameter" "alb_https_listener_arn" {
   name = "/${var.namespace}/${var.environment}/alb/${var.namespace}-${var.environment}-cluster/https-listener/arn"
 }
