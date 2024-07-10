@@ -1,6 +1,5 @@
 import React, { PropsWithChildren } from 'react';
 import { makeStyles } from '@material-ui/core';
-// import HomeIcon from '@material-ui/icons/Home';
 import { Homeicon } from '../../assets/icons/CustomIcons';
 import ExtensionIcon from '@material-ui/icons/Extension';
 import MapIcon from '@material-ui/icons/MyLocation';
@@ -32,7 +31,7 @@ const useSidebarLogoStyles = makeStyles({
   root: {
     // width: sidebarConfig.drawerWidthClosed,
     width: '100%',
-    height: 3 * sidebarConfig.logoHeight,
+    height: 3 * sidebarConfig.logoHeight, // NOSONAR
     display: 'flex',
     flexFlow: 'row nowrap',
     alignItems: 'center',
