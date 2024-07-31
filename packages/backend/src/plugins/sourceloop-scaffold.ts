@@ -41,12 +41,15 @@ export function createScaffoldAction() {
 
       const name= ctx.input.name;
       const cwd=ctx.workspacePath;
+
       const issuePrefix=ctx.input.issuePrefix;
       const owner=ctx.input.repoUrl.owner;
       const description=ctx.input.description;
       const env = utils.getEnv(cwd, 'scaffold');
       const originalCwd = process.cwd();
+      console.log("originalCwd -------",originalCwd);
       process.chdir(cwd);
+      console.log("new workspacepath cwd -------",cwd);
       await utils.runWithEnv(env, 'scaffold', [], {
         name,
         cwd,
@@ -56,6 +59,7 @@ export function createScaffoldAction() {
         integrateWithBackstage: true,
       });
       process.chdir(originalCwd);
+      console.log("again updated to  originalCwd-------",originalCwd);
       await mkdir(`${ctx.workspacePath}/.github/workflows`,()=>{});
       await writeFile(
         `${ctx.workspacePath}/.github/workflows/build-image.yaml`,
