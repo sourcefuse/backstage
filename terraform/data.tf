@@ -37,5 +37,5 @@ data "aws_subnets" "private" {
 
 # Define data sources for SSM parameters
 data "aws_ssm_parameter" "repo_name" {
-  name     = "/backstage/${var.environment}/repo/creator/name"
+  name = "/backstage/${var.environment}/repo/creator/name"
 }
