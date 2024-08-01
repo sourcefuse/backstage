@@ -116,3 +116,9 @@ variable "route_53_private_zone" {
   description = "Used with `name` field to get a private Hosted Zone"
   default     = false
 }
+
+variable "ephemeral_storage" {
+  type        = string
+  description = "(optional) Ephemeral storage for task"
+  default     = 20
+}

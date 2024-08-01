@@ -7,3 +7,4 @@ app_host_name      = "dx.arc-prod.link"
 namespace               = "arc"
 secret_name             = "arc/prod/sf-arc-prod-backstage"
 private_key_secret_name = "arc/prod/sf-arc-prod-backstage-private-key"
+ephemeral_storage       = 40
