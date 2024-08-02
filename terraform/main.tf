@@ -44,8 +44,8 @@ module "ecs_common_data" {
 ## Backstage ECS
 ################################################################################
 module "backstage" {
-  source                    = "sourcefuse/arc-backstage-ecs-app/aws"
-  version                   = "0.2.8"
+  source = "git::https://github.com/sourcefuse/arc-backstage-ecs-app"
+  //version                   = "0.2.8"
   alb_dns_name              = module.ecs_common_data.alb_dns_name
   alb_zone_id               = module.ecs_common_data.alb_dns_zone_id
   app_host_name             = var.app_host_name
