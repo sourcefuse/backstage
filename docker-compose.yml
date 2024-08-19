@@ -7,7 +7,7 @@ services:
     build: .
     environment:
       ENVIRONMENT: production
-      POSTGRES_HOST: postgres
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
       POSTGRES_PORT: 5432
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
@@ -20,13 +20,15 @@ services:
       INTEGRATION_GITHUB_WEBHOOK_SECRET: ${INTEGRATION_GITHUB_WEBHOOK_SECRET-secret}
       INTEGRATION_GITHUB_PRIVATE_KEY: ${INTEGRATION_GITHUB_PRIVATE_KEY-secret}
       SNYK_TOKEN: ${SNYK_TOKEN-secret}
-      BASE_URL: ${BASE_URL-http://localhost:7007}
-      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL-http://localhost:7007}
+      BASE_URL: ${BASE_URL-http://localhost:7000}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL-http://localhost:7000}
       ENABLE_GITHUB_SYNC: "false" # only run this when needed as it uses a large amount of API calls
     ports:
-      - '7007:7007'
-    networks:
-      - backstage
+      - '7000:7000'
+      # - '7007:3000'
+    # networks:
+    #   - backstage
+    network_mode: "host"
     restart: always
 
   postgres:
@@ -40,8 +42,9 @@ services:
       -  postgres_backstage:/data/postgres
     ports:
       - '5432:5432'
-    networks:
-      - backstage
+    # networks:
+    #   - backstage
+    network_mode: "host"
     restart: always
 
   pgadmin:
@@ -54,7 +57,7 @@ services:
     volumes:
       - pgadmin_backstage:/root/.pgadmin
     ports:
-      - '${PGADMIN_PORT:-5050}:80'
+      - '${PGADMIN_PORT:-5051}:80'
     networks:
       - backstage
     restart: always
