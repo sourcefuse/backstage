@@ -39,3 +39,7 @@ data "aws_subnets" "private" {
 data "aws_ssm_parameter" "repo_name" {
   name = "/backstage/${var.environment}/repo/creator/name"
 }
+
+data "aws_ssm_parameter" "sonarcloud_token" {
+  name = "/backstage/${var.environment}/sonarcloud/token"
+}

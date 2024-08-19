@@ -61,7 +61,7 @@ import {
   EntityGithubPullRequestsOverviewCard,
 } from '@roadiehq/backstage-plugin-github-pull-requests';
 import { SnykOverview, EntitySnykContent, isSnykAvailable } from 'backstage-plugin-snyk';
-
+import { EntitySonarQubeCard } from '@backstage-community/plugin-sonarqube';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -184,6 +184,9 @@ const serviceEntityPage = (
     </EntityLayout.Route>
     <EntityLayout.Route path="/snyk" title="Security">
       <EntitySnykContent />
+    </EntityLayout.Route>
+    <EntityLayout.Route path="/codequality" title="Code Quality">
+      <EntitySonarQubeCard />
     </EntityLayout.Route>
     <EntityLayout.Route
       path="/pull-requests"

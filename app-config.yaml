@@ -82,6 +82,10 @@ proxy:
     headers:
       User-Agent: tech-services/backstage-plugin/1.0
       Authorization: token ${SNYK_TOKEN}
+  '/sonarqube':
+    target: https://sonarcloud.io/api
+    allowedMethods: ['GET']
+    auth: "${SONARCLOUD_TOKEN}:"
 
 catalog:
   #  providers:
