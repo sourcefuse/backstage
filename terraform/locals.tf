@@ -14,5 +14,9 @@ locals {
       name  = "REPO_CREATOR_TEAM"
       value = data.aws_ssm_parameter.repo_name.value
     },
+    {
+      name  = "SONARCLOUD_TOKEN"
+      value = data.aws_ssm_parameter.sonarcloud_token.value
+    },
   ]
 }

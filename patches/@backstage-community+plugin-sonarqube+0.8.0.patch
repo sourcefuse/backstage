@@ -1,0 +1,102 @@
+diff --git a/node_modules/@backstage-community/plugin-sonarqube/dist/api/SonarQubeClient.esm.js b/node_modules/@backstage-community/plugin-sonarqube/dist/api/SonarQubeClient.esm.js
+index 866ec3c..c9b356b 100644
+--- a/node_modules/@backstage-community/plugin-sonarqube/dist/api/SonarQubeClient.esm.js
++++ b/node_modules/@backstage-community/plugin-sonarqube/dist/api/SonarQubeClient.esm.js
+@@ -1,20 +1,32 @@
+ import fetch from 'cross-fetch';
++const DEFAULT_PROXY_PATH_BASE = "";
+ 
+ class SonarQubeClient {
+   discoveryApi;
+   identityApi;
+   constructor(options) {
++    var _a;
++    this.headers = {
++        "Content-Type": "application/json",
++        "User-Agent": "tech-services/backstage-plugin/1.0",
++    };
+     this.discoveryApi = options.discoveryApi;
+     this.identityApi = options.identityApi;
++    this.configApiRef = options.configApiRef;
++    this.proxyPathBase = (_a = options.proxyPathBase) !== null && _a !== void 0 ? _a : DEFAULT_PROXY_PATH_BASE;
+   }
+   async callApi(path, query) {
+     const { token: idToken } = await this.identityApi.getCredentials();
+-    const apiUrl = `${await this.discoveryApi.getBaseUrl("sonarqube")}`;
++    const baseUrl = await this.discoveryApi.getBaseUrl("proxy");
++    console.log('baseUrl------',baseUrl)
++    const apiUrl = `${baseUrl}${this.proxyPathBase}/sonarqube`;
++    // const apiUrl = `${await this.discoveryApi.getBaseUrl("sonarqube")}`;
+     const response = await fetch(
+       `${apiUrl}/${path}?${new URLSearchParams(query).toString()}`,
+       {
+         headers: {
+           "Content-Type": "application/json",
++          "User-Agent": "tech-services/backstage-plugin/1.0",
+           ...idToken && { Authorization: `Bearer ${idToken}` }
+         }
+       }
+@@ -53,24 +65,26 @@ class SonarQubeClient {
+     );
+     let baseUrl = baseUrlWrapper?.instanceUrl;
+     if (!baseUrl) {
+-      return void 0;
++      baseUrl= "https://sonarcloud.io/";
+     }
+     if (!baseUrl.endsWith("/")) {
+       baseUrl += "/";
+     }
+-    const findings = await this.callApi("findings", {
+-      componentKey,
+-      instanceKey
++    const findings = await this.callApi("measures/search_history", {
++      component:componentKey,
++      metrics:'security_hotspots_reviewed,security_review_rating,code_smells,sqale_rating,vulnerabilities,security_rating,bugs,reliability_rating,coverage,duplicated_lines_density,alert_status'
+     });
+-    if (!findings) {
++    if (!findings || (findings && !findings.measures)) {
+       return void 0;
+     }
+     findings.measures.forEach((m) => {
+-      metrics[m.metric] = m.value;
++      // metrics[m.metric] = m.value;
++      metrics[m.metric] = m.history[Number(m.history.length-1)].value;
+     });
++
+     return {
+       title: componentKey,
+-      lastAnalysis: findings.analysisDate,
++      lastAnalysis: findings.measures[0].history[findings.measures[0].history.length-1].date,
+       metrics,
+       projectUrl: `${baseUrl}dashboard?id=${encodeURIComponent(componentKey)}`,
+       getIssuesUrl: (identifier) => `${baseUrl}project/issues?id=${encodeURIComponent(
+diff --git a/node_modules/@backstage-community/plugin-sonarqube/dist/components/SonarQubeCard/SonarQubeCard.esm.js b/node_modules/@backstage-community/plugin-sonarqube/dist/components/SonarQubeCard/SonarQubeCard.esm.js
+index 5a3f994..5fd99cb 100644
+--- a/node_modules/@backstage-community/plugin-sonarqube/dist/components/SonarQubeCard/SonarQubeCard.esm.js
++++ b/node_modules/@backstage-community/plugin-sonarqube/dist/components/SonarQubeCard/SonarQubeCard.esm.js
+@@ -77,7 +77,7 @@ const SonarQubeCard = (props) => {
+         style: { height: "100%" },
+         spacing: 0
+       },
+-      /* @__PURE__ */ React.createElement(Grid, { item: true, container: true, justifyContent: "space-around" }, /* @__PURE__ */ React.createElement(BugReportRatingCard, { value: summaryFinding, title: "Bugs" }), /* @__PURE__ */ React.createElement(
++      /* @__PURE__ */ React.createElement(Grid, { item: true, container: true, justifyContent: "space-around" , style: { marginTop: "30px" }}, /* @__PURE__ */ React.createElement(BugReportRatingCard, { value: summaryFinding, title: "Bugs" }), /* @__PURE__ */ React.createElement(
+         VulnerabilitiesRatingCard,
+         {
+           value: summaryFinding,
+@@ -95,14 +95,14 @@ const SonarQubeCard = (props) => {
+           value: summaryFinding,
+           title: "Hotspots Reviewed"
+         }
+-      ), /* @__PURE__ */ React.createElement("div", { style: { width: "100%" } }), /* @__PURE__ */ React.createElement(CoverageRatingCard, { value: summaryFinding, title: "Coverage" }), /* @__PURE__ */ React.createElement(
++      ), /* @__PURE__ */ React.createElement("div", { style: { width: "100%", margin: "30px" } }), /* @__PURE__ */ React.createElement(CoverageRatingCard, { value: summaryFinding, title: "Coverage" }), /* @__PURE__ */ React.createElement(
+         DuplicationsRatingCard,
+         {
+           value: summaryFinding,
+           title: "Duplications"
+         }
+       )),
+-      /* @__PURE__ */ React.createElement(Grid, { item: true, className: classes.lastAnalyzed }, /* @__PURE__ */ React.createElement(LastAnalyzedRatingCard, { value: summaryFinding }))
++      /* @__PURE__ */ React.createElement(Grid, { item: true, className: classes.lastAnalyzed, style: { width: "100%", margin: "30px" }}, /* @__PURE__ */ React.createElement(LastAnalyzedRatingCard, { value: summaryFinding }))
+     ))
+   );
+ };
