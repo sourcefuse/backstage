@@ -21,7 +21,7 @@ docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
 
 printf "\nBuilding docker images...\n"
-docker-compose -f $DOCKER_COMPOSE_FILE build
+docker compose -f $DOCKER_COMPOSE_FILE build
 
 printf "\nTagging image $IMAGE_NAME:$IMAGE_TAG...\n"
 docker images
