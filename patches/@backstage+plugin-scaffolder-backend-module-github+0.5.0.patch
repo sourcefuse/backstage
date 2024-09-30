@@ -1,0 +1,36 @@
+diff --git a/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/index.cjs.js b/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/index.cjs.js
+index aceb728..daaf24a 100644
+--- a/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/index.cjs.js
++++ b/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/index.cjs.js
+@@ -1924,7 +1924,7 @@ function createGithubRepoCreateAction(options) {
+         squashMergeCommitMessage = "COMMIT_MESSAGES",
+         allowRebaseMerge = true,
+         allowAutoMerge = false,
+-        collaborators,
++        // collaborators,
+         hasProjects = void 0,
+         hasWiki = void 0,
+         hasIssues = void 0,
+@@ -1935,6 +1935,22 @@ function createGithubRepoCreateAction(options) {
+         customProperties,
+         token: providedToken
+       } = ctx.input;
++      let collaborators = ctx.input.collaborators;
++    // If collaborators not added from template.. below script would add current logged in github userId as collaborator with admin role
++      if (!collaborators) {
++        const payloadUser = ctx?.user?.ref ?? null;
++        console.log("payloadUser----------------", payloadUser);
++        let loggedInUserId = payloadUser?.split('/')[1];
++        console.log("loggedInUserId-----------------", loggedInUserId);
++        if (payloadUser && loggedInUserId)
++          collaborators = [
++            {
++              user: loggedInUserId,
++              access: 'admin'
++            }
++          ];
++      }
++      // End default collaborator script
+       const octokitOptions = await getOctokitOptions({
+         integrations,
+         credentialsProvider: githubCredentialsProvider,

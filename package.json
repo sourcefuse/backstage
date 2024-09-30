@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": "16 || 18"
+    "node": "18 || 20"
   },
   "scripts": {
     "dev": "concurrently \"yarn start\" \"yarn start-backend\"",
@@ -29,7 +29,9 @@
     "infra:apply": "cd terraform && terraform apply",
     "infra:destroy": "cd terraform && terraform destroy",
     "prepare": "husky install",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "test:e2e": "playwright test",
+    "fix": "backstage-cli repo fix"
   },
   "workspaces": {
     "packages": [
@@ -38,21 +40,23 @@
     ]
   },
   "devDependencies": {
-    "@backstage/cli": "^0.22.7",
     "@commitlint/cli": "^17.0.0",
     "@commitlint/config-conventional": "^17.0.0",
     "@commitlint/config-lerna-scopes": "^17.0.0",
-    "@spotify/prettier-config": "^12.0.0",
-    "concurrently": "^6.0.0",
     "cz-conventional-changelog": "^3.3.0",
     "cz-format-extension": "^1.5.0",
     "husky": "^8.0.1",
-    "lerna": "^4.0.0",
-    "node-gyp": "^9.0.0",
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
+    "@backstage/cli": "^0.27.1",
+    "@backstage/e2e-test-utils": "^0.1.1",
+    "@playwright/test": "^1.32.3",
+    "@spotify/prettier-config": "^12.0.0",
+    "concurrently": "^8.0.0",
+    "lerna": "^7.3.0",
+    "node-gyp": "^10.0.0",
     "prettier": "^2.3.2",
-    "typescript": "~5.0.0"
+    "typescript": "~5.4.0"
   },
   "prettier": "@spotify/prettier-config",
   "lint-staged": {
@@ -78,9 +82,9 @@
   },
   "dependencies": {},
   "resolutions": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "@types/react": "17.0.2",
-    "@types/react-dom": "^17.0.2"
+    "react": "^18",
+    "react-dom": "^18",
+    "@types/react": "^18",
+    "@types/react-dom": "^18"
   }
 }

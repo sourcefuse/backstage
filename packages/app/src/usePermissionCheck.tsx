@@ -17,7 +17,8 @@ export const usePermissionCheck = (permission: string) => {
       const authDetail = await identityApi.getCredentials();
       const backendUrl = config.getOptionalString('backend.baseUrl');
       const response = await fetch(
-        `${backendUrl}/api/validate-access/validateuser`,
+        // `${backendUrl}/api/validate-access/validateuser`,
+        `${backendUrl}/api/access-validate/validateuser`,
         {
           method: 'GET',
           headers: {

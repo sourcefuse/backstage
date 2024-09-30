@@ -43,8 +43,8 @@ backend:
 integrations:
   github:
     - host: github.com
-      #      token: ${GITHUB_TOKEN}
-      #      orgs: [ sourcefuse ]
+      token: ${GITHUB_TOKEN}
+      orgs: [ sourcefuse ]
       apps:
         - appId: ${INTEGRATION_GITHUB_APP_ID}
           webhookUrl: ${INTEGRATION_GITHUB_WEBHOOK_URL}
@@ -52,6 +52,9 @@ integrations:
           clientSecret: ${INTEGRATION_GITHUB_CLIENT_SECRET}
           webhookSecret: ${INTEGRATION_GITHUB_WEBHOOK_SECRET}
           privateKey: ${INTEGRATION_GITHUB_PRIVATE_KEY}
+          # signIn:
+          #   resolvers:
+          #     - resolver: usernameMatchingUserEntityName
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
@@ -64,35 +67,66 @@ techdocs:
   publisher:
     type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
 
+# auth:
+#   # see https://backstage.io/docs/auth/ to learn about auth providers
+#   environment: production
+#   providers:
+#     github:
+#       production:
+#         clientId: ${AUTH_GITHUB_CLIENT_ID}
+#         clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+#         #below lines are extra in new backend system
+#         # signIn:
+#         #   resolvers:
+#         #     - resolver: usernameMatchingUserEntityName
+#     # See https://backstage.io/docs/auth/guest/provider
+#     guest: {}
 auth:
-  # see https://backstage.io/docs/auth/ to learn about auth providers
-  environment: production
+  environment: development
   providers:
     github:
-      production:
+      development:
         clientId: ${AUTH_GITHUB_CLIENT_ID}
         clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+        organization: 'sourcefuse'
+        ## uncomment if using GitHub Enterprise
+        # enterpriseInstanceUrl: ${AUTH_GITHUB_ENTERPRISE_INSTANCE_URL}
+        signIn:
+          resolvers:
+            # Matches the GitHub username with the Backstage user entity name.
+            # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers.
+            - resolver: usernameMatchingUserEntityName
+            # - resolver: emailMatchingUserEntityProfileEmail
+            # - resolver: emailLocalPartMatchingUserEntityName
 
 scaffolder:
 # see https://backstage.io/docs/features/software-templates/configuration for software template options
 
 proxy:
-  '/snyk':
-    target: https://api.snyk.io/
-    headers:
-      User-Agent: tech-services/backstage-plugin/1.0
-      Authorization: token ${SNYK_TOKEN}
-  '/sonarqube':
-    target: https://sonarcloud.io/api
-    allowedMethods: ['GET']
-    auth: "${SONARCLOUD_TOKEN}:"
+  endpoints:
+    '/snyk':
+      target: https://api.snyk.io
+      headers:
+        User-Agent: tech-services/backstage-plugin/1.0
+        Authorization: token ${SNYK_TOKEN}
+      credentials: require
+
+    '/sonarqube':
+      target: https://sonarcloud.io/api
+      allowedMethods: ['GET']
+      auth: "${SONARCLOUD_TOKEN}:"
+      credentials: require
 
 catalog:
-  #  providers:
-  #    github:
-  #      # the provider ID can be any camelCase string
-  #      providerId:
-  #        organization: 'sourcefuse' # string
+  providers:
+    githubOrg:
+      - id: production
+        githubUrl: 'https://github.com'
+        orgs: ['sourcefuse']
+    github:
+      # the provider ID can be any camelCase string
+      providerId:
+        organization: 'sourcefuse' # string
   #        catalogPath: '/catalog-info.yaml' # string
   #        filters:
   #          branch: 'main' # string
@@ -109,6 +143,7 @@ catalog:
   #        #          branch: 'main' # string
   #        #          repository: '.*' # Regex
   #        validateLocationsExist: true # optional boolean
+
   rules:
     - allow: [ Component, System, API, Group, User, Resource, Location ]
   locations:
@@ -263,3 +298,10 @@ catalog:
       target: https://github.com/sourcefuse/telemed-app-api/blob/main/template.yaml
       rules:
         - allow: [ Template ]
+
+# kubernetes:
+  # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
+# see https://backstage.io/docs/permissions/getting-started for more on the permission framework
+# permission:
+#   # setting this to `false` will disable permissions
+#   enabled: true
