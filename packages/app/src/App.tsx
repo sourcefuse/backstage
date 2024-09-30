@@ -5,7 +5,13 @@ import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
 import { createTheme, lightTheme, BackstageTheme } from '@backstage/theme';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/core/styles';
-import { BackstageOverrides, SignInProviderConfig } from '@backstage/core-components'; // NOSONAR
+import {
+  BackstageOverrides,
+  SignInProviderConfig,
+  AlertDisplay,
+  OAuthRequestDialog,
+  SignInPage,
+} from '@backstage/core-components'; // NOSONAR
 import loginBg from './assets/images/login-bg.jpg';
 import sfLogoMinimal from './assets/images/sf-minimal-logo.png';
 import { PermissionWrapper } from './PermissionWrapper';
@@ -22,7 +28,7 @@ import {
 import { ScaffolderPage, scaffolderPlugin } from '@backstage/plugin-scaffolder';
 import { orgPlugin } from '@backstage/plugin-org';
 import { SearchPage } from '@backstage/plugin-search';
-// import { TechRadarPage } from '@backstage-community/plugin-tech-radar';
+
 import {
   TechDocsIndexPage,
   techdocsPlugin,
@@ -35,13 +41,6 @@ import { apis } from './apis';
 import { entityPage } from './components/catalog/EntityPage';
 import { searchPage } from './components/search/SearchPage';
 import { Root } from './components/Root';
-
-import {
-  AlertDisplay,
-  OAuthRequestDialog,
-  SignInPage,
-} from '@backstage/core-components';
-
 
 import { createApp } from '@backstage/app-defaults';
 import { AppRouter, FlatRoutes } from '@backstage/core-app-api';

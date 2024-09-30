@@ -4,12 +4,6 @@ import { createBackend } from '@backstage/backend-defaults';
 
 import { createBackendModule } from '@backstage/backend-plugin-api';
 
-import {
-  authProvidersExtensionPoint,
-  createOAuthProviderFactory,
-} from '@backstage/plugin-auth-node';
-
-import { stringifyEntityRef, DEFAULT_NAMESPACE } from '@backstage/catalog-model';
 import { scaffolderActionsExtensionPoint } from '@backstage/plugin-scaffolder-node/alpha';
 import { createMicroserviceAction } from './plugins/sourceloop-ms';
 import { createScaffoldAction } from './plugins/sourceloop-scaffold';
@@ -66,9 +60,6 @@ backend.add(import('@backstage/plugin-search-backend-module-pg/alpha'));
 // search collators
 backend.add(import('@backstage/plugin-search-backend-module-catalog/alpha'));
 backend.add(import('@backstage/plugin-search-backend-module-techdocs/alpha'));
-// import validateAccessPlugin from '@internal/plugin-validate-access-backend';
-// kubernetes
-// backend.add(import('@backstage/plugin-kubernetes-backend/alpha'));
 
 backend.add(import('@internal/backstage-plugin-access-validate-backend'));
 backend.add(import('@backstage/plugin-scaffolder-backend-module-github'));

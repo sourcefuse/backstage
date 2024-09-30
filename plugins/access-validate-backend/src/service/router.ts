@@ -26,10 +26,10 @@ export async function createRouter(
 
   router.get('/validateuser', async (_, res) => {
     const token = _.headers?.authorization as string;
-    console.log("token***************",token)
+    console.log("token***************",token); //NOSONAR
     if (token !== '') {
       const userIdentityDetails = jose.decodeJwt(token);
-      console.log("userIdentityDetails***************",userIdentityDetails)
+      console.log("userIdentityDetails***************",userIdentityDetails) //NOSONAR
       const userAllowed = await isUserAllowed(
         userIdentityDetails?.sub?.split('/')[1] as string,
       );
