@@ -5,7 +5,13 @@ import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
 import { createTheme, lightTheme, BackstageTheme } from '@backstage/theme';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/core/styles';
-import { BackstageOverrides } from '@backstage/core-components'; // NOSONAR
+import {
+  BackstageOverrides,
+  SignInProviderConfig,
+  AlertDisplay,
+  OAuthRequestDialog,
+  SignInPage,
+} from '@backstage/core-components'; // NOSONAR
 import loginBg from './assets/images/login-bg.jpg';
 import sfLogoMinimal from './assets/images/sf-minimal-logo.png';
 import { PermissionWrapper } from './PermissionWrapper';
@@ -22,7 +28,7 @@ import {
 import { ScaffolderPage, scaffolderPlugin } from '@backstage/plugin-scaffolder';
 import { orgPlugin } from '@backstage/plugin-org';
 import { SearchPage } from '@backstage/plugin-search';
-import { TechRadarPage } from '@backstage/plugin-tech-radar';
+
 import {
   TechDocsIndexPage,
   techdocsPlugin,
@@ -36,12 +42,6 @@ import { entityPage } from './components/catalog/EntityPage';
 import { searchPage } from './components/search/SearchPage';
 import { Root } from './components/Root';
 
-import {
-  AlertDisplay,
-  OAuthRequestDialog,
-  SignInProviderConfig,
-  SignInPage,
-} from '@backstage/core-components'; // NOSONAR
 import { createApp } from '@backstage/app-defaults';
 import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
@@ -345,17 +345,20 @@ const app = createApp({
     bind(catalogPlugin.externalRoutes, {
       createComponent: scaffolderPlugin.routes.root,
       viewTechDoc: techdocsPlugin.routes.docRoot,
+      createFromTemplate: scaffolderPlugin.routes.selectedTemplate,
     });
     bind(apiDocsPlugin.externalRoutes, {
       registerApi: catalogImportPlugin.routes.importPage,
     });
     bind(scaffolderPlugin.externalRoutes, {
       registerComponent: catalogImportPlugin.routes.importPage,
+      viewTechDoc: techdocsPlugin.routes.docRoot,
     });
     bind(orgPlugin.externalRoutes, {
       catalogIndex: catalogPlugin.routes.catalogIndex,
     });
   },
+
   themes: [
     {
       id: 'custom-theme',
@@ -402,10 +405,10 @@ const routes = (
       }
     />
     <Route path="/api-docs" element={<ApiExplorerPage />} />
-    <Route
+    {/* <Route
       path="/tech-radar"
       element={<TechRadarPage width={1500} height={800} />}
-    />
+    /> */}
     <Route path="/snyk" element={<EntitySnykContent />} />
     <Route
       path="/catalog-import"

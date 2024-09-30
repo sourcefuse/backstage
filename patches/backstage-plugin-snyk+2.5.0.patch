@@ -1,0 +1,15 @@
+diff --git a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js b/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js
+index e72fea3..4f5e1ea 100644
+--- a/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js
++++ b/node_modules/backstage-plugin-snyk/dist/components/SnykEntityComponent/SnykEntityComponent.js
+@@ -1,8 +1,8 @@
+ import React from "react";
+ import {
+ // Tabs,
+-Progress, Content, TabbedLayout, Link, } from "@backstage/core-components";
+-import { MissingAnnotationEmptyState } from "@backstage/plugin-catalog-react";
++Progress, Content, TabbedLayout, Link, MissingAnnotationEmptyState} from "@backstage/core-components";
++// import { MissingAnnotationEmptyState } from "@backstage/plugin-catalog-react";
+ import { useApi } from "@backstage/core-plugin-api";
+ import { InfoCard, } from "@backstage/core-components";
+ import { snykApiRef } from "../../api";

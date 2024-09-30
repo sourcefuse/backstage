@@ -1,8 +1,8 @@
 diff --git a/node_modules/@backstage-community/plugin-sonarqube/dist/api/SonarQubeClient.esm.js b/node_modules/@backstage-community/plugin-sonarqube/dist/api/SonarQubeClient.esm.js
-index 866ec3c..c9b356b 100644
+index 866ec3c..a9415f9 100644
 --- a/node_modules/@backstage-community/plugin-sonarqube/dist/api/SonarQubeClient.esm.js
 +++ b/node_modules/@backstage-community/plugin-sonarqube/dist/api/SonarQubeClient.esm.js
-@@ -1,20 +1,32 @@
+@@ -1,20 +1,54 @@
  import fetch from 'cross-fetch';
 +const DEFAULT_PROXY_PATH_BASE = "";
  
@@ -20,13 +20,35 @@ index 866ec3c..c9b356b 100644
 +    this.configApiRef = options.configApiRef;
 +    this.proxyPathBase = (_a = options.proxyPathBase) !== null && _a !== void 0 ? _a : DEFAULT_PROXY_PATH_BASE;
    }
++  // async callApi(path, query) {
++  //   const { token: idToken } = await this.identityApi.getCredentials();
++  //   const baseUrl = await this.discoveryApi.getBaseUrl("proxy");
++  //   console.log('baseUrl------',baseUrl)
++  //   const apiUrl = `${baseUrl}${this.proxyPathBase}/sonarqube`;
++  //   // const apiUrl = `${await this.discoveryApi.getBaseUrl("sonarqube")}`;
++  //   const response = await fetch(
++  //     `${apiUrl}/${path}?${new URLSearchParams(query).toString()}`,
++  //     {
++  //       headers: {
++  //         "Content-Type": "application/json",
++  //         "User-Agent": "tech-services/backstage-plugin/1.0",
++  //         ...idToken && { Authorization: `Bearer ${idToken}` }
++  //       }
++  //     }
++  //   );
++  //   if (response.status === 200) {
++  //     return await response.json();
++  //   }
++  //   return void 0;
++  // }
    async callApi(path, query) {
      const { token: idToken } = await this.identityApi.getCredentials();
 -    const apiUrl = `${await this.discoveryApi.getBaseUrl("sonarqube")}`;
 +    const baseUrl = await this.discoveryApi.getBaseUrl("proxy");
 +    console.log('baseUrl------',baseUrl)
 +    const apiUrl = `${baseUrl}${this.proxyPathBase}/sonarqube`;
-+    // const apiUrl = `${await this.discoveryApi.getBaseUrl("sonarqube")}`;
++    // const apiUrl = `${await this.discoveryApi.getBaseUrl("proxy")}`;
++    console.log('sonarqube apiUrl------',apiUrl)
      const response = await fetch(
        `${apiUrl}/${path}?${new URLSearchParams(query).toString()}`,
        {
@@ -36,7 +58,15 @@ index 866ec3c..c9b356b 100644
            ...idToken && { Authorization: `Bearer ${idToken}` }
          }
        }
-@@ -53,24 +65,26 @@ class SonarQubeClient {
+@@ -24,6 +58,7 @@ class SonarQubeClient {
+     }
+     return void 0;
+   }
++
+   async getFindingSummary({
+     componentKey,
+     projectInstance
+@@ -53,24 +88,26 @@ class SonarQubeClient {
      );
      let baseUrl = baseUrlWrapper?.instanceUrl;
      if (!baseUrl) {
