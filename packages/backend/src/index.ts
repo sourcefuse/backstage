@@ -1,6 +1,4 @@
-
 import { createBackend } from '@backstage/backend-defaults';
-
 
 import { createBackendModule } from '@backstage/backend-plugin-api';
 
@@ -18,14 +16,13 @@ const scaffolderModuleCustomExtensions = createBackendModule({
       },
       async init({ scaffolder }) {
         scaffolder.addActions(
-           createMicroserviceAction(),
-           createScaffoldAction()
+          createMicroserviceAction(),
+          createScaffoldAction(),
         );
-      }
-    })
+      },
+    });
   },
 });
-
 
 const backend = createBackend();
 
@@ -44,13 +41,9 @@ backend.add(
 // See https://backstage.io/docs/features/software-catalog/configuration#subscribing-to-catalog-errors
 backend.add(import('@backstage/plugin-catalog-backend-module-logs'));
 
-
 // permission plugin
 backend.add(import('@backstage/plugin-permission-backend/alpha'));
-// See https://backstage.io/docs/permissions/getting-started for how to create your own permission policy
-backend.add(
-  import('@backstage/plugin-permission-backend-module-allow-all-policy'),
-);
+backend.add(import('./plugins/permission'));
 
 // search plugin
 backend.add(import('@backstage/plugin-search-backend/alpha'));
@@ -63,7 +56,6 @@ backend.add(import('@backstage/plugin-search-backend-module-techdocs/alpha'));
 
 backend.add(import('@internal/backstage-plugin-access-validate-backend'));
 backend.add(import('@backstage/plugin-scaffolder-backend-module-github'));
-
 
 backend.add(import('@backstage/plugin-scaffolder-backend/alpha'));
 backend.add(scaffolderModuleCustomExtensions);
