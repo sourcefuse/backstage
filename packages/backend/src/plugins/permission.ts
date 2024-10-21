@@ -25,6 +25,7 @@ import {
 import { policyExtensionPoint } from '@backstage/plugin-permission-node/alpha';
 import { coreServices } from '@backstage/backend-plugin-api';
 import { Octokit } from 'octokit';
+import * as _ from 'lodash';
 
 class RequestPermissionPolicy implements PermissionPolicy {
   readonly orgRepositories: Promise<
@@ -119,24 +120,30 @@ class RequestPermissionPolicy implements PermissionPolicy {
     );
   }
 
-  protected async resolveAuthorizedRepoList(userEntityRef: string) {
+  protected async resolveAuthorizedRepoList(
+    userEntityRef: string,
+  ): Promise<string[] | undefined> {
     const usernameEntity = parseEntityRef(userEntityRef);
 
-    if (!(userEntityRef in this.userRepoPermissions)) {
-      const batch = [];
-      this.userRepoPermissions[userEntityRef] = [];
-      const catalogRepos = await this.catalogRepos;
-      const orgRepos = await this.orgRepositories;
-      // Filtering out repo which is logged in the Catalog meta with just name of the repo
-      const repositories = orgRepos.filter(r => catalogRepos.has(r.name));
-      const privateCatalogRepos = repositories.filter(r => r.private);
-      const publicCatalogRepos = repositories.filter(r => r.private === false);
-      for (const repo of publicCatalogRepos) {
-        this.userRepoPermissions[userEntityRef].push(repo.name);
-      }
+    if (userEntityRef in this.userRepoPermissions) {
+      return this.userRepoPermissions[userEntityRef];
+    }
 
-      for (const repo of privateCatalogRepos) {
-        batch.push(
+    this.userRepoPermissions[userEntityRef] = [];
+    const catalogRepos = await this.catalogRepos;
+    const orgRepos = await this.orgRepositories;
+    // Filtering out repo which is logged in the Catalog meta with just name of the repo
+    const repositories = orgRepos.filter(r => catalogRepos.has(r.name));
+    const privateCatalogRepos = repositories.filter(r => r.private);
+    const publicCatalogRepos = repositories.filter(r => r.private === false);
+
+    for (const repo of publicCatalogRepos) {
+      this.userRepoPermissions[userEntityRef].push(repo.name);
+    }
+
+    for (const repos of _.chunk(privateCatalogRepos, 10)) {
+      const permissions = await Promise.all(
+        repos.map(repo =>
           this.octokit.rest.repos
             .getCollaboratorPermissionLevel({
               owner: String(process.env.GITHUB_ORGANIZATION),
@@ -147,19 +154,15 @@ class RequestPermissionPolicy implements PermissionPolicy {
               repo,
               ...resp.data,
             })),
-          //! need to add header check
-        );
-        if (batch.length > 10) {
-          const permissions = await Promise.all(batch);
-          for (const permission of permissions) {
-            this.userRepoPermissions[userEntityRef].push(permission.repo.name);
-          }
-          batch.length = 0;
-        }
+        ),
+      );
+
+      for (const permission of permissions) {
+        this.userRepoPermissions[userEntityRef].push(permission.repo.name);
       }
-      //! log any meta name which is not include that means there is issue in the meta name
     }
 
+    //! log any meta name which is not include that means there is issue in the meta name
     return this.userRepoPermissions[userEntityRef];
   }
 
@@ -175,6 +178,11 @@ class RequestPermissionPolicy implements PermissionPolicy {
     const userPermission = await this.resolveAuthorizedRepoList(
       user.identity.userEntityRef,
     );
+
+    if (!userPermission) {
+      // permission not resolved from the Github API
+      return { result: AuthorizeResult.DENY };
+    }
     this.logger.debug('Permission resolution benchmark', {
       totalTimeInMilliSeconds: startTimeBenchmark - performance.now(),
     });
