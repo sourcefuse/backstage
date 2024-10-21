@@ -20,6 +20,7 @@ import {
   type AuthService,
   type CacheService,
   type DiscoveryService,
+  type LoggerService,
 } from '@backstage/backend-plugin-api';
 import { policyExtensionPoint } from '@backstage/plugin-permission-node/alpha';
 import { coreServices } from '@backstage/backend-plugin-api';
@@ -37,49 +38,47 @@ class RequestPermissionPolicy implements PermissionPolicy {
     protected readonly discovery: DiscoveryService,
     protected readonly cache: CacheService,
     protected readonly octokit: Octokit,
+    protected readonly logger: LoggerService,
   ) {
-    this.orgRepositories = this.fetchOrganizationRepos();
-    this.catalogRepos = this.fetchCatalog();
+    // async operation is handled in resolver method
+    this.orgRepositories = this.fetchOrganizationRepos(); // NOSONAR
+    this.catalogRepos = this.fetchCatalog(); // NOSONAR
   }
 
   async handle(
     request: PolicyQuery,
     user?: BackstageIdentityResponse,
   ): Promise<PolicyDecision> {
-    console.debug(request);
-    console.time('*********************Permission Validation**************');
     if (!user?.identity) {
-      console.error('not able to found the name', user);
+      this.logger.error('not able to found the name', {
+        user: JSON.stringify(user),
+      });
       return { result: AuthorizeResult.DENY };
     }
 
-    const userPermission = await this.resolveAuthorizedRepoList(
-      user.identity.userEntityRef,
-    );
+    const resolvedPermission = (
+      await Promise.all([this.catalogPermissionHandler(request, user)])
+    ).filter(c => c !== undefined);
 
-    if (
-      userPermission.length &&
-      isPermission(request.permission, catalogEntityReadPermission)
-    ) {
-      console.timeEnd(
-        '*********************Permission Validation**************',
+    if (resolvedPermission.length > 1) {
+      this.logger.error(
+        'more than 1 permission got resolved in the decision, only one is allowed',
+        { resolvedPermission: JSON.stringify(resolvedPermission) },
       );
-
-      return createCatalogConditionalDecision(request.permission, {
-        //@ts-ignore
-        anyOf: userPermission.map(value =>
-          //@ts-ignore
-          catalogConditions.hasMetadata({ key: 'name', value }),
-        ),
-      });
     }
-    console.timeEnd('*********************Permission Validation**************');
 
+    if (resolvedPermission.length === 1) {
+      return resolvedPermission.pop() as PolicyDecision;
+    }
+
+    this.logger.info("didn't received any handler for the policy request", {
+      request,
+    });
     return { result: AuthorizeResult.ALLOW };
   }
 
   protected async fetchOrganizationRepos() {
-    console.time('******************Github OrgRepoList*******');
+    const startTimeBenchmark = performance.now();
     const out: PaginatingEndpoints['GET /orgs/{org}/repos']['response']['data'] =
       [];
     for await (const { data } of this.octokit.paginate.iterator(
@@ -92,7 +91,9 @@ class RequestPermissionPolicy implements PermissionPolicy {
       //! will use status or header to validate success
       out.push(...data);
     }
-    console.timeEnd('******************Github OrgRepoList*******');
+    this.logger.debug('Github Repo List resolution benchmark', {
+      totalTimeInMilliSeconds: startTimeBenchmark - performance.now(),
+    });
     return out;
   }
 
@@ -113,7 +114,9 @@ class RequestPermissionPolicy implements PermissionPolicy {
     });
     const data = await req.json();
     // Get Name a repo name not the repo full_name
-    return new Set<string>(data.map((cl: any) => cl.metadata.name));
+    return new Set<string>(
+      data.map((cl: { metadata: { name: string } }) => cl.metadata.name),
+    );
   }
 
   protected async resolveAuthorizedRepoList(userEntityRef: string) {
@@ -159,6 +162,33 @@ class RequestPermissionPolicy implements PermissionPolicy {
 
     return this.userRepoPermissions[userEntityRef];
   }
+
+  // Permission handlers
+  protected async catalogPermissionHandler(
+    request: PolicyQuery,
+    user: BackstageIdentityResponse,
+  ): Promise<PolicyDecision | undefined> {
+    if (!isPermission(request.permission, catalogEntityReadPermission)) {
+      return;
+    }
+    const startTimeBenchmark = performance.now();
+    const userPermission = await this.resolveAuthorizedRepoList(
+      user.identity.userEntityRef,
+    );
+    this.logger.debug('Permission resolution benchmark', {
+      totalTimeInMilliSeconds: startTimeBenchmark - performance.now(),
+    });
+    this.logger.debug('Permission resolution benchmark', {
+      totalTimeInMilliSeconds: startTimeBenchmark - performance.now(),
+    });
+    return createCatalogConditionalDecision(request.permission, {
+      //@ts-ignore
+      anyOf: userPermission.map(value =>
+        //@ts-ignore
+        catalogConditions.hasMetadata({ key: 'name', value }),
+      ),
+    });
+  }
 }
 
 export default createBackendModule({
@@ -171,14 +201,15 @@ export default createBackendModule({
         discovery: coreServices.discovery,
         cache: coreServices.cache,
         policy: policyExtensionPoint,
+        logger: coreServices.logger,
       },
-      async init({ policy, cache, discovery, auth }) {
+      async init({ policy, cache, discovery, auth, logger }) {
         const octokit = new Octokit({
           auth: String(process.env.GITHUB_TOKEN),
           // throttle: {},
         });
         policy.setPolicy(
-          new RequestPermissionPolicy(auth, discovery, cache, octokit),
+          new RequestPermissionPolicy(auth, discovery, cache, octokit, logger),
         );
       },
     });
