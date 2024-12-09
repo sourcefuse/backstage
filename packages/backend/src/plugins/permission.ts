@@ -3,14 +3,11 @@ import {
   isPermission,
   type PolicyDecision,
 } from '@backstage/plugin-permission-common';
-import type {
-  PermissionPolicy,
-  PolicyQuery,
-} from '@backstage/plugin-permission-node';
 import {
-  catalogConditions,
-  createCatalogConditionalDecision,
-} from '@backstage/plugin-catalog-backend/alpha';
+  type PermissionPolicy,
+  type PolicyQuery,
+} from '@backstage/plugin-permission-node';
+import { createCatalogConditionalDecision } from '@backstage/plugin-catalog-backend/alpha';
 import { catalogEntityReadPermission } from '@backstage/plugin-catalog-common/alpha';
 import type { BackstageIdentityResponse } from '@backstage/plugin-auth-node';
 import type { PaginatingEndpoints } from '@octokit/plugin-paginate-rest';
@@ -26,6 +23,7 @@ import { policyExtensionPoint } from '@backstage/plugin-permission-node/alpha';
 import { coreServices } from '@backstage/backend-plugin-api';
 import { Octokit } from 'octokit';
 import * as _ from 'lodash';
+import { RepositoryAccessCondition as repositoryAccessCondition } from '../premissions/repository.rule';
 
 class RequestPermissionPolicy implements PermissionPolicy {
   readonly orgRepositories: Promise<
@@ -50,6 +48,7 @@ class RequestPermissionPolicy implements PermissionPolicy {
     request: PolicyQuery,
     user?: BackstageIdentityResponse,
   ): Promise<PolicyDecision> {
+    // return { result: AuthorizeResult.ALLOW };
     if (!user?.identity) {
       this.logger.error('not able to found the name', {
         user: JSON.stringify(user),
@@ -73,7 +72,7 @@ class RequestPermissionPolicy implements PermissionPolicy {
     }
 
     this.logger.info("didn't received any handler for the policy request", {
-      request,
+      request: JSON.stringify(request, null, 2),
     });
     return { result: AuthorizeResult.ALLOW };
   }
@@ -179,8 +178,15 @@ class RequestPermissionPolicy implements PermissionPolicy {
       user.identity.userEntityRef,
     );
 
-    if (!userPermission) {
+    if (!userPermission?.length) {
       // permission not resolved from the Github API
+      this.logger.info(
+        "Not able to fetch user Permission or Github didn't have repos for the user",
+        {
+          user: user.identity.userEntityRef,
+          resolvedPermission: JSON.stringify(userPermission),
+        },
+      );
       return { result: AuthorizeResult.DENY };
     }
     this.logger.debug('Permission resolution benchmark', {
@@ -189,13 +195,11 @@ class RequestPermissionPolicy implements PermissionPolicy {
     this.logger.debug('Permission resolution benchmark', {
       totalTimeInMilliSeconds: startTimeBenchmark - performance.now(),
     });
-    return createCatalogConditionalDecision(request.permission, {
-      //@ts-ignore
-      anyOf: userPermission.map(value =>
-        //@ts-ignore
-        catalogConditions.hasMetadata({ key: 'name', value }),
-      ),
-    });
+    const condition = createCatalogConditionalDecision(
+      request.permission,
+      repositoryAccessCondition({ repos: userPermission }),
+    );
+    return condition;
   }
 }
 
