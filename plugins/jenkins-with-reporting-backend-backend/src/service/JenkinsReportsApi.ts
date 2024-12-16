@@ -100,7 +100,6 @@ export class JenkinsReportsApi {
 
       return files;
     } catch (error) {
-      console.error('Error fetching files:', error);
       return { error: 'error' };
     }
   }

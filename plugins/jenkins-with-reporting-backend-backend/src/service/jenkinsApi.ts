@@ -88,7 +88,7 @@ export class JenkinsApiImpl {
 
     if (branches) {
       // Assume jenkinsInfo.jobFullName is a MultiBranch Pipeline project which contains one job per branch.
-      // TODO: extract a strategy interface for this //NOSONAR
+      
       const job = await Promise.any(
         branches.map(branch =>
           client.job.get({
