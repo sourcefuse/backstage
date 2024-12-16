@@ -18,5 +18,22 @@ locals {
       name  = "SONARCLOUD_TOKEN"
       value = data.aws_ssm_parameter.sonarcloud_token.value
     },
+    {
+      name  = "JENKINS_BASEURL1"
+      value = data.aws_ssm_parameter.jenkins_baseurl1.value
+    },
+    {
+      name  = "JENKINS_USERNAME1"
+      value = data.aws_ssm_parameter.jenkins_username1.value
+    },
+    {
+      name  = "JENKINS_PROJECTCOUNTLIMIT1"
+      value = data.aws_ssm_parameter.jenkins_projectcountlimit1.value
+    },
+    {
+      name  = "JENKINS_API_TOKEN1"
+      value = data.aws_ssm_parameter.jenkins_apitoken1.value
+    },
+
   ]
 }

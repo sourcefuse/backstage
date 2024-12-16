@@ -16,13 +16,13 @@ backend:
   listen:
     port: 7007
   csp:
-    connect-src: [ "'self'", 'http:', 'https:' ]
-    img-src: [ '*' ]
+    connect-src: ["'self'", 'http:', 'https:']
+    img-src: ['*']
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
     origin: ${FRONTEND_BASE_URL}
-    methods: [ GET, POST, PUT, DELETE ]
+    methods: [GET, POST, PUT, DELETE]
     credentials: true
   database:
     # config options: https://node-postgres.com/api/client
@@ -31,7 +31,8 @@ backend:
       host: ${POSTGRES_HOST}
       port: ${POSTGRES_PORT}
       user: ${POSTGRES_USER}
-      password: ${POSTGRES_PASSWORD}
+      password:
+        ${POSTGRES_PASSWORD}
         # https://node-postgres.com/features/ssl
       #ssl: require # see https://www.postgresql.org/docs/current/libpq-ssl.html Table 33.1. SSL Mode Descriptions (e.g. require)
       #ca: # if you have a CA file and want to verify it you can uncomment this section
@@ -44,7 +45,7 @@ integrations:
   github:
     - host: github.com
       token: ${GITHUB_TOKEN}
-      orgs: [ sourcefuse ]
+      orgs: [sourcefuse]
       apps:
         - appId: ${INTEGRATION_GITHUB_APP_ID}
           webhookUrl: ${INTEGRATION_GITHUB_WEBHOOK_URL}
@@ -114,8 +115,16 @@ proxy:
     '/sonarqube':
       target: https://sonarcloud.io/api
       allowedMethods: ['GET']
-      auth: "${SONARCLOUD_TOKEN}:"
+      auth: '${SONARCLOUD_TOKEN}:'
       credentials: require
+
+jenkins:
+  instances:
+    - name: default
+      baseUrl: ${JENKINS_BASEURL1}
+      username: ${JENKINS_USERNAME1}
+      projectCountLimit: ${JENKINS_PROJECTCOUNTLIMIT1}
+      apiKey: ${JENKINS_API_TOKEN1}
 
 catalog:
   providers:
@@ -145,164 +154,164 @@ catalog:
   #        validateLocationsExist: true # optional boolean
 
   rules:
-    - allow: [ Component, System, API, Group, User, Resource, Location ]
+    - allow: [Component, System, API, Group, User, Resource, Location]
   locations:
     # Backstage example templates
     - type: url
       target: https://github.com/backstage/software-templates/blob/main/scaffolder-templates/react-ssr-template/template.yaml
       rules:
-        - allow: [ Template ]
+        - allow: [Template]
 
     - type: url
       target: https://github.com/backstage/software-templates/blob/main/scaffolder-templates/docs-template/template.yaml
       rules:
-        - allow: [ Template ]
+        - allow: [Template]
 
     - type: url
       target: https://github.com/backstage/software-templates/blob/main/scaffolder-templates/create-react-app/template.yaml
       rules:
-        - allow: [ Template ]
+        - allow: [Template]
 
     - type: url
       target: https://github.com/sourcefuse/sf-software-templates/blob/main/scaffolder-templates/microservice-repo-bootstrap/template.yaml
       rules:
-        - allow: [ Template ]
+        - allow: [Template]
 
     - type: url
       target: https://github.com/sourcefuse/typescript-lambda-boilerplate/blob/main/templates/api-gw-lambda.yaml
       rules:
-        - allow: [ Template ]
+        - allow: [Template]
 
     - type: url
       target: https://github.com/sourcefuse/arc-mono-repo-infra-template/blob/main/templates/template.yaml
       rules:
-        - allow: [ Template ]
+        - allow: [Template]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-arc-cloudfront/blob/main/catalog-info.yaml
       rules:
-        - allow: [ Component ]
-      tags: [ Backend ]
+        - allow: [Component]
+      tags: [Backend]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-k8s-app/blob/main/catalog-info.yaml
       rules:
-        - allow: [ Component ]
-      tags: [ Backend ]
+        - allow: [Component]
+      tags: [Backend]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-arc-db/blob/main/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-arc-tags/blob/main/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-sourceloop-apps/blob/main/catalog-info.yml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-arc-cloudfront/blob/main/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-arc-ecs/blob/main/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-arc-network/blob/main/catalog-info.yml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-arc-eks/blob/main/catalog-info.yml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-arc-bootstrap/blob/main/catalog-info.yml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-arc-cloud-custodian/blob/main/catalog-info.yml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/terraform-aws-arc-opensearch/blob/main/catalog-info.yml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/loopback4-vault/blob/master/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/loopback4-s3/blob/master/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/loopback4-audit-log/blob/master/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/loopback4-notifications/blob/master/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/loopback4-helmet/blob/master/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/loopback4-soft-delete/blob/master/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/loopback4-kafka-client/blob/master/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/loopback4-ratelimiter/blob/master/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/loopback4-authorization/blob/master/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/loopback4-authentication/blob/master/catalog-info.yaml
       rules:
-        - allow: [ Component ]
+        - allow: [Component]
 
     - type: url
       target: https://github.com/sourcefuse/telemed-app-ui/blob/main/template.yaml
       rules:
-        - allow: [ Template ]
+        - allow: [Template]
     - type: url
       target: https://github.com/sourcefuse/telemed-app-api/blob/main/template.yaml
       rules:
-        - allow: [ Template ]
+        - allow: [Template]
 
 # kubernetes:
-  # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
+# see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
 # see https://backstage.io/docs/permissions/getting-started for more on the permission framework
 
 ## setting this to `false` will disable permissions
 permission:
-  enabled: true
+  enabled: false
