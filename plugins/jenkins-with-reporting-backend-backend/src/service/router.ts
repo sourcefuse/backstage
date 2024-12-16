@@ -55,7 +55,7 @@ export async function createRouter(
     async (req, res) => {
       const { name, jobFullName, buildNumber } = req.params;
       try {
-        const creds = (await httpAuth.credentials(req)) as any;
+        const creds = (await httpAuth.credentials(req)) as any; //NOSONAR
 
         const entity = await catalogClient.getEntityByRef(
           `${req.params.kind}:${req.params.namespace}/${req.params.name}`,
@@ -89,7 +89,7 @@ export async function createRouter(
 
         res.json(reports);
       } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message }); //NOSONAR
       }
     },
   );

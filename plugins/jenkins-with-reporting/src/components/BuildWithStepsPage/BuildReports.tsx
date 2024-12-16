@@ -36,8 +36,8 @@ const BuildReports: React.FC<BuildReportsProps> = ({ reports = [] }) => {
 
   return (
     <ul className={classes.reportsList}>
-      {reports.map((report: BuildReport, index: number) => (
-        <li key={index} className={classes.reportItem}>
+      {reports.map((report: BuildReport) => (
+        <li key={`${report.fileName}-${report.url}`} className={classes.reportItem}>
           <a href={report.url} target="_blank" rel="noopener noreferrer">
             {report.fileName}
             <ExternalLinkIcon className={classes.externalLinkIcon} />

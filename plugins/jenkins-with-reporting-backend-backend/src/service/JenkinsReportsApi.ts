@@ -1,4 +1,3 @@
-import { JenkinsInfo } from '@backstage-community/plugin-jenkins-backend';
 import { JenkinsApiImpl } from './jenkinsApi';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import {
@@ -76,7 +75,6 @@ export class JenkinsReportsApi {
       // Step 4: Filter and process files to fetch specific index.html files
       const indexFiles = allObjects.filter(
         key =>
-          key.endsWith('/Overall/coverage/index.html') || // Matches coverage index.html
           (key.includes('/Overall/coverage/') &&
             key.endsWith('/Overall/coverage/index.html')) ||
           (key.includes('/load-tests-reports/') &&

@@ -32,16 +32,6 @@ import { Project } from '../api';
 /** @public */
 
 export const isJenkinsAvailable = (entity: Entity) => {
-  console.log('entity**************', entity);
-  console.log(
-    'entity.metadata.annotations....',
-    entity.metadata.annotations,
-    JENKINS_ANNOTATION,
-    entity.metadata.annotations?.[JENKINS_ANNOTATION],
-    entity.metadata.annotations?.[LEGACY_JENKINS_ANNOTATION],
-    Boolean(entity.metadata.annotations?.[JENKINS_ANNOTATION]) ||
-      Boolean(entity.metadata.annotations?.[LEGACY_JENKINS_ANNOTATION]),
-  );
   return (
     Boolean(entity.metadata.annotations?.[JENKINS_ANNOTATION]) ||
     Boolean(entity.metadata.annotations?.[LEGACY_JENKINS_ANNOTATION])

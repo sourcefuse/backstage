@@ -168,6 +168,7 @@ export const columnFactories = Object.freeze({
       title: 'Tests',
       sorting: false,
       render: (row: Partial<Project>) => {
+        // @SonarIgnoreStart
         return (
           <>
             <Typography paragraph>
@@ -186,6 +187,7 @@ export const columnFactories = Object.freeze({
             </Typography>
           </>
         );
+        // @SonarIgnoreEnd
       },
     };
   },

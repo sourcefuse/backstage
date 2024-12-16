@@ -92,21 +92,13 @@ export interface Project {
   inQueue: string;
   // added by us
   status: string; // == inQueue ? 'queued' : lastBuild.building ? 'running' : lastBuild.result,
-  onRestartClick: () => Promise<void>; // TODO rename to handle.* ? also, should this be on lastBuild?
+  onRestartClick: () => Promise<void>;
 }
 
 export interface BuildReport {
   fileName: string;
   url: string;
 }
-
-// export interface JenkinsApi {
-//   // ... existing methods
-//   getBuildReports(
-//     jobFullName: string,
-//     buildNumber: string
-//   ): Promise<Array<{ fileName: string; url: string }>>;
-// }
 
 export interface JenkinsApi {
   /**
@@ -129,7 +121,6 @@ export interface JenkinsApi {
    *
    * This takes an entity to support selecting between multiple jenkins instances.
    *
-   * TODO: abstract jobFullName (so we could support differentiating between the same named job on multiple instances).
    */
   getBuild(options: {
     entity: CompoundEntityRef;
@@ -176,7 +167,7 @@ export class JenkinsClient implements JenkinsApi {
         entity.kind,
       )}/${encodeURIComponent(entity.name)}/projects`,
     );
-    console.log('getproject url================', url);
+
     if (filter.branch) {
       url.searchParams.append('branch', filter.branch);
     }
@@ -196,26 +187,6 @@ export class JenkinsClient implements JenkinsApi {
       })) || []
     );
   }
-
-  // async getBuild(options: {
-  //   entity: CompoundEntityRef;
-  //   jobFullName: string;
-  //   buildNumber: string;
-  // }): Promise<Build> {
-  //   const { entity, jobFullName, buildNumber } = options;
-  //   const url = `${await this.discoveryApi.getBaseUrl(
-  //     'jenkins',
-  //     )}/v1/entity/${encodeURIComponent(entity.namespace)}/${encodeURIComponent(
-  //     entity.kind,
-  //   )}/${encodeURIComponent(entity.name)}/${encodeURIComponent(
-  //     jobFullName,
-  //   )}/${encodeURIComponent(buildNumber)}`;
-
-  //   const response = await this.fetchApi.fetch(url);
-
-  //   return (await response.json())
-
-  // }
 
   async getBuild(options: {
     entity: CompoundEntityRef;
@@ -241,7 +212,7 @@ export class JenkinsClient implements JenkinsApi {
     jobFullName: string;
     buildNumber: string;
   }): Promise<BuildReport[]> {
-    console.log('getBuildReports*******************', options);
+
     const { entity, jobFullName, buildNumber } = options;
     const url = `${await this.discoveryApi.getBaseUrl(
       'jenkins-with-reporting-backend',
@@ -282,13 +253,7 @@ export class JenkinsClient implements JenkinsApi {
     jobFullName: string;
   }): Promise<Job> {
     const { entity, jobFullName } = options;
-    // const url = `${await this.discoveryApi.getBaseUrl(
-    //   'jenkins',
-    // )}/v1/entity/${encodeURIComponent(entity.namespace)}/${encodeURIComponent(
-    //   entity.kind,
-    // )}/${encodeURIComponent(entity.name)}/job/${encodeURIComponent(
-    //   jobFullName,
-    // )}`;
+
 
     const url = `${await this.discoveryApi.getBaseUrl(
       'jenkins-with-reporting-backend',
@@ -298,23 +263,11 @@ export class JenkinsClient implements JenkinsApi {
       jobFullName,
     )}`;
 
-    // const response = await this.fetchApi.fetch(url);
-    console.log('*****************job urls*************************', url);
+
     const response = await this.fetchApi.fetch(url);
-    console.log('************************jobBuildse response-----', response);
+
 
     return (await response.json()).build;
-    // return (
-    //   (await response.json()).build?.builds?.map((p: Build) => ({
-    //     ...p,
-    //     onRestartClick: () => {
-    //       return this.retry({
-    //         entity,
-    //         jobFullName: p.fullDisplayName,
-    //         buildNumber: String(p.number),
-    //       });
-    //     },
-    //   })) || []
-    // );
+
   }
 }

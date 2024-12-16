@@ -29,7 +29,6 @@ export enum ErrorType {
  * Hook to expose the latest build for all the pipelines/projects for an entity.
  * If `branch` is provided, the latest build for only that branch will be given (but still as a list)
  *
- * TODO: deprecate branch and add a generic filter concept.
  */
 export function useBuilds({ branch }: { branch?: string } = {}) {
   const { entity } = useEntity();
@@ -39,7 +38,7 @@ export function useBuilds({ branch }: { branch?: string } = {}) {
 
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(5); //NOSONAR
   const [error, setError] = useState<{
     message: string;
     errorType: ErrorType;

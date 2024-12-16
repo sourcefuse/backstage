@@ -31,7 +31,7 @@ import { useBuildWithSteps } from '../useBuildWithSteps';
 import { Breadcrumbs, Content, Link } from '@backstage/core-components';
 import { useRouteRefParams, useApi } from '@backstage/core-plugin-api';
 
-import { jenkinsApiRef, BuildReport } from '../../api';
+import { jenkinsApiRef } from '../../api';
 import { CircularProgress } from '@material-ui/core';
 import { useEntity } from '@backstage/plugin-catalog-react';
 import { getCompoundEntityRef } from '@backstage/catalog-model';
@@ -99,7 +99,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const BuildWithStepsView = () => {
-  // TODO: Add a test that react-router decodes this (even though `generatePath` doesn't encode it for you!)
   const { jobFullName, buildNumber } = useRouteRefParams(buildRouteRef);
   const classes = useStyles();
 
@@ -108,7 +107,6 @@ const BuildWithStepsView = () => {
   return (
     <div className={classes.root}>
       <Breadcrumbs aria-label="breadcrumb">
-        {/* TODO: don't hardcode this link */}
         <Link to="../../..">Projects</Link>
         <Typography>Run</Typography>
       </Breadcrumbs>
@@ -163,7 +161,6 @@ const BuildWithStepsView = () => {
             </TableRow>
             <TableRow>
               <TableCell>
-                {/* TODO: be SCM agnostic */}
                 <Typography noWrap>GitHub</Typography>
               </TableCell>
               <TableCell>

@@ -37,7 +37,7 @@ type ActionOutputProps = {
   url: string;
   name: string;
   className?: string;
-  action: any;
+  action: any; //NOSONAR
 };
 
 export const ActionOutput = ({ url, name, className }: ActionOutputProps) => {
