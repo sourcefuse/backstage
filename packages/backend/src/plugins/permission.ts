@@ -144,10 +144,10 @@ class RequestPermissionPolicy implements PermissionPolicy {
         team_slug: String(process.env.REPO_CREATOR_TEAM),
       },
     );
-
+    const ok = 200;
     if (
       response &&
-      response.status === 200 &&
+      response.status === ok &&
       response.data.state === 'active'
     ) {
       return response.data.role ?? 'null';
