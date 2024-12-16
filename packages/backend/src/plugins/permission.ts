@@ -48,7 +48,6 @@ class RequestPermissionPolicy implements PermissionPolicy {
     request: PolicyQuery,
     user?: BackstageIdentityResponse,
   ): Promise<PolicyDecision> {
-    // return { result: AuthorizeResult.ALLOW };
     if (!user?.identity) {
       this.logger.error('not able to found the name', {
         user: JSON.stringify(user),
@@ -88,9 +87,9 @@ class RequestPermissionPolicy implements PermissionPolicy {
         org: String(process.env.GITHUB_ORGANIZATION),
       },
     )) {
-      //! will use status or header to validate success
       out.push(...data);
     }
+    this.logger.info('***GithubRequest GET /orgs/{org}/repos', {});
     this.logger.debug('Github Repo List resolution benchmark', {
       totalTimeInMilliSeconds: startTimeBenchmark - performance.now(),
     });
@@ -112,11 +111,49 @@ class RequestPermissionPolicy implements PermissionPolicy {
         Authorization: `Bearer ${token}`,
       },
     });
+    this.logger.info(
+      '***CatalogRequest GET /entities?filter=kind=component',
+      {},
+    );
     const data = await req.json();
     // Get Name a repo name not the repo full_name
     return new Set<string>(
       data.map((cl: { metadata: { name: string } }) => cl.metadata.name),
     );
+  }
+
+  protected async fetchUserRole(userEntityRef: string) {
+    const { name: username } = parseEntityRef(userEntityRef);
+
+    const response = await this.octokit
+      .request('GET /orgs/{org}/teams/{team_slug}/memberships/{username}', {
+        org: String(process.env.GITHUB_ORGANIZATION),
+        team_slug: String(process.env.REPO_CREATOR_TEAM),
+        username,
+      })
+      .catch(e => {
+        this.logger.debug('Issue while fetching details for the username', {
+          error: JSON.stringify(e),
+        });
+      });
+
+    this.logger.info(
+      '***GithubRequest GET /orgs/{org}/teams/{team_slug}/memberships/{username}',
+      {
+        org: String(process.env.GITHUB_ORGANIZATION),
+        team_slug: String(process.env.REPO_CREATOR_TEAM),
+      },
+    );
+
+    if (
+      response &&
+      response.status === 200 &&
+      response.data.state === 'active'
+    ) {
+      return response.data.role ?? 'null';
+    }
+
+    return 'null';
   }
 
   protected async resolveAuthorizedRepoList(
@@ -140,24 +177,42 @@ class RequestPermissionPolicy implements PermissionPolicy {
       this.userRepoPermissions[userEntityRef].push(repo.name);
     }
 
-    for (const repos of _.chunk(privateCatalogRepos, 10)) {
-      const permissions = await Promise.all(
-        repos.map(repo =>
-          this.octokit.rest.repos
-            .getCollaboratorPermissionLevel({
-              owner: String(process.env.GITHUB_ORGANIZATION),
-              repo: repo.name,
-              username: usernameEntity.name,
-            })
-            .then(resp => ({
-              repo,
-              ...resp.data,
-            })),
-        ),
-      );
+    const userRole = await this.fetchUserRole(userEntityRef);
 
-      for (const permission of permissions) {
-        this.userRepoPermissions[userEntityRef].push(permission.repo.name);
+    if (['member', 'admin', 'maintainer'].includes(userRole)) {
+      for (const repos of privateCatalogRepos) {
+        this.userRepoPermissions[userEntityRef].push(repos.name);
+      }
+    } else {
+      // will fetch individual repo permissions
+      for (const repos of _.chunk(privateCatalogRepos, 10)) {
+        const permissions = await Promise.all(
+          repos.map(repo =>
+            this.octokit.rest.repos
+              .getCollaboratorPermissionLevel({
+                owner: String(process.env.GITHUB_ORGANIZATION),
+                repo: repo.name,
+                username: usernameEntity.name,
+              })
+              .then(resp => ({
+                repo,
+                ...resp.data,
+              }))
+              .finally(() => {
+                this.logger.info(
+                  '***GithubRequest GET /repos/{owner}/{repo}/collaborators/{username}/permission',
+                  {
+                    owner: String(process.env.GITHUB_ORGANIZATION),
+                    repo: repo.name,
+                  },
+                );
+              }),
+          ),
+        );
+
+        for (const permission of permissions) {
+          this.userRepoPermissions[userEntityRef].push(permission.repo.name);
+        }
       }
     }
 
@@ -218,6 +273,8 @@ export default createBackendModule({
       async init({ policy, cache, discovery, auth, logger }) {
         const octokit = new Octokit({
           auth: String(process.env.GITHUB_TOKEN),
+          // in case of custom option for throttle follow below
+          // https://github.com/octokit/plugin-throttling.js/#readme
           // throttle: {},
         });
         policy.setPolicy(

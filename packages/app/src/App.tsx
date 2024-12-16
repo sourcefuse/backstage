@@ -382,7 +382,11 @@ const routes = (
     </Route> */}
     <Route
       path="/catalog/:namespace/:kind/:name"
-      element={<CatalogEntityPage />}
+      element={
+        <RequirePermission permission={catalogEntityCreatePermission}>
+          <CatalogEntityPage />
+        </RequirePermission>
+      }
     >
       {entityPage}
     </Route>
