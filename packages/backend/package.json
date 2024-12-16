@@ -7,6 +7,9 @@
   "backstage": {
     "role": "backend"
   },
+  "engines": {
+    "node": "18 || 20"
+  },
   "scripts": {
     "start": "backstage-cli package start",
     "build": "backstage-cli package build",
@@ -18,6 +21,7 @@
     "test:ci": "backstage-cli package test --coverage"
   },
   "dependencies": {
+    "@backstage-community/plugin-jenkins-backend": "^0.6.2",
     "@backstage/backend-common": "^0.25.0",
     "@backstage/backend-defaults": "^0.5.0",
     "@backstage/backend-plugin-api": "^1.0.0",
@@ -50,6 +54,7 @@
     "@backstage/plugin-techdocs-backend": "^1.10.13",
     "@gitbeaker/node": "^34.6.0",
     "@internal/backstage-plugin-access-validate-backend": "^0.1.0",
+    "@internal/backstage-plugin-jenkins-with-reporting-backend-backend": "^0.1.0",
     "@internal/plugin-validate-access-backend": "^0.1.0",
     "@octokit/rest": "^18.5.3",
     "@sourceloop/cli": "^7.1.4",
@@ -60,22 +65,22 @@
     "express-promise-router": "^4.1.0",
     "inversify": "^6.0.1",
     "knex": "^0.21.6",
+    "lodash": "4.17.21",
     "node-gyp": "^10.0.0",
+    "octokit": "^3.0.0",
     "pg": "^8.11.3",
     "winston": "^3.2.1",
     "workerpool": "^6.2.1",
-    "yeoman-environment": "^3.9.1",
-    "octokit": "^3.0.0",
-    "lodash": "4.17.21"
+    "yeoman-environment": "^3.9.1"
   },
   "devDependencies": {
     "@backstage/cli": "^0.27.1",
     "@types/dockerode": "^3.3.0",
     "@types/express": "^4.17.6",
     "@types/express-serve-static-core": "^4.17.5",
+    "@types/lodash": "4.17.12",
     "@types/luxon": "^2.0.4",
-    "@types/workerpool": "^6.1.0",
-    "@types/lodash": "4.17.12"
+    "@types/workerpool": "^6.1.0"
   },
   "files": [
     "dist"

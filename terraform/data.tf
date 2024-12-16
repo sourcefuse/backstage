@@ -43,3 +43,17 @@ data "aws_ssm_parameter" "repo_name" {
 data "aws_ssm_parameter" "sonarcloud_token" {
   name = "/backstage/${var.environment}/sonarcloud/token"
 }
+data "aws_ssm_parameter" "jenkins_baseurl1" {
+  name = "/backstage/${var.environment}/jenkins/baseurl1"
+}
+data "aws_ssm_parameter" "jenkins_username1" {
+  name = "/backstage/${var.environment}/jenkins/username1"
+}
+
+data "aws_ssm_parameter" "jenkins_projectcountlimit1" {
+  name = "/backstage/${var.environment}/jenkins/projectcountlimit1"
+}
+
+data "aws_ssm_parameter" "jenkins_apitoken1" {
+  name = "/backstage/${var.environment}/jenkins/apitoken1"
+}

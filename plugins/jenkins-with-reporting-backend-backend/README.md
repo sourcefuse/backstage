@@ -1,15 +1,15 @@
-# access-validate
+# jenkins-with-reporting-backend
 
-Welcome to the access-validate backend plugin!
+Welcome to the jenkins-with-reporting-backend backend plugin!
 
 _This plugin was created through the Backstage CLI_
 
-This plugin is created to check permission of the logged in user for scaffoldin. Created route '/validateuser' for the same.
+This backend plugin is created to to fetch the jenkins builds, details, reports generated.
 
 ## Getting started
 
 Your plugin has been added to the example app in this repository, meaning you'll be able to access it by running `yarn
-start` in the root directory, and then navigating to [/access-validate/health](http://localhost:7007/api/access-validate/health).
+start` in the root directory, and then navigating to [/jenkins-with-reporting-backend/health](http://localhost:7007/api/jenkins-with-reporting-backend/health).
 
 You can also serve the plugin in isolation by running `yarn start` in the plugin directory.
 This method of serving the plugin provides quicker iteration speed and a faster startup and hot reloads.

@@ -18,11 +18,7 @@ export const accessValidatePlugin = createBackendPlugin({
         logger: coreServices.logger,
         config: coreServices.rootConfig,
       },
-      async init({
-        httpRouter,
-        logger,
-        config,
-      }) {
+      async init({ httpRouter, logger, config }) {
         httpRouter.use(
           await createRouter({
             logger,
@@ -34,8 +30,8 @@ export const accessValidatePlugin = createBackendPlugin({
           allow: 'unauthenticated',
         });
         httpRouter.addAuthPolicy({
-          path: "/validateuser",
-          allow: "unauthenticated"
+          path: '/validateuser',
+          allow: 'unauthenticated',
         });
       },
     });
