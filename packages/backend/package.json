@@ -60,7 +60,7 @@
     "express-promise-router": "^4.1.0",
     "inversify": "^6.0.1",
     "knex": "^0.21.6",
-    "node-gyp": "^10.0.0",
+    "node-gyp": "^11.0.0",
     "pg": "^8.11.3",
     "winston": "^3.2.1",
     "workerpool": "^6.2.1",
