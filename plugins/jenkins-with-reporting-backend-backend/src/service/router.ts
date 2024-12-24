@@ -155,6 +155,7 @@ export async function createRouter(
     },
   );
 
+
   const middleware = MiddlewareFactory.create({ logger, config });
 
   router.use(middleware.error());

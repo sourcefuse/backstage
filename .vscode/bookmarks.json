@@ -1,0 +1,44 @@
+{
+	"files": [
+		{
+			"path": "node_modules/@backstage/plugin-catalog-backend/dist/cjs/CatalogBuilder-CGSl8LEN.cjs.js",
+			"bookmarks": [
+				{
+					"line": 2369,
+					"column": 0,
+					"label": "FilterQueryBuilder"
+				},
+				{
+					"line": 2452,
+					"column": 0,
+					"label": "DB Query execution"
+				},
+				{
+					"line": 5559,
+					"column": 0,
+					"label": "Catalog entities router "
+				},
+				{
+					"line": 7111,
+					"column": 0,
+					"label": "Catalog permission router"
+				},
+				{
+					"line": 7170,
+					"column": 0,
+					"label": "CatalogRoute creation"
+				}
+			]
+		},
+		{
+			"path": "node_modules/@backstage/plugin-permission-node/dist/index.cjs.js",
+			"bookmarks": [
+				{
+					"line": 26,
+					"column": 0,
+					"label": "Permission JSON creation fn"
+				}
+			]
+		}
+	]
+}

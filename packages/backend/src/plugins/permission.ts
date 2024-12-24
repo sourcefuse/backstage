@@ -3,14 +3,11 @@ import {
   isPermission,
   type PolicyDecision,
 } from '@backstage/plugin-permission-common';
-import type {
-  PermissionPolicy,
-  PolicyQuery,
-} from '@backstage/plugin-permission-node';
 import {
-  catalogConditions,
-  createCatalogConditionalDecision,
-} from '@backstage/plugin-catalog-backend/alpha';
+  type PermissionPolicy,
+  type PolicyQuery,
+} from '@backstage/plugin-permission-node';
+import { createCatalogConditionalDecision } from '@backstage/plugin-catalog-backend/alpha';
 import { catalogEntityReadPermission } from '@backstage/plugin-catalog-common/alpha';
 import type { BackstageIdentityResponse } from '@backstage/plugin-auth-node';
 import type { PaginatingEndpoints } from '@octokit/plugin-paginate-rest';
@@ -26,6 +23,7 @@ import { policyExtensionPoint } from '@backstage/plugin-permission-node/alpha';
 import { coreServices } from '@backstage/backend-plugin-api';
 import { Octokit } from 'octokit';
 import * as _ from 'lodash';
+import { RepositoryAccessCondition as repositoryAccessCondition } from '../premissions/repository.rule';
 
 class RequestPermissionPolicy implements PermissionPolicy {
   readonly orgRepositories: Promise<
@@ -73,7 +71,7 @@ class RequestPermissionPolicy implements PermissionPolicy {
     }
 
     this.logger.info("didn't received any handler for the policy request", {
-      request,
+      request: JSON.stringify(request, null, 2),
     });
     return { result: AuthorizeResult.ALLOW };
   }
@@ -89,9 +87,9 @@ class RequestPermissionPolicy implements PermissionPolicy {
         org: String(process.env.GITHUB_ORGANIZATION),
       },
     )) {
-      //! will use status or header to validate success
       out.push(...data);
     }
+    this.logger.info('***GithubRequest GET /orgs/{org}/repos', {});
     this.logger.debug('Github Repo List resolution benchmark', {
       totalTimeInMilliSeconds: startTimeBenchmark - performance.now(),
     });
@@ -113,11 +111,49 @@ class RequestPermissionPolicy implements PermissionPolicy {
         Authorization: `Bearer ${token}`,
       },
     });
+    this.logger.info(
+      '***CatalogRequest GET /entities?filter=kind=component',
+      {},
+    );
     const data = await req.json();
     // Get Name a repo name not the repo full_name
     return new Set<string>(
       data.map((cl: { metadata: { name: string } }) => cl.metadata.name),
     );
+  }
+
+  protected async fetchUserRole(userEntityRef: string) {
+    const { name: username } = parseEntityRef(userEntityRef);
+
+    const response = await this.octokit
+      .request('GET /orgs/{org}/teams/{team_slug}/memberships/{username}', {
+        org: String(process.env.GITHUB_ORGANIZATION),
+        team_slug: String(process.env.REPO_CREATOR_TEAM),
+        username,
+      })
+      .catch(e => {
+        this.logger.debug('Issue while fetching details for the username', {
+          error: JSON.stringify(e),
+        });
+      });
+
+    this.logger.info(
+      '***GithubRequest GET /orgs/{org}/teams/{team_slug}/memberships/{username}',
+      {
+        org: String(process.env.GITHUB_ORGANIZATION),
+        team_slug: String(process.env.REPO_CREATOR_TEAM),
+      },
+    );
+    const ok = 200;
+    if (
+      response &&
+      response.status === ok &&
+      response.data.state === 'active'
+    ) {
+      return response.data.role ?? 'null';
+    }
+
+    return 'null';
   }
 
   protected async resolveAuthorizedRepoList(
@@ -141,24 +177,42 @@ class RequestPermissionPolicy implements PermissionPolicy {
       this.userRepoPermissions[userEntityRef].push(repo.name);
     }
 
-    for (const repos of _.chunk(privateCatalogRepos, 10)) {
-      const permissions = await Promise.all(
-        repos.map(repo =>
-          this.octokit.rest.repos
-            .getCollaboratorPermissionLevel({
-              owner: String(process.env.GITHUB_ORGANIZATION),
-              repo: repo.name,
-              username: usernameEntity.name,
-            })
-            .then(resp => ({
-              repo,
-              ...resp.data,
-            })),
-        ),
-      );
+    const userRole = await this.fetchUserRole(userEntityRef);
 
-      for (const permission of permissions) {
-        this.userRepoPermissions[userEntityRef].push(permission.repo.name);
+    if (['member', 'admin', 'maintainer'].includes(userRole)) {
+      for (const repos of privateCatalogRepos) {
+        this.userRepoPermissions[userEntityRef].push(repos.name);
+      }
+    } else {
+      // will fetch individual repo permissions
+      for (const repos of _.chunk(privateCatalogRepos, 10)) {
+        const permissions = await Promise.all(
+          repos.map(repo =>
+            this.octokit.rest.repos
+              .getCollaboratorPermissionLevel({
+                owner: String(process.env.GITHUB_ORGANIZATION),
+                repo: repo.name,
+                username: usernameEntity.name,
+              })
+              .then(resp => ({
+                repo,
+                ...resp.data,
+              }))
+              .finally(() => {
+                this.logger.info(
+                  '***GithubRequest GET /repos/{owner}/{repo}/collaborators/{username}/permission',
+                  {
+                    owner: String(process.env.GITHUB_ORGANIZATION),
+                    repo: repo.name,
+                  },
+                );
+              }),
+          ),
+        );
+
+        for (const permission of permissions) {
+          this.userRepoPermissions[userEntityRef].push(permission.repo.name);
+        }
       }
     }
 
@@ -179,8 +233,15 @@ class RequestPermissionPolicy implements PermissionPolicy {
       user.identity.userEntityRef,
     );
 
-    if (!userPermission) {
+    if (!userPermission?.length) {
       // permission not resolved from the Github API
+      this.logger.info(
+        "Not able to fetch user Permission or Github didn't have repos for the user",
+        {
+          user: user.identity.userEntityRef,
+          resolvedPermission: JSON.stringify(userPermission),
+        },
+      );
       return { result: AuthorizeResult.DENY };
     }
     this.logger.debug('Permission resolution benchmark', {
@@ -189,13 +250,11 @@ class RequestPermissionPolicy implements PermissionPolicy {
     this.logger.debug('Permission resolution benchmark', {
       totalTimeInMilliSeconds: startTimeBenchmark - performance.now(),
     });
-    return createCatalogConditionalDecision(request.permission, {
-      //@ts-ignore
-      anyOf: userPermission.map(value =>
-        //@ts-ignore
-        catalogConditions.hasMetadata({ key: 'name', value }),
-      ),
-    });
+    const condition = createCatalogConditionalDecision(
+      request.permission,
+      repositoryAccessCondition({ repos: userPermission }),
+    );
+    return condition;
   }
 }
 
@@ -214,6 +273,8 @@ export default createBackendModule({
       async init({ policy, cache, discovery, auth, logger }) {
         const octokit = new Octokit({
           auth: String(process.env.GITHUB_TOKEN),
+          // in case of custom option for throttle follow below
+          // https://github.com/octokit/plugin-throttling.js/#readme
           // throttle: {},
         });
         policy.setPolicy(

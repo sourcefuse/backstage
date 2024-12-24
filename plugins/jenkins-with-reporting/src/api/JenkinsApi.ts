@@ -164,6 +164,7 @@ export class JenkinsClient implements JenkinsApi {
     const url = new URL(
       `${await this.discoveryApi.getBaseUrl(
         'jenkins-with-reporting-backend',
+
       )}/v1/entity/${encodeURIComponent(entity.namespace)}/${encodeURIComponent(
         entity.kind,
       )}/${encodeURIComponent(entity.name)}/projects`,
