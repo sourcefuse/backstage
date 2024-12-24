@@ -145,7 +145,7 @@ export interface JenkinsApi {
     buildNumber: string;
   }): Promise<void>;
 }
-
+const JENKINS_SUB = 'jenkins-with-reporting-backend'
 export class JenkinsClient implements JenkinsApi {
   private readonly discoveryApi: DiscoveryApi;
   private readonly fetchApi: FetchApi;
@@ -217,7 +217,7 @@ export class JenkinsClient implements JenkinsApi {
 
     const { entity, jobFullName, buildNumber } = options;
     const url = `${await this.discoveryApi.getBaseUrl(
-      'jenkins-with-reporting-backend',
+      JENKINS_SUB,
     )}/reports/${encodeURIComponent(entity.namespace)}/${encodeURIComponent(
       entity.kind,
     )}/${encodeURIComponent(entity.name)}/${encodeURIComponent(
@@ -254,8 +254,7 @@ export class JenkinsClient implements JenkinsApi {
     entity: CompoundEntityRef;
     jobFullName: string;
   }): Promise<Job> {
-    const { entity, jobFullName } = options;
-    const JENKINS_SUB = 'jenkins-with-reporting-backend'
+    const { entity, jobFullName } = options;    
 
     const url = `${await this.discoveryApi.getBaseUrl(
       JENKINS_SUB,  
