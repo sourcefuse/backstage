@@ -128,7 +128,7 @@ export async function createRouter(
       } else if (typeof branch === "string") {
         branches = branch.split(/,/g);
       } else {
-        response.status(400).send("Something was unexpected about the branch queryString");
+        response.status(400).send("Something was unexpected about the branch queryString"); // NOSONAR
         return;
       }
       const jenkinsInfo = await jenkinsInfoProvider.getInstance({
