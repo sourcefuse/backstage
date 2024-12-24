@@ -255,10 +255,10 @@ export class JenkinsClient implements JenkinsApi {
     jobFullName: string;
   }): Promise<Job> {
     const { entity, jobFullName } = options;
-
+    const JENKINS_SUB = 'jenkins-with-reporting-backend'
 
     const url = `${await this.discoveryApi.getBaseUrl(
-      'jenkins-with-reporting-backend',
+      JENKINS_SUB,  
     )}/v1/entity/${encodeURIComponent(entity.namespace)}/${encodeURIComponent(
       entity.kind,
     )}/${encodeURIComponent(entity.name)}/job/${encodeURIComponent(
