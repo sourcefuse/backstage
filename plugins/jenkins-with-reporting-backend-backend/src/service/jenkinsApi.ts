@@ -84,55 +84,54 @@ export class JenkinsApiImpl {
    */
   async getProjects(jenkinsInfo: JenkinsInfo, branches?: string[]) {
     const client = await JenkinsApiImpl.getClient(jenkinsInfo);
-    const projects: BackstageProject[] = [];
+    const projects = [];
+    const treeSpec = JenkinsApiImpl.jobsTreeSpec;
 
     if (branches) {
-      // Assume jenkinsInfo.jobFullName is a MultiBranch Pipeline project which contains one job per branch.
-      
       const job = await Promise.any(
         branches.map(branch =>
           client.job.get({
             name: `${jenkinsInfo.jobFullName}/${encodeURIComponent(branch)}`,
-            tree: JenkinsApiImpl.jobTreeSpec.replace(/\s/g, ''),
-          }),
-        ),
+            tree: JenkinsApiImpl.jobTreeSpec.replace(/\s/g, ""),
+          })
+        )
       );
-      projects.push(this.augmentProject(job));
+     // @ts-ignore
+      projects.push(this.augmentProject(job)); //NOSONAR
     } else {
-      // We aren't filtering
-      // Assume jenkinsInfo.jobFullName is either
-      // a MultiBranch Pipeline (folder with one job per branch) project
-      // a Pipeline (standalone) project
+      const rootProjects = await this.getNestedJobs(client, jenkinsInfo.jobFullName, treeSpec);
+      // @ts-ignore
+      projects.push(...rootProjects); //NOSONAR
+    }
 
-      // Add count limit to projects
-      // If limit is set in the config, use it, otherwise use the default limit of 50
-      const limitedJobsTreeSpec: string = `${JenkinsApiImpl.jobsTreeSpec}{0,${jenkinsInfo.projectCountLimit}}`; //NOSONAR
+    return projects;
+  }
 
-      const project = await client.job.get({
-        name: jenkinsInfo.jobFullName,
-        // Filter only be the information we need, instead of loading all fields.
-        // Whitespaces are only included for readability here and stripped out
-        // before sending to Jenkins
-        tree: limitedJobsTreeSpec.replace(/\s/g, ''),
-      });
+  async  getNestedJobs(client:any, jobName  : string, treeSpec: string):Promise<any> { //NOSONAR
+    const project = await client.job.get({
+      name: jobName,
+      tree: treeSpec.replace(/\s/g, ""),
+    });
 
-      const isStandaloneProject = !project.jobs;
-      if (isStandaloneProject) {
-        const limitedStandaloneJobTreeSpec = `${JenkinsApiImpl.jobTreeSpec}{0,${jenkinsInfo.projectCountLimit}}`;
-        const standaloneProject = await client.job.get({
-          name: jenkinsInfo.jobFullName,
-          tree: limitedStandaloneJobTreeSpec.replace(/\s/g, ''),
-        });
-        projects.push(this.augmentProject(standaloneProject));
-        return projects;
+    const projects = [];
+    if (project.jobs) {
+      for (const subJob of project.jobs) {
+        if (subJob._class === 'com.cloudbees.hudson.plugins.folder.Folder') {
+          const nestedProjects = await this.getNestedJobs(client, subJob.fullName, treeSpec);
+          // @ts-ignore
+          projects.push(...nestedProjects); //NOSONAR
+        } else {
+          // @ts-ignore
+          projects.push(this.augmentProject(subJob)); //NOSONAR
+        }
       }
-      for (const jobDetails of project.jobs) {
-        // for each branch (we assume)
-        projects.push(this.augmentProject(jobDetails));
-      }
+    } else {
+      // @ts-ignore
+      projects.push(this.augmentProject(project)); //NOSONAR
     }
     return projects;
   }
+
 
   /**
    * Get a single build.
