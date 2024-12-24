@@ -8,6 +8,7 @@ describe('createRouter', () => {
   let app: express.Express;
 
   beforeAll(async () => {
+    // @ts-ignore
     const router = await createRouter({
       logger: mockServices.logger.mock(),
       config: mockServices.rootConfig(),

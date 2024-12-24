@@ -9,6 +9,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 export class JenkinsReportsApi {
+  // @ts-ignore
   private readonly jenkinsService: JenkinsApiImpl;
 
   constructor(jenkinsService: JenkinsApiImpl) {
@@ -88,6 +89,7 @@ export class JenkinsReportsApi {
             Bucket: s3bucketName,
             Key: key,
           });
+          // @ts-ignore
           const url = await getSignedUrl(s3Client, getCommand, {
             expiresIn: 3600,
           });

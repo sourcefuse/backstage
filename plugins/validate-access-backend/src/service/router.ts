@@ -36,5 +36,6 @@ export async function createRouter(
   });
 
   router.use(errorHandler());
+  // @ts-ignore
   return router;
 }
