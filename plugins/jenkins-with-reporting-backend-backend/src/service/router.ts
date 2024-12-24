@@ -147,7 +147,7 @@ export async function createRouter(
       } catch (err) {
         if (err.errors) {
           throw new Error(
-            `Unable to fetch projects, for ${jenkinsInfo.jobFullName}: ${err.errors.stringifyError(err.errors)}`
+            `Unable to fetch projects, for ${jenkinsInfo.jobFullName}: ${(err.errors)}`
           );
         }
         throw err;
