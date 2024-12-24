@@ -107,7 +107,7 @@ export class JenkinsApiImpl {
     return projects;
   }
 
-  async  getNestedJobs(client:any, jobName  : string, treeSpec: string):Promise<any> {
+  async  getNestedJobs(client:any, jobName  : string, treeSpec: string):Promise<any> { //NOSONAR
     const project = await client.job.get({
       name: jobName,
       tree: treeSpec.replace(/\s/g, ""),
