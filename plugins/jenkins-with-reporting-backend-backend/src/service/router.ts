@@ -116,6 +116,45 @@ export async function createRouter(
     },
   );
 
+  router.get(
+    '/v1/entity/:namespace/:kind/:name/projects',
+    async (request, response) => {
+
+      const { namespace, kind, name } = request.params;
+      const branch = request.query.branch;
+      let branches;
+      if (branch === void 0) {
+        branches = void 0;
+      } else if (typeof branch === "string") {
+        branches = branch.split(/,/g);
+      } else {
+        response.status(400).send("Something was unexpected about the branch queryString");
+        return;
+      }
+      const jenkinsInfo = await jenkinsInfoProvider.getInstance({
+        entityRef: {
+          kind,
+          namespace,
+          name
+        },
+        credentials: await httpAuth.credentials(request)
+      });
+      try {
+        const projects = await jenkinsService.getProjects(jenkinsInfo, branches);
+        response.json({
+          projects
+        });
+      } catch (err) {
+        if (err.errors) {
+          throw new Error(
+            `Unable to fetch projects, for ${jenkinsInfo.jobFullName}: ${err.errors.stringifyError(err.errors)}`
+          );
+        }
+        throw err;
+      }
+    },
+  );
+
   const middleware = MiddlewareFactory.create({ logger, config });
 
   router.use(middleware.error());
