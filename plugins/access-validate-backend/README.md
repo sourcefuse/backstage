@@ -4,6 +4,8 @@ Welcome to the access-validate backend plugin!
 
 _This plugin was created through the Backstage CLI_
 
+This plugin is created to check permission of the logged in user for scaffoldin. Created route '/validateuser' for the same.
+
 ## Getting started
 
 Your plugin has been added to the example app in this repository, meaning you'll be able to access it by running `yarn

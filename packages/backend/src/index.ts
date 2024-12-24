@@ -61,4 +61,9 @@ backend.add(import('@backstage/plugin-scaffolder-backend-module-github'));
 backend.add(import('@backstage/plugin-scaffolder-backend/alpha'));
 backend.add(scaffolderModuleCustomExtensions);
 
+backend.add(import('@backstage-community/plugin-jenkins-backend'));
+
+backend.add(
+  import('@internal/backstage-plugin-jenkins-with-reporting-backend-backend'),
+);
 backend.start();
