@@ -162,35 +162,37 @@ export const columnFactories = Object.freeze({
       },
     };
   },
+  
+  // @SonarIgnoreStart
+  // createTestColumn(): TableColumn<Project> {
+  //   return {
+  //     title: 'Tests',
+  //     sorting: false,
+  //     render: (row: Partial<Project>) => {
+  //       // @SonarIgnoreStart
+  //       return (
+  //         <>
+  //           <Typography paragraph>
+  //             {row.lastBuild?.tests && (
+  //               <Link to={row.lastBuild?.tests.testUrl ?? ''}>
+  //                 {row.lastBuild?.tests.passed} / {row.lastBuild?.tests.total}{' '}
+  //                 passed
+  //                 <FailSkippedWidget
+  //                   skipped={row.lastBuild?.tests.skipped}
+  //                   failed={row.lastBuild?.tests.failed}
+  //                 />
+  //               </Link>
+  //             )}
 
-  createTestColumn(): TableColumn<Project> {
-    return {
-      title: 'Tests',
-      sorting: false,
-      render: (row: Partial<Project>) => {
-        // @SonarIgnoreStart
-        return (
-          <>
-            <Typography paragraph>
-              {row.lastBuild?.tests && (
-                <Link to={row.lastBuild?.tests.testUrl ?? ''}>
-                  {row.lastBuild?.tests.passed} / {row.lastBuild?.tests.total}{' '}
-                  passed
-                  <FailSkippedWidget
-                    skipped={row.lastBuild?.tests.skipped}
-                    failed={row.lastBuild?.tests.failed}
-                  />
-                </Link>
-              )}
-
-              {!row.lastBuild?.tests && 'n/a'}
-            </Typography>
-          </>
-        );
-        // @SonarIgnoreEnd
-      },
-    };
-  },
+  //             {!row.lastBuild?.tests && 'n/a'}
+  //           </Typography>
+  //         </>
+  //       );
+  //       // @SonarIgnoreEnd
+  //     },
+  //   };
+  // },
+  // @SonarIgnoreEnd
 
   createLastRunDuration(): TableColumn<Project> {
     return {
