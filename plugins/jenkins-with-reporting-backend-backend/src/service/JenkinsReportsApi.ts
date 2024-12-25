@@ -102,6 +102,7 @@ export class JenkinsReportsApi {
 
       return files;
     } catch (error) {
+      console.log("s3 report error---------",error); //NOSONAR
       return { error: 'error' };
     }
   }
