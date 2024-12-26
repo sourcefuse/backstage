@@ -29,21 +29,22 @@ import { buildRouteRef, jobRunsRouteRef } from '../../../../plugin';
 import { JenkinsRunStatus } from '../Status';
 import { jenkinsExecutePermission } from '@backstage-community/plugin-jenkins-common';
 
-const FailCount = ({ count }: { count: number }): JSX.Element | null => {
-  if (count !== 0) {
-    return <>{count} failed</>;
-  }
-  return null;
-};
-
-const SkippedCount = ({ count }: { count: number }): JSX.Element | null => {
-  if (count !== 0) {
-    return <>{count} skipped</>;
-  }
-  return null;
-};
-
 // @SonarIgnoreStart
+// const FailCount = ({ count }: { count: number }): JSX.Element | null => {
+//   if (count !== 0) {
+//     return <>{count} failed</>;
+//   }
+//   return null;
+// };
+
+// const SkippedCount = ({ count }: { count: number }): JSX.Element | null => {
+//   if (count !== 0) {
+//     return <>{count} skipped</>;
+//   }
+//   return null;
+// };
+
+
 // const FailSkippedWidget = ({
 //   skipped,
 //   failed,
