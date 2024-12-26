@@ -29,60 +29,63 @@ import { buildRouteRef, jobRunsRouteRef } from '../../../../plugin';
 import { JenkinsRunStatus } from '../Status';
 import { jenkinsExecutePermission } from '@backstage-community/plugin-jenkins-common';
 
-const FailCount = ({ count }: { count: number }): JSX.Element | null => {
-  if (count !== 0) {
-    return <>{count} failed</>;
-  }
-  return null;
-};
+// @SonarIgnoreStart
+// const FailCount = ({ count }: { count: number }): JSX.Element | null => {
+//   if (count !== 0) {
+//     return <>{count} failed</>;
+//   }
+//   return null;
+// };
 
-const SkippedCount = ({ count }: { count: number }): JSX.Element | null => {
-  if (count !== 0) {
-    return <>{count} skipped</>;
-  }
-  return null;
-};
+// const SkippedCount = ({ count }: { count: number }): JSX.Element | null => {
+//   if (count !== 0) {
+//     return <>{count} skipped</>;
+//   }
+//   return null;
+// };
 
-const FailSkippedWidget = ({
-  skipped,
-  failed,
-}: {
-  skipped: number;
-  failed: number;
-}): JSX.Element | null => {
-  if (skipped === 0 && failed === 0) {
-    return null;
-  }
 
-  if (skipped !== 0 && failed !== 0) {
-    return (
-      <>
-        {' '}
-        (<FailCount count={failed} />, <SkippedCount count={skipped} />)
-      </>
-    );
-  }
+// const FailSkippedWidget = ({
+//   skipped,
+//   failed,
+// }: {
+//   skipped: number;
+//   failed: number;
+// }): JSX.Element | null => {
+//   if (skipped === 0 && failed === 0) {
+//     return null;
+//   }
 
-  if (failed !== 0) {
-    return (
-      <>
-        {' '}
-        (<FailCount count={failed} />)
-      </>
-    );
-  }
+//   if (skipped !== 0 && failed !== 0) {
+//     return (
+//       <>
+//         {' '}
+//         (<FailCount count={failed} />, <SkippedCount count={skipped} />)
+//       </>
+//     );
+//   }
 
-  if (skipped !== 0) {
-    return (
-      <>
-        {' '}
-        (<SkippedCount count={skipped} />)
-      </>
-    );
-  }
+//   if (failed !== 0) {
+//     return (
+//       <>
+//         {' '}
+//         (<FailCount count={failed} />)
+//       </>
+//     );
+//   }
 
-  return null;
-};
+//   if (skipped !== 0) {
+//     return (
+//       <>
+//         {' '}
+//         (<SkippedCount count={skipped} />)
+//       </>
+//     );
+//   }
+
+//   return null;
+// };
+// @SonarIgnoreEnd
 
 export const columnFactories = Object.freeze({
   createTimestampColumn(): TableColumn<Project> {

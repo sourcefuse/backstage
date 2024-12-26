@@ -22,7 +22,7 @@ export const defaultCITableColumns: TableColumn<Project>[] = [
   columnFactories.createTimestampColumn(),
   columnFactories.createSourceColumn(),
   columnFactories.createBuildColumn(),
-  columnFactories.createTestColumn(),
+  // columnFactories.createTestColumn(), //NOSONAR
   columnFactories.createStatusColumn(),
   columnFactories.createLastRunDuration(),
   columnFactories.createActionsColumn(),
