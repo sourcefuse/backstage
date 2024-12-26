@@ -43,46 +43,48 @@ const SkippedCount = ({ count }: { count: number }): JSX.Element | null => {
   return null;
 };
 
-const FailSkippedWidget = ({
-  skipped,
-  failed,
-}: {
-  skipped: number;
-  failed: number;
-}): JSX.Element | null => {
-  if (skipped === 0 && failed === 0) {
-    return null;
-  }
+// @SonarIgnoreStart
+// const FailSkippedWidget = ({
+//   skipped,
+//   failed,
+// }: {
+//   skipped: number;
+//   failed: number;
+// }): JSX.Element | null => {
+//   if (skipped === 0 && failed === 0) {
+//     return null;
+//   }
 
-  if (skipped !== 0 && failed !== 0) {
-    return (
-      <>
-        {' '}
-        (<FailCount count={failed} />, <SkippedCount count={skipped} />)
-      </>
-    );
-  }
+//   if (skipped !== 0 && failed !== 0) {
+//     return (
+//       <>
+//         {' '}
+//         (<FailCount count={failed} />, <SkippedCount count={skipped} />)
+//       </>
+//     );
+//   }
 
-  if (failed !== 0) {
-    return (
-      <>
-        {' '}
-        (<FailCount count={failed} />)
-      </>
-    );
-  }
+//   if (failed !== 0) {
+//     return (
+//       <>
+//         {' '}
+//         (<FailCount count={failed} />)
+//       </>
+//     );
+//   }
 
-  if (skipped !== 0) {
-    return (
-      <>
-        {' '}
-        (<SkippedCount count={skipped} />)
-      </>
-    );
-  }
+//   if (skipped !== 0) {
+//     return (
+//       <>
+//         {' '}
+//         (<SkippedCount count={skipped} />)
+//       </>
+//     );
+//   }
 
-  return null;
-};
+//   return null;
+// };
+// @SonarIgnoreEnd
 
 export const columnFactories = Object.freeze({
   createTimestampColumn(): TableColumn<Project> {
