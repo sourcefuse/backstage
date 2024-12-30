@@ -39,7 +39,8 @@ class RequestPermissionPolicy implements PermissionPolicy {
   readonly catalogRepos: Promise<Set<string>>;
   readonly userRepoPermissions: Record<
     string,
-    Record<string, ('admin' | 'write' | 'read' | 'none') | (string & {})>
+    //type "(string & {})" used to provide auto complate in the typescript
+    Record<string, ('admin' | 'write' | 'read' | 'none') | (string & {})> //NOSONAR
   > = {};
 
   constructor(
