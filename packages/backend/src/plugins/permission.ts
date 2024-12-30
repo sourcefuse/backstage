@@ -1,6 +1,6 @@
 import {
   AuthorizeResult,
-  isPermission,
+  isResourcePermission,
   type PolicyDecision,
 } from '@backstage/plugin-permission-common';
 import {
@@ -8,7 +8,14 @@ import {
   type PolicyQuery,
 } from '@backstage/plugin-permission-node';
 import { createCatalogConditionalDecision } from '@backstage/plugin-catalog-backend/alpha';
-import { catalogEntityReadPermission } from '@backstage/plugin-catalog-common/alpha';
+import {
+  catalogEntityCreatePermission,
+  catalogEntityDeletePermission,
+  catalogEntityReadPermission,
+  catalogEntityRefreshPermission,
+  catalogEntityValidatePermission,
+  RESOURCE_TYPE_CATALOG_ENTITY,
+} from '@backstage/plugin-catalog-common/alpha';
 import type { BackstageIdentityResponse } from '@backstage/plugin-auth-node';
 import type { PaginatingEndpoints } from '@octokit/plugin-paginate-rest';
 import { parseEntityRef } from '@backstage/catalog-model';
@@ -30,7 +37,10 @@ class RequestPermissionPolicy implements PermissionPolicy {
     PaginatingEndpoints['GET /orgs/{org}/repos']['response']['data']
   >;
   readonly catalogRepos: Promise<Set<string>>;
-  readonly userRepoPermissions: Record<string, Array<string>> = {};
+  readonly userRepoPermissions: Record<
+    string,
+    Record<string, ('admin' | 'write' | 'read' | 'none') | (string & {})>
+  > = {};
 
   constructor(
     protected readonly tokenManager: AuthService,
@@ -48,6 +58,10 @@ class RequestPermissionPolicy implements PermissionPolicy {
     request: PolicyQuery,
     user?: BackstageIdentityResponse,
   ): Promise<PolicyDecision> {
+    this.logger.debug('Permission request received', {
+      requestedPermission: JSON.stringify(request),
+    });
+
     if (!user?.identity) {
       this.logger.error('not able to found the name', {
         user: JSON.stringify(user),
@@ -156,37 +170,28 @@ class RequestPermissionPolicy implements PermissionPolicy {
     return 'null';
   }
 
-  protected async resolveAuthorizedRepoList(
-    userEntityRef: string,
-  ): Promise<string[] | undefined> {
+  protected async resolveAuthorizedRepoList(userEntityRef: string) {
     const usernameEntity = parseEntityRef(userEntityRef);
+    const startTimeBenchmark = performance.now();
 
-    if (userEntityRef in this.userRepoPermissions) {
+    if (userEntityRef in this.userRepoPermissions)
       return this.userRepoPermissions[userEntityRef];
-    }
 
-    this.userRepoPermissions[userEntityRef] = [];
+    //! There can be case where user which is not valid get multiple time requests
+    this.userRepoPermissions[userEntityRef] = {};
     const catalogRepos = await this.catalogRepos;
     const orgRepos = await this.orgRepositories;
     // Filtering out repo which is logged in the Catalog meta with just name of the repo
     const repositories = orgRepos.filter(r => catalogRepos.has(r.name));
-    const privateCatalogRepos = repositories.filter(r => r.private);
-    const publicCatalogRepos = repositories.filter(r => r.private === false);
-
-    for (const repo of publicCatalogRepos) {
-      this.userRepoPermissions[userEntityRef].push(repo.name);
-    }
-
     const userRole = await this.fetchUserRole(userEntityRef);
 
     if (['member', 'admin', 'maintainer'].includes(userRole)) {
-      for (const repos of privateCatalogRepos) {
-        this.userRepoPermissions[userEntityRef].push(repos.name);
+      for (const repo of repositories) {
+        this.userRepoPermissions[userEntityRef][repo.name] = 'write';
       }
     } else {
-      // will fetch individual repo permissions
-      for (const repos of _.chunk(privateCatalogRepos, 10)) {
-        const permissions = await Promise.all(
+      for (const repos of _.chunk(repositories, 10)) {
+        await Promise.all(
           repos.map(repo =>
             this.octokit.rest.repos
               .getCollaboratorPermissionLevel({
@@ -194,10 +199,19 @@ class RequestPermissionPolicy implements PermissionPolicy {
                 repo: repo.name,
                 username: usernameEntity.name,
               })
-              .then(resp => ({
-                repo,
-                ...resp.data,
-              }))
+              .then(permission => {
+                this.userRepoPermissions[userEntityRef][repo.name] =
+                  permission.data.permission;
+              })
+              .catch(e => {
+                //! Handling the issue of the missing repo if there is any issue
+                this.logger.error("Issue while fetching user's permission", {
+                  error: e,
+                  owner: String(process.env.GITHUB_ORGANIZATION),
+                  repo: repo.name,
+                  userEntityRef,
+                });
+              })
               .finally(() => {
                 this.logger.info(
                   '***GithubRequest GET /repos/{owner}/{repo}/collaborators/{username}/permission',
@@ -209,14 +223,12 @@ class RequestPermissionPolicy implements PermissionPolicy {
               }),
           ),
         );
-
-        for (const permission of permissions) {
-          this.userRepoPermissions[userEntityRef].push(permission.repo.name);
-        }
       }
     }
 
-    //! log any meta name which is not include that means there is issue in the meta name
+    this.logger.debug('Permission resolution benchmark', {
+      totalTimeInMilliSeconds: startTimeBenchmark - performance.now(),
+    });
     return this.userRepoPermissions[userEntityRef];
   }
 
@@ -225,36 +237,62 @@ class RequestPermissionPolicy implements PermissionPolicy {
     request: PolicyQuery,
     user: BackstageIdentityResponse,
   ): Promise<PolicyDecision | undefined> {
-    if (!isPermission(request.permission, catalogEntityReadPermission)) {
+    const currentOperation = {
+      [catalogEntityReadPermission.name]: ['admin', 'write', 'read'],
+      [catalogEntityCreatePermission.name]: ['admin', 'write'],
+      [catalogEntityDeletePermission.name]: ['admin', 'write'],
+      [catalogEntityRefreshPermission.name]: ['admin', 'write'],
+      [catalogEntityValidatePermission.name]: ['admin', 'write'],
+    }[request.permission.name];
+
+    if (currentOperation === undefined) {
+      this.logger.info('Non catalog permission type request received', {
+        catalogEntityReadPermission: JSON.stringify(
+          catalogEntityReadPermission,
+        ),
+        requestedPermission: JSON.stringify(request.permission),
+      });
       return;
     }
-    const startTimeBenchmark = performance.now();
-    const userPermission = await this.resolveAuthorizedRepoList(
+
+    if (
+      !isResourcePermission(request.permission, RESOURCE_TYPE_CATALOG_ENTITY)
+    ) {
+      this.logger.info(
+        'Basic type permission will pass it as user have access atleast one repo',
+        {
+          user: user.identity.userEntityRef,
+        },
+      );
+      return { result: AuthorizeResult.ALLOW };
+    }
+
+    const userRepoPermission = await this.resolveAuthorizedRepoList(
       user.identity.userEntityRef,
     );
-
-    if (!userPermission?.length) {
+    if (_.size(userRepoPermission) === 0) {
       // permission not resolved from the Github API
       this.logger.info(
         "Not able to fetch user Permission or Github didn't have repos for the user",
         {
           user: user.identity.userEntityRef,
-          resolvedPermission: JSON.stringify(userPermission),
+          resolvedPermission: JSON.stringify(userRepoPermission),
         },
       );
       return { result: AuthorizeResult.DENY };
     }
-    this.logger.debug('Permission resolution benchmark', {
-      totalTimeInMilliSeconds: startTimeBenchmark - performance.now(),
-    });
-    this.logger.debug('Permission resolution benchmark', {
-      totalTimeInMilliSeconds: startTimeBenchmark - performance.now(),
-    });
-    const condition = createCatalogConditionalDecision(
-      request.permission,
-      repositoryAccessCondition({ repos: userPermission }),
+
+    const repos = _.map(
+      _.pickBy(userRepoPermission, permission =>
+        currentOperation.includes(permission),
+      ),
+      (_, repo) => repo,
     );
-    return condition;
+
+    return createCatalogConditionalDecision(
+      request.permission,
+      repositoryAccessCondition({ repos }),
+    );
   }
 }
 
