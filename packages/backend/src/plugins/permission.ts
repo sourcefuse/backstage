@@ -42,6 +42,7 @@ class RequestPermissionPolicy implements PermissionPolicy {
     //type "(string & {})" used to provide auto complate in the typescript
     Record<string, ('admin' | 'write' | 'read' | 'none') | (string & {})> //NOSONAR
   > = {};
+  readonly permissionResetOffset = 1000 * 60 * 60 * 0.5; // 1/5 hour
 
   constructor(
     protected readonly tokenManager: AuthService,
@@ -230,6 +231,13 @@ class RequestPermissionPolicy implements PermissionPolicy {
     this.logger.debug('Permission resolution benchmark', {
       totalTimeInMilliSeconds: startTimeBenchmark - performance.now(),
     });
+
+    if (_.size(this.userRepoPermissions[userEntityRef]) !== 0) {
+      setTimeout(() => {
+        // after time delete the permission to refetch it
+        delete this.userRepoPermissions[userEntityRef];
+      }, this.permissionResetOffset);
+    }
     return this.userRepoPermissions[userEntityRef];
   }
 
