@@ -7,7 +7,7 @@ import { modifyIaCModules } from "./iac";
  */
 export const scaffolderModule = createBackendModule({
   moduleId: 'acme:example',
-  pluginId: 'scaffolder',
+  pluginId: 'scaffolder-iac',
   register({ registerInit }) {
     registerInit({
       deps: {

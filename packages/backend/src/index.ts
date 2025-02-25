@@ -6,7 +6,7 @@ import { scaffolderActionsExtensionPoint } from '@backstage/plugin-scaffolder-no
 import { createMicroserviceAction } from './plugins/sourceloop-ms';
 import { createScaffoldAction } from './plugins/sourceloop-scaffold';
 //import { createNewFileAction } from '../../../plugins/scaffolder-backend-module-preparemodules/src/actions/example';
-//import { modifyIaCModules } from '../../../plugins/scaffolder-backend-module-prepare-iac-modules';
+import { modifyIaCModules } from '../../../plugins/scaffolder-backend-module-prepare-iac-modules';
 
 const scaffolderModuleCustomExtensions = createBackendModule({
   pluginId: 'scaffolder', // name of the plugin that the module is targeting
@@ -21,7 +21,7 @@ const scaffolderModuleCustomExtensions = createBackendModule({
           createMicroserviceAction(),
           createScaffoldAction(),
         );
-        //scaffolder.addActions(modifyIaCModules());
+        scaffolder.addActions(modifyIaCModules());
       },
     });
   },
@@ -70,5 +70,5 @@ backend.add(import('@backstage-community/plugin-jenkins-backend'));
 backend.add(
   import('@internal/backstage-plugin-jenkins-with-reporting-backend-backend'),
 );
-//backend.add(import('../../../plugins/scaffolder-backend-module-prepare-iac-modules/src/actions/prepare-iac'));
+backend.add(import('../../../plugins/scaffolder-backend-module-prepare-iac-modules/src/actions/prepare-iac'));
 backend.start();
