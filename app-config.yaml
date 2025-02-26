@@ -183,7 +183,7 @@ catalog:
         - allow: [Template]
 
     - type: url
-      target: https://github.com/sourcefuse/arc-mono-repo-infra-template/blob/enhancement/templates/template.yaml
+      target: https://github.com/sourcefuse/arc-mono-repo-infra-template/blob/main/templates/template.yaml
       rules:
         - allow: [Template]
 
