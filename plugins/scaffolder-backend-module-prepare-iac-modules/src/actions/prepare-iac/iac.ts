@@ -30,14 +30,14 @@ export const modifyIaCModules = () => {
       
       await cloneRepo("https://github.com/sourcefuse/arc-mono-repo-infra-template", workingDir)
 
-      let module_path = null
+      let modulePath = null
       for (const [key, value] of Object.entries(ctx.input.modules)) {
         console.info(`${key}: ${value}`);
-        module_path = `${workingDir}/skeleton/terraform/${key}`
+        modulePath = `${workingDir}/skeleton/terraform/${key}`
         if (value === false) {
-          deleteDir(module_path)
+          deleteDir(modulePath)
         } else {
-          processDirectories(module_path, ctx.input.envList)
+          processDirectories(modulePath, ctx.input.envList)
         }
       }
     },
