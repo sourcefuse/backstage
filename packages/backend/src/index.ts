@@ -5,7 +5,6 @@ import { createBackendModule } from '@backstage/backend-plugin-api';
 import { scaffolderActionsExtensionPoint } from '@backstage/plugin-scaffolder-node/alpha';
 import { createMicroserviceAction } from './plugins/sourceloop-ms';
 import { createScaffoldAction } from './plugins/sourceloop-scaffold';
-//import { createNewFileAction } from '../../../plugins/scaffolder-backend-module-preparemodules/src/actions/example';
 import { modifyIaCModules } from '../../../plugins/scaffolder-backend-module-prepare-iac-modules';
 
 const scaffolderModuleCustomExtensions = createBackendModule({

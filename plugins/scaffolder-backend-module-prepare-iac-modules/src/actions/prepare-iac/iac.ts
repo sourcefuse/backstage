@@ -1,10 +1,7 @@
 import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
-import { readFileSync } from 'fs';
-import { writeFileSync } from 'fs';
-import { rmSync } from "fs";
-import { existsSync } from "fs";
 import simpleGit from 'simple-git';
 import * as path from 'path';
+import fs from 'fs';
 
 const git = simpleGit();
 
@@ -26,19 +23,16 @@ export const modifyIaCModules = () => {
       },
     },
     async handler(ctx) {
-      //const { signal } = ctx;
-      console.log('test custom action -------------------------------------------------------------->');
-      console.log('ctx.input.workingDir ', ctx.input.workingDir);
-      console.log('ctx.input.modules ', ctx.input.modules);
-      console.log('ctx.input.envList ', ctx.input.envList);
+      console.info('ctx.input.workingDir ', ctx.input.workingDir);
+      console.info('ctx.input.modules ', ctx.input.modules);
+      console.info('ctx.input.envList ', ctx.input.envList);
       let workingDir: string = ctx.input.workingDir
-
-      // TODO: remove feature branch
+      
       await cloneRepo("https://github.com/sourcefuse/arc-mono-repo-infra-template", workingDir)
 
       let module_path = null
       for (const [key, value] of Object.entries(ctx.input.modules)) {
-        console.log(`${key}: ${value}`);
+        console.info(`${key}: ${value}`);
         module_path = `${workingDir}/skeleton/terraform/${key}`
         if (value === false) {
           deleteDir(module_path)
@@ -53,20 +47,20 @@ export const modifyIaCModules = () => {
 
 async function cloneRepo(repoUrl: string, targetDir: string) {
   try {
-    console.log(`Cloning ${repoUrl} into ${targetDir}...`);
-    await git.clone(repoUrl, targetDir,['--branch', "enhancement", '--single-branch']); // TODO: remove enhancement
-    console.log('Repository cloned successfully!');
+    console.info(`Cloning ${repoUrl} into ${targetDir}...`);
+    await git.clone(repoUrl);
+    console.info('Repository cloned successfully!');
   } catch (error) {
     console.error('Error cloning repository:', error);
   }
 }
 
 function deleteDir(folder: string) {
-  if (existsSync(folder)) {
-    rmSync(folder, { recursive: true, force: true });
-    console.log(`Deleted folder: ${folder}`);
+  if (fs.existsSync(folder)) {
+    fs.rmSync(folder, { recursive: true, force: true });
+    console.info(`Deleted folder: ${folder}`);
   } else {
-    console.log(`Folder does not exist: ${folder}`);
+    console.info(`Folder does not exist: ${folder}`);
   }
 }
 
@@ -91,13 +85,13 @@ function processDirectories(workingDir: string, envList: string[]) {
 
 function processFiles(sourceFile: string, targetFile: string, env: string) {
 
-  if (existsSync(sourceFile)) {
-    let content = readFileSync(sourceFile, 'utf8');
+  if (fs.existsSync(sourceFile)) {
+    let content = fs.readFileSync(sourceFile, 'utf8');
 
     // Replace /env/ with the environment name
     content = content.replace(/\/env\//g, `/${env}/`);
 
-    writeFileSync(targetFile, content, 'utf8');
-    console.log(`Created: ${targetFile}`);
+    fs.writeFileSync(targetFile, content, 'utf8');
+    console.info(`Created: ${targetFile}`);
   }
 }
