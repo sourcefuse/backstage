@@ -59,7 +59,6 @@
     "@octokit/rest": "^18.5.3",
     "@sourceloop/cli": "^7.1.4",
     "app": "link:../app",
-    "backstage-plugin-scaffolder-backend-module-prepare-iac-modules": "^0.1.0",
     "better-sqlite3": "^9.0.0",
     "dockerode": "^3.3.1",
     "express": "^4.17.1",
