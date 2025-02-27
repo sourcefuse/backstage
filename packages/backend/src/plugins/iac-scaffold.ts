@@ -44,6 +44,7 @@ export const modifyIaCModules = () => {
   });
 };
 
+
 export function deleteDirectory() {
   // For more information on how to define custom actions, see
   //   https://backstage.io/docs/features/software-templates/writing-custom-actions
@@ -79,7 +80,7 @@ export function deleteDirectory() {
 async function cloneRepo(repoUrl: string, targetDir: string) {
   try {
     console.info(`Cloning ${repoUrl} into ${targetDir}...`);
-    await git.clone(repoUrl);
+    await git.clone(repoUrl, targetDir); 
     console.info('Repository cloned successfully!');
   } catch (error) {
     console.error('Error cloning repository:', error);

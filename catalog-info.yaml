@@ -11,3 +11,5 @@ spec:
   type: website
   owner: sourcefuse
   lifecycle: production
+  targets:
+    - ./vijay-stephen.yaml  
