@@ -44,6 +44,37 @@ export const modifyIaCModules = () => {
   });
 };
 
+export function deleteDirectory() {
+  // For more information on how to define custom actions, see
+  //   https://backstage.io/docs/features/software-templates/writing-custom-actions
+  return createTemplateAction<{
+    directory: string;
+  }>({
+    id: 'acme:file:delete',
+    description: 'Deletes provided directory',
+    schema: {
+      input: {
+        type: 'object',
+        required: ['directory'],
+        properties: {
+          deleteDirectory: {
+            title: 'directory to be deleted',
+            description: "Directory to be deleted",
+            type: 'string',
+          },
+        },
+      },
+    },
+    async handler(ctx) {
+      ctx.logger.info(
+        `Running example template with parameters: ${ctx.input.directory}`,
+      );
+
+      deleteDir(ctx.input.directory)
+    },
+  });
+}
+
 
 async function cloneRepo(repoUrl: string, targetDir: string) {
   try {

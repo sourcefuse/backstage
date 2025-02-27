@@ -6,6 +6,8 @@ import { scaffolderActionsExtensionPoint } from '@backstage/plugin-scaffolder-no
 import { createMicroserviceAction } from './plugins/sourceloop-ms';
 import { createScaffoldAction } from './plugins/sourceloop-scaffold';
 import { modifyIaCModules } from './plugins/iac-scaffold';
+import { deleteDirectory } from './plugins/iac-scaffold';
+
 
 const scaffolderModuleCustomExtensions = createBackendModule({
   pluginId: 'scaffolder', // name of the plugin that the module is targeting
@@ -19,7 +21,8 @@ const scaffolderModuleCustomExtensions = createBackendModule({
         scaffolder.addActions(
           createMicroserviceAction(),
           createScaffoldAction(),
-          modifyIaCModules()
+          modifyIaCModules(),
+          deleteDirectory()
         );
       },
     });
