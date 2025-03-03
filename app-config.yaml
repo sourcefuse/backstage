@@ -314,4 +314,4 @@ catalog:
 
 ## setting this to `false` will disable permissions
 permission:
-  enabled: false
+  enabled: true

@@ -23,17 +23,24 @@ export const modifyIaCModules = () => {
       },
     },
     async handler(ctx) {
-      console.info('ctx.input.workingDir ', ctx.input.workingDir);
-      console.info('ctx.input.modules ', ctx.input.modules);
-      console.info('ctx.input.envList ', ctx.input.envList);
-      let workingDir: string = ctx.input.workingDir
-      
-      await cloneRepo("https://github.com/sourcefuse/arc-mono-repo-infra-template", workingDir)
+      ctx.logger.info('ctx.input.workingDir ', ctx.input.workingDir);
+      ctx.logger.info('ctx.input.modules ', ctx.input.modules);
+      ctx.logger.info('ctx.input.envList ', ctx.input.envList);
+      const originalCwd = process.cwd();
+      ctx.logger.info("originalCwd -------",originalCwd);
 
+      const workspacePath=ctx.workspacePath;
+      console.info("workspacePath -------",workspacePath);
+      process.chdir(workspacePath);
+      const pathChar = '.';
+      const files = fs.readdirSync(pathChar);
+
+      console.info('Files and directories:', files);
+      
       let modulePath = null
       for (const [key, value] of Object.entries(ctx.input.modules)) {
-        console.info(`${key}: ${value}`);
-        modulePath = `${workingDir}/skeleton/terraform/${key}`
+        ctx.logger.info(`${key}: ${value}`);
+        modulePath = `${workspacePath}/terraform/${key}`
         if (value === false) {
           deleteDir(modulePath)
         } else {
