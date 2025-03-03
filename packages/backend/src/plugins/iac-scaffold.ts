@@ -83,17 +83,6 @@ export function deleteDirectory() {
   });
 }
 
-
-async function cloneRepo(repoUrl: string, targetDir: string) {
-  try {
-    console.info(`Cloning ${repoUrl} into ${targetDir}...`);
-    await git.clone(repoUrl, targetDir); 
-    console.info('Repository cloned successfully!');
-  } catch (error) {
-    console.error('Error cloning repository:', error);
-  }
-}
-
 function deleteDir(folder: string) {
   if (fs.existsSync(folder)) {
     fs.rmSync(folder, { recursive: true, force: true });
