@@ -1,9 +1,9 @@
 import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
-import simpleGit from 'simple-git';
 import * as path from 'path';
 import fs from 'fs';
 
-const git = simpleGit();
+
+//  Use 'simple-git' for cloning repo
 
 export const modifyIaCModules = () => {
   return createTemplateAction<{ workingDir: string, modules: object , envList:string[]}>({
