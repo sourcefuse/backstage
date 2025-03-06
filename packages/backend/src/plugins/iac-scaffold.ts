@@ -117,7 +117,7 @@ function processFiles(sourceFile: string, targetFile: string, env: string) {
     let content = fs.readFileSync(sourceFile, 'utf8');
 
     // Replace /env/ with the environment name
-    content = content.replace(/\/env\//g, `/${env}/`);
+    content = content.replace(/\/env\//g, `${env}`);
 
     fs.writeFileSync(targetFile, content, 'utf8');
     console.info(`Created: ${targetFile}`);
