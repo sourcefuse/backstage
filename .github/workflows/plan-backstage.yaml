@@ -73,7 +73,7 @@ jobs:
 
       #publish plan to artifacts
       - name: Publish Terraform Plan
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "poc-${{ steps.workflow_vars.outputs.plan_id }}.tfplan"
           path: "terraform/poc-${{ steps.workflow_vars.outputs.plan_id }}.tfplan"
@@ -143,7 +143,7 @@ jobs:
 
         #publish plan to artifacts
       - name: Publish Terraform Plan
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "prod-${{ steps.workflow_vars.outputs.plan_id }}.tfplan"
           path: "terraform/prod-${{ steps.workflow_vars.outputs.plan_id }}.tfplan"
