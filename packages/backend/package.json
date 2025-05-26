@@ -56,7 +56,7 @@
     "@internal/backstage-plugin-access-validate-backend": "^0.1.0",
     "@internal/backstage-plugin-jenkins-with-reporting-backend-backend": "^0.1.0",
     "@internal/plugin-validate-access-backend": "^0.1.0",
-    "@octokit/rest": "^18.5.3",
+    "@octokit/rest": "^22.0.0",
     "@sourceloop/cli": "^7.1.4",
     "app": "link:../app",
     "better-sqlite3": "^9.0.0",
