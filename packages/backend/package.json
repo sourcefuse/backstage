@@ -34,7 +34,7 @@
     "@backstage/plugin-auth-backend-module-github-provider": "^0.2.0",
     "@backstage/plugin-auth-backend-module-guest-provider": "^0.2.0",
     "@backstage/plugin-auth-node": "^0.5.2",
-    "@backstage/plugin-catalog-backend": "^1.26.0",
+    "@backstage/plugin-catalog-backend": "^1.30.0",
     "@backstage/plugin-catalog-backend-module-github": "^0.7.3",
     "@backstage/plugin-catalog-backend-module-logs": "^0.1.0",
     "@backstage/plugin-catalog-backend-module-scaffolder-entity-model": "^0.2.0",
@@ -44,7 +44,7 @@
     "@backstage/plugin-permission-common": "^0.8.1",
     "@backstage/plugin-permission-node": "^0.8.3",
     "@backstage/plugin-proxy-backend": "^0.5.6",
-    "@backstage/plugin-scaffolder-backend": "^1.25.0",
+    "@backstage/plugin-scaffolder-backend": "^1.31.0",
     "@backstage/plugin-scaffolder-node": "^0.4.11",
     "@backstage/plugin-search-backend": "^1.5.17",
     "@backstage/plugin-search-backend-module-catalog": "^0.2.2",
@@ -66,12 +66,12 @@
     "inversify": "^6.0.1",
     "knex": "^0.21.6",
     "lodash": "4.17.21",
-    "node-gyp": "^10.0.0",
+    "node-gyp": "^11.2.0",
     "octokit": "^3.0.0",
     "pg": "^8.11.3",
     "winston": "^3.2.1",
     "workerpool": "^6.2.1",
-    "yeoman-environment": "^3.9.1"
+    "yeoman-environment": "^4.0.0"
   },
   "devDependencies": {
     "@backstage/cli": "^0.27.1",
