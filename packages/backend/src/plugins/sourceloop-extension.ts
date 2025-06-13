@@ -4,22 +4,7 @@ import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
 import * as utils from '../utility';
 
 export function createExtensionAction() {
-  // return createTemplateAction({
-  //   id: 'run:extension',
-  //   description: 'Create all the provided extension',
-  //   schema: {
-  //     input: {
-  //       type: 'object',
-  //       required: ['extensions'],
-  //       properties: {
-  //         extensions: {
-  //           title: 'Extension List',
-  //           description: 'List of the extensions to generate',
-  //           type: 'array',
-  //         },
-  //       },
-  //     },
-  //   },
+ 
   return createTemplateAction<{
     command: string;
   }>({
