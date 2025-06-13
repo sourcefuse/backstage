@@ -1,0 +1,135 @@
+diff --git a/node_modules/@backstage/plugin-auth-node/dist/index.cjs.js b/node_modules/@backstage/plugin-auth-node/dist/index.cjs.js
+index d19613e..3a4bfa1 100644
+--- a/node_modules/@backstage/plugin-auth-node/dist/index.cjs.js
++++ b/node_modules/@backstage/plugin-auth-node/dist/index.cjs.js
+@@ -7,6 +7,7 @@ var jose = require('jose');
+ var url = require('url');
+ var pickBy = require('lodash/pickBy');
+ var zodToJsonSchema = require('zod-to-json-schema');
++var {stringifyEntityRef}  = require('@backstage/catalog-model');
+ 
+ function _interopDefaultCompat (e) { return e && typeof e === 'object' && 'default' in e ? e : { default: e }; }
+ 
+@@ -857,39 +858,93 @@ function createSignInResolverFactory(options) {
+   return factory;
+ }
+ 
+-function readDeclarativeSignInResolver(options) {
+-  const resolvers = options.config.getOptionalConfigArray("signIn.resolvers")?.map((resolverConfig) => {
+-    const resolverName = resolverConfig.getString("resolver");
+-    if (!Object.hasOwn(options.signInResolverFactories, resolverName)) {
+-      throw new Error(
+-        `Sign-in resolver '${resolverName}' is not available`
++const getUserEntity = async (info, ctx) => {
++    const { fullProfile } = info.result;
++    const userId = fullProfile.username;
++    if (!userId) {
++      throw new Error(`GitHub user profile does not contain a username`);
++    }
++
++    const userEntity = stringifyEntityRef({
++      kind: "User",
++      name: userId,
++      namespace:"default"
++
++    });
++    return ctx.issueToken({
++      claims: {
++        sub: userEntity,
++        ent: [userEntity],
++      }
++    });
++  };
++
++  function readDeclarativeSignInResolver(options) {
++    const resolvers = options.config.getOptionalConfigArray("signIn.resolvers")?.map((resolverConfig) => {
++      const resolverName = resolverConfig.getString("resolver");
++      if (!Object.hasOwn(options.signInResolverFactories, resolverName)) {
++        throw new Error(
++          `Sign-in resolver '${resolverName}' is not available`
++        );
++      }
++      const resolver = options.signInResolverFactories[resolverName];
++      const { resolver: _ignored, ...resolverOptions } = resolverConfig.get();
++      return resolver(
++        Object.keys(resolverOptions).length > 0 ? resolverOptions : void 0
+       );
++    }) ?? [];
++    if (resolvers.length === 0) {
++      return void 0;
+     }
+-    const resolver = options.signInResolverFactories[resolverName];
+-    const { resolver: _ignored, ...resolverOptions } = resolverConfig.get();
+-    return resolver(
+-      Object.keys(resolverOptions).length > 0 ? resolverOptions : void 0
+-    );
+-  }) ?? [];
+-  if (resolvers.length === 0) {
+-    return void 0;
+-  }
+-  return async (profile, context) => {
+-    for (const resolver of resolvers) {
+-      try {
+-        return await resolver(profile, context);
+-      } catch (error) {
+-        if (error?.name === "NotFoundError") {
+-          continue;
++    return async (profile, context) => {
++      for (const resolver of resolvers) {
++        try {
++          return await getUserEntity(profile, context);
++        } catch (error) {
++          if (error?.name === "NotFoundError") {
++            console.log ('resolver error---------------',error, error?.name);
++            continue;
++          }
++          throw error;
+         }
+-        throw error;
+       }
+-    }
+-    throw new Error(
+-      "Failed to sign-in, unable to resolve user identity. Please verify that your catalog contains the expected User entities that would match your configured sign-in resolver."
+-    );
+-  };
+-}
++      throw new Error("Failed to sign-in, unable to resolve user identity");
++    };
++  }
++
++// function readDeclarativeSignInResolver(options) {
++//   const resolvers = options.config.getOptionalConfigArray("signIn.resolvers")?.map((resolverConfig) => {
++//     const resolverName = resolverConfig.getString("resolver");
++//     if (!Object.hasOwn(options.signInResolverFactories, resolverName)) {
++//       throw new Error(
++//         `Sign-in resolver '${resolverName}' is not available`
++//       );
++//     }
++//     const resolver = options.signInResolverFactories[resolverName];
++//     const { resolver: _ignored, ...resolverOptions } = resolverConfig.get();
++//     return resolver(
++//       Object.keys(resolverOptions).length > 0 ? resolverOptions : void 0
++//     );
++//   }) ?? [];
++//   if (resolvers.length === 0) {
++//     return void 0;
++//   }
++//   return async (profile, context) => {
++//     for (const resolver of resolvers) {
++//       try {
++//         return await resolver(profile, context);
++//       } catch (error) {
++//         if (error?.name === "NotFoundError") {
++//           continue;
++//         }
++//         throw error;
++//       }
++//     }
++//     throw new Error(
++//       "Failed to sign-in, unable to resolve user identity. Please verify that your catalog contains the expected User entities that would match your configured sign-in resolver."
++//     );
++//   };
++// }
+ 
+ const reEmail = /^([^@+]+)(\+[^@]+)?(@.*)$/;
+ exports.commonSignInResolvers = void 0;

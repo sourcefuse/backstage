@@ -62,6 +62,7 @@ export function createMicroserviceAction() {
           process.chdir(cwd);
           if (sourceloop) {
             ctx.logger.info(`Generating service based on ${service}`);
+            try{
             await utils.runWithEnv(env, 'microservice', [service, '-y'], {
               uniquePrefix: prefix,
               baseService: service,
@@ -75,10 +76,16 @@ export function createMicroserviceAction() {
                 ...utils.buildOptions,
               }),
             });
+          } catch (e) {
+            ctx.logger.error(`Error generating service based on ${service}`, e);
+            ctx.logger.error(`Error: ${e}`);
+            process.chdir(originalCwd);
+          }
             ctx.logger.info('Done');
           } else {
             if(facade) {
               ctx.logger.info(`Generating facade: ${service}`);
+              try{
               await utils.runWithEnv(env, 'microservice', [service.name, '-y'], {
                 uniquePrefix: prefix,
                 facade: true,
@@ -88,9 +95,15 @@ export function createMicroserviceAction() {
                   ...utils.buildOptions,
                 }),
               });
+            } catch (e) { 
+              ctx.logger.error(`Error generating facade: ${service}`, e);
+              ctx.logger.error(`Error: ${e}`);
+              process.chdir(originalCwd);
+            }
               ctx.logger.info(`Done generating facade: ${service}`);
             } else {
               ctx.logger.info(`Generating microservice: ${service.name}`);
+              try{
               await utils.runWithEnv(env, 'microservice', [service.name, '-y'], {
                 uniquePrefix: prefix,
                 datasourceType: databaseType,
@@ -102,6 +115,12 @@ export function createMicroserviceAction() {
                   ...utils.buildOptions,
                 }),
               });
+            }
+            catch (e) {
+              ctx.logger.error(`Error generating microservice: ${service.name}`, e);
+              ctx.logger.error(`Error: ${e}`);
+              process.chdir(originalCwd);
+            }
               ctx.logger.info(`Done generating microservice: ${service.name}`);
             }
           }
