@@ -1,5 +1,5 @@
 diff --git a/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/index.cjs.js b/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/index.cjs.js
-index aceb728..daaf24a 100644
+index aceb728..6a3622d 100644
 --- a/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/index.cjs.js
 +++ b/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/index.cjs.js
 @@ -1924,7 +1924,7 @@ function createGithubRepoCreateAction(options) {
@@ -34,3 +34,82 @@ index aceb728..daaf24a 100644
        const octokitOptions = await getOctokitOptions({
          integrations,
          credentialsProvider: githubCredentialsProvider,
+@@ -1972,6 +1988,23 @@ function createGithubRepoCreateAction(options) {
+         customProperties,
+         ctx.logger
+       );
++      console.log("collaborators users---------------***********************-", collaborators);
++      console.log("ctx in createGithubRepoWithCollaboratorsAndTopics---------------------", ctx);
++      // if (!collaborators) {
++        
++      //   const payloadUser = ctx?.user?.ref ?? null;
++      //   console.log("payloadUser----------------", payloadUser);
++      //   let loggedInUserId = payloadUser?.split('/')[1];
++      //   console.log("loggedInUserId-----------------", loggedInUserId);
++      //   if (payloadUser && loggedInUserId)
++      //     collaborators = [
++      //       {
++      //         user: loggedInUserId,
++      //         access: 'admin'
++      //       }
++      //     ];
++      // }
++    
+       ctx.output("remoteUrl", newRepo.clone_url);
+     }
+   });
+@@ -3767,7 +3800,7 @@ function createPublishGithubAction(options) {
+         squashMergeCommitMessage = "COMMIT_MESSAGES",
+         allowRebaseMerge = true,
+         allowAutoMerge = false,
+-        collaborators,
++        // collaborators,
+         hasProjects = void 0,
+         hasWiki = void 0,
+         hasIssues = void 0,
+@@ -3779,6 +3812,23 @@ function createPublishGithubAction(options) {
+         customProperties,
+         requiredCommitSigning = false
+       } = ctx.input;
++
++      let collaborators = ctx.input.collaborators;
++      // If collaborators not added from template.. below script would add current logged in github userId as collaborator with admin role
++      if (!collaborators) {
++        const payloadUser = ctx?.user?.ref ?? null;
++        console.log("payloadUser----------------", payloadUser);
++        let loggedInUserId = payloadUser?.split('/')[1];
++        console.log("loggedInUserId-----------------", loggedInUserId);
++        if (payloadUser && loggedInUserId)
++          collaborators = [
++            {
++              user: loggedInUserId,
++              access: 'admin'
++            }
++          ];
++      }
++
+       const octokitOptions = await getOctokitOptions({
+         integrations,
+         credentialsProvider: githubCredentialsProvider,
+@@ -3816,6 +3866,21 @@ function createPublishGithubAction(options) {
+         customProperties,
+         ctx.logger
+       );
++      // let collaborators = ctx.input.collaborators;
++
++      console.log("collaborators----------------", collaborators);
++      if (!collaborators) {
++        
++        const payloadUser = ctx?.user?.ref ?? null;
++        let loggedInUserId = payloadUser?.split('/')[1];
++        if (payloadUser && loggedInUserId)
++          collaborators = [
++            {
++              user: loggedInUserId,
++              access: 'admin'
++            }
++          ];
++      }
+       const remoteUrl = newRepo.clone_url;
+       const repoContentsUrl = `${newRepo.html_url}/blob/${defaultBranch}`;
+       const commitResult = await initRepoPushAndProtect(

@@ -36,6 +36,7 @@ export function createScaffoldAction() {
       },
     },
     async handler(ctx: any) { // NOSONAR
+       
       const { signal } = ctx;
       ctx.logger.info(`Templating using Yeoman generator: ${ctx.input.name}`);
 
@@ -47,6 +48,7 @@ export function createScaffoldAction() {
       const description=ctx.input.description;
       const env = utils.getEnv(cwd, 'scaffold');
       const originalCwd = process.cwd();
+      try {
       console.log("originalCwd -------",originalCwd);
       process.chdir(cwd);
       console.log("new workspacepath cwd -------",cwd);
@@ -58,8 +60,14 @@ export function createScaffoldAction() {
         description,
         integrateWithBackstage: true,
       });
+     
+    } catch (e) {
+      console.log("error in scaffold action -------",e);
+      ctx.logger.error(`Error: ${e}`);  
       process.chdir(originalCwd);
-      console.log("again updated to  originalCwd-------",originalCwd);
+    }
+      process.chdir(originalCwd);
+      console.log("updated to  originalCwd-------",originalCwd);
       await mkdir(`${ctx.workspacePath}/.github/workflows`,()=>{});
       await writeFile(
         `${ctx.workspacePath}/.github/workflows/build-image.yaml`,
@@ -67,6 +75,9 @@ export function createScaffoldAction() {
         { signal },
         _ => {},
       );
+    
+
     },
+    
   });
 }

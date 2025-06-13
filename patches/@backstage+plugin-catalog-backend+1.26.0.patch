@@ -1,0 +1,152 @@
+diff --git a/node_modules/@backstage/plugin-catalog-backend/dist/cjs/CatalogBuilder-CGSl8LEN.cjs.js b/node_modules/@backstage/plugin-catalog-backend/dist/cjs/CatalogBuilder-CGSl8LEN.cjs.js
+index 5041c6c..b02d99b 100644
+--- a/node_modules/@backstage/plugin-catalog-backend/dist/cjs/CatalogBuilder-CGSl8LEN.cjs.js
++++ b/node_modules/@backstage/plugin-catalog-backend/dist/cjs/CatalogBuilder-CGSl8LEN.cjs.js
+@@ -5557,21 +5557,141 @@ async function createRouter(options) {
+     router.use(permissionIntegrationRouter);
+   }
+   if (entitiesCatalog) {
++    // Define the function to check if a repository is public
++      async function checkIfRepoIsPublic(orgName, repo) {        
++        const url = `${process.env.GITHUB_API_URL}/repos/${orgName}/${repo}`;
++        const response = await fetch(url, {
++          headers: {
++            Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
++            Accept: "application/vnd.github.v3+json",
++          },
++        });
++        if (!response.ok) {
++          // throw new Error(`Failed to fetch repository details: ${response.statusText}`);
++        }
++        const repoData = await response.json();
++        return repoData.private === false; // If `private` is false, the repo is public
++      }
++      // End of function to check if a repository is public
++
++      // Function to get user permissions for a repository
++      async function getUserRepoPermissions(owner, repo) {
++        const url = `${process.env.GITHUB_API_URL}/repos/${owner}/${repo}/collaborators/sadarunnisa-sf/permission`;
++        const response = await fetch(url, {
++          headers: {
++            Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
++            Accept: "application/vnd.github.v3+json",
++          },
++        });
++
++        if (response.status === 404) {
++          // User is not a collaborator
++          return { admin: false, push: false };
++        }
++
++        if (!response.ok) {
++          // throw new Error(`Failed to fetch user permissions: ${response.statusText}`);
++        }
++
++        const permissionsData = await response.json();
++        return {
++          admin: permissionsData.permission === "admin",
++          push: permissionsData.permission === "write" || permissionsData.permission === "admin",
++        };
++      }
++      // End of function to get user permissions for a repository
++
++      // Function to check if the logged-in user is the owner of the repo in the "sourcefuse" org
++      async function checkIfUserIsOwner(orgName, username) {
++        // Check if user is an owner in the org
++        const membershipUrl = `${process.env.GITHUB_API_URL}/orgs/${orgName}/memberships/${username}`;
++        const membershipResponse = await fetch(membershipUrl, {
++          headers: {
++            Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
++            Accept: "application/vnd.github.v3+json",
++          },
++        });
++        if (!membershipResponse.ok) {
++          return false;
++        }
++        const membershipData = await membershipResponse.json();
++        return membershipData.role === "admin";
++     }
++    // End of function to check if the logged-in user is the owner of the repo in the "sourcefuse" org
++      
+     router.get("/entities", async (req, res) => {
++
++      const credentials = await httpAuth.credentials(req);
++
+       const { entities, pageInfo } = await entitiesCatalog.entities({
+-        filter: parseEntityFilterParams(req.query),
+-        fields: parseEntityTransformParams(req.query),
+-        order: parseEntityOrderParams(req.query),
+-        pagination: parseEntityPaginationParams(req.query),
+-        credentials: await httpAuth.credentials(req)
++      filter: parseEntityFilterParams(req.query),
++      fields: parseEntityTransformParams(req.query),
++      order: parseEntityOrderParams(req.query),
++      pagination: parseEntityPaginationParams(req.query),
++      credentials,
+       });
++      const orgName = `${process.env.GITHUB_ORGANIZATION || "sourcefuse"}`;
++      const username = credentials.principal.userEntityRef?.split(":")[1] || credentials.principal.name;
++      
++      const isOwner = await checkIfUserIsOwner(orgName, username);
++      const filteredEntities = await Promise.all(
++      entities.map(async (entity) => {
++          if (isOwner) return entity; // If the user is the owner, include all entities
++          const repoUrl = entity.metadata.annotations?.["github.com/project-slug"];
++          if (!repoUrl) {
++          return entity; // Include entities without GitHub annotations
++          }
++
++          
++          const [owner, repo] = repoUrl.split("/");
++          
++          const isPublicRepo = await checkIfRepoIsPublic(orgName, repo);
++
++          if (isPublicRepo) {
++          return entity; // Include public repositories
++          }
++
++          
++          const userPermissions = await getUserRepoPermissions(owner, repo);
++          const isCollaboratorWithWriteAccess =
++          userPermissions.admin || userPermissions.push;
++          if (isCollaboratorWithWriteAccess ) {
++            return entity; // Include private repositories where user has access
++          }
++          return null; // Exclude entities the user doesn't have access to
++        })
++      );
++      
++      const accessibleEntities = filteredEntities.filter((entity) => entity !== null);
++
+       if (pageInfo.hasNextPage) {
+         const url = new URL(`http://ignored${req.url}`);
+         url.searchParams.delete("offset");
+         url.searchParams.set("after", pageInfo.endCursor);
+         res.setHeader("link", `<${url.pathname}${url.search}>; rel="next"`);
+       }
+-      res.json(entities);
++      console.log(`accessibleEntities backend length------------------------------ `,accessibleEntities.length, pageInfo);
++      res.json(accessibleEntities);
++    }).get("/entities/by-query", async (req, res) => {
++      const { items, pageInfo, totalItems } = await entitiesCatalog.queryEntities({
++        limit: req.query.limit,
++        offset: req.query.offset,
++        ...parseQueryEntitiesParams(req.query),
++        credentials: await httpAuth.credentials(req)
++      });
++      res.json({
++        items,
++        totalItems,
++        pageInfo: {
++          ...pageInfo.nextCursor && {
++            nextCursor: encodeCursor(pageInfo.nextCursor)
++          },
++          ...pageInfo.prevCursor && {
++            prevCursor: encodeCursor(pageInfo.prevCursor)
++          }
++        }
++      });
++      
+     }).get("/entities/by-query", async (req, res) => {
+       const { items, pageInfo, totalItems } = await entitiesCatalog.queryEntities({
+         limit: req.query.limit,
