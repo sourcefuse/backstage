@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core';
-import arcLogo from './logo/arc2.png';
+import arcLogo from './logo/arc.png';
 
 const useStyles = makeStyles({
   backstagelogoHolder: {

@@ -51,7 +51,6 @@ import { githubAuthApiRef } from '@backstage/core-plugin-api';
 import { Box } from '@material-ui/core';
 import { EntitySnykContent } from 'backstage-plugin-snyk';
 import { AutoLogout } from './components/AutoLogout';
-import { ValidateKebabCaseFieldExtension } from './scaffolder/ValidateKebabCase';
 import { ScaffolderFieldExtensions } from '@backstage/plugin-scaffolder-react';
 
 /* My Custom Theme */
@@ -406,9 +405,6 @@ const routes = (
       path="/create/templates/default"
       element={
         <PermissionWrapper permission="scaffoldPermission">
-          <ScaffolderFieldExtensions>
-            <ValidateKebabCaseFieldExtension />
-          </ScaffolderFieldExtensions>
           <ScaffolderPage />
         </PermissionWrapper>
       }
