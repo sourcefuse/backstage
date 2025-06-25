@@ -51,7 +51,6 @@ import { githubAuthApiRef } from '@backstage/core-plugin-api';
 import { Box } from '@material-ui/core';
 import { EntitySnykContent } from 'backstage-plugin-snyk';
 import { AutoLogout } from './components/AutoLogout';
-import { ScaffolderFieldExtensions } from '@backstage/plugin-scaffolder-react';
 
 /* My Custom Theme */
 const customTheme = createTheme({
