@@ -6,7 +6,7 @@ import fs from 'fs';
 //  Use 'simple-git' for cloning repo
 
 export const modifyIaCModules = () => {
-  return createTemplateAction<{ workingDir: string, modules: object , envList:string[]}>({
+  return createTemplateAction<{ workingDir: string, modules: object, envList: string[] }>({
     id: 'acme:iac:modify',
     description: 'Prepare IaC modules',
     schema: {
@@ -27,25 +27,35 @@ export const modifyIaCModules = () => {
       ctx.logger.info('ctx.input.modules ', ctx.input.modules);
       ctx.logger.info('ctx.input.envList ', ctx.input.envList);
       const originalCwd = process.cwd();
-      ctx.logger.info("originalCwd -------",originalCwd);
+      ctx.logger.info("originalCwd -------", originalCwd);
 
-      const workspacePath=ctx.workspacePath;
-      console.info("workspacePath -------",workspacePath);
+      const workspacePath = ctx.workspacePath;
+      console.info("workspacePath -------", workspacePath);
       process.chdir(workspacePath);
       const pathChar = '.';
       const files = fs.readdirSync(pathChar);
 
       console.info('Files and directories:', files);
-      
+
       let modulePath = null
-      for (const [key, value] of Object.entries(ctx.input.modules)) {
-        ctx.logger.info(`${key}: ${value}`);
-        modulePath = `${workspacePath}/terraform/${key}`
-        if (value === false) {
-          deleteDir(modulePath)
-        } else {
-          processDirectories(modulePath, ctx.input.envList)
+
+
+      try {
+        for (const [key, value] of Object.entries(ctx.input.modules)) {
+          ctx.logger.info(`${key}: ${value}`);
+          modulePath = `${workspacePath}/terraform/${key}`
+          if (value === false) {
+            deleteDir(modulePath)
+          } else {
+            processDirectories(modulePath, ctx.input.envList)
+          }
         }
+      } catch (error) {
+        ctx.logger.error(`Error processing modules: ${error}`);
+        // Optionally: rethrow or handle error here
+      } finally {
+        ctx.logger.info('Module processing complete.');
+        process.chdir(originalCwd);
       }
     },
   });

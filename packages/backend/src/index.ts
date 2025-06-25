@@ -25,11 +25,11 @@ const scaffolderModuleCustomExtensions = createBackendModule({
           modifyIaCModules(),
           deleteDirectory()
         );
+        //scaffolder.addActions(modifyIaCModules());
       },
     });
   },
 });
-
 
 
 const backend = createBackend();
@@ -70,5 +70,4 @@ backend.add(import('@backstage-community/plugin-jenkins-backend'));
 backend.add(
   import('@internal/backstage-plugin-jenkins-with-reporting-backend-backend'),
 );
-
 backend.start();

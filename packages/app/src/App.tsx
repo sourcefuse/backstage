@@ -102,7 +102,7 @@ const customTheme = createTheme({
 });
 
 export const createCustomThemeOverrides = (): // theme: BackstageTheme,
-BackstageOverrides => {
+  BackstageOverrides => {
   return {
     BackstageHeader: {
       header: {
