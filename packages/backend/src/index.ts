@@ -4,9 +4,10 @@ import { createBackendModule } from '@backstage/backend-plugin-api';
 
 import { scaffolderActionsExtensionPoint } from '@backstage/plugin-scaffolder-node/alpha';
 import { createMicroserviceAction } from './plugins/sourceloop-ms';
+import { createExtensionAction } from './plugins/sourceloop-extension';
 import { createScaffoldAction } from './plugins/sourceloop-scaffold';
-//import { createNewFileAction } from '../../../plugins/scaffolder-backend-module-preparemodules/src/actions/example';
-//import { modifyIaCModules } from '../../../plugins/scaffolder-backend-module-prepare-iac-modules';
+import { modifyIaCModules } from './plugins/iac-scaffold';
+import { deleteDirectory } from './plugins/iac-scaffold';
 
 const scaffolderModuleCustomExtensions = createBackendModule({
   pluginId: 'scaffolder', // name of the plugin that the module is targeting
@@ -20,6 +21,9 @@ const scaffolderModuleCustomExtensions = createBackendModule({
         scaffolder.addActions(
           createMicroserviceAction(),
           createScaffoldAction(),
+          createExtensionAction(),
+          modifyIaCModules(),
+          deleteDirectory()
         );
         //scaffolder.addActions(modifyIaCModules());
       },
@@ -46,10 +50,6 @@ backend.add(import('./extensions/catalogPermissionRules'));
 // See https://backstage.io/docs/features/software-catalog/configuration#subscribing-to-catalog-errors
 backend.add(import('@backstage/plugin-catalog-backend-module-logs'));
 
-// permission plugin
-backend.add(import('@backstage/plugin-permission-backend/alpha'));
-backend.add(import('./plugins/permission'));
-
 // search plugin
 backend.add(import('@backstage/plugin-search-backend/alpha'));
 // search engine
@@ -70,5 +70,4 @@ backend.add(import('@backstage-community/plugin-jenkins-backend'));
 backend.add(
   import('@internal/backstage-plugin-jenkins-with-reporting-backend-backend'),
 );
-//backend.add(import('../../../plugins/scaffolder-backend-module-prepare-iac-modules/src/actions/prepare-iac'));
 backend.start();

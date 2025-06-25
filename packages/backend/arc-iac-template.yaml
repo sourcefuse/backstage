@@ -1,0 +1,417 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: arc-mono-repo-infra-template-ui-changes
+  title: ARC IAC UI
+  description: Manage all ARC infrastructure provisioning scripts at one place
+  tags:
+    - terraform
+    - monorepo
+    - db
+    - bootstrap
+    - ecr
+    - ecs
+    - network
+    - security
+    - waf
+    - billing
+spec:
+  owner: sourcefuse
+  type: service
+
+  parameters:
+    - title: ℹ️ Project Information 
+      required:
+        - component_id
+        - region
+        - namespace
+        - route53Domain
+      properties:
+        component_id:
+          title: Project Name
+          type: string
+        # icon:
+        #   type: 'null' # Needs to be quoted
+        #   description: |
+        #     ## Markdown Text Block
+
+        #     ![GitHub Logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)   
+        description:
+          title: Project Description
+          type: string
+        region:
+          title: AWS region
+          type: string
+          default: us-east-1
+          enum:
+            - us-east-1
+            - us-east-2
+            - us-west-1
+            - us-west-2
+            - af-south-1
+            - ap-east-1
+            - ap-south-1
+            - ap-south-2
+            - ap-southeast-3
+            - ap-southeast-6
+            - ap-southeast-4
+            - ap-northeast-3
+            - ap-northeast-2
+            - ap-southeast-1
+            - ap-southeast-2
+            - ap-northeast-1
+            - ca-central-1
+            - eu-central-1
+            - eu-west-1
+            - eu-west-2
+            - eu-south-1
+            - eu-west-3
+            - eu-south-2
+            - eu-north-1
+            - eu-central-2
+            - il-central-1
+            - me-south-1
+            - me-central-1
+            - sa-east-1
+            - us-gov-east-1
+            - us-gov-west-1
+        namespace:
+          title: Namespace
+          type: string
+          ui:help: Usually an abbreviation of your organization name, i.e. "sf" or "arc", to help ensure generated IDs are globally unique    # yamllint disable
+        route53Domain:
+          title: Default Route53 zone
+          type: string
+        markdown:
+          type: 'null' # Needs to be quoted
+          description: |
+            ---
+        environments:
+          title: Environment List
+          type: array
+          default: [ "dev" ]
+          minItems: 1
+          ui:options:
+            addable: true
+            orderable: true
+            removable: true
+          items:
+            type: string
+            properties:
+              someInput:
+                type: string
+
+
+    - title: ☁️ Deployment Choices
+      ui:order:
+        - tficon
+        - bootstrap
+        - bucketName
+        - dynamoDbLockTableName
+        - nwicon
+        - network
+        - vpcCidrBlock
+        - dbicon
+        - database
+        - databaseEngineType
+        - databaseEngine
+      required: []
+
+      properties:
+        tficon:
+          type: 'null' # Needs to be quoted
+          description: |            
+            # ![Terraform](https://github.com/sourcefuse/arc-mono-repo-infra-template/blob/feature/icons-ui-updates/icons/terraform.png?raw=true) **Terraform Backend and Lock Table**
+        bootstrap: 
+          title: Bootstrap Module
+          type: boolean
+          default: true
+        nwicon:
+          type: 'null' # Needs to be quoted
+          description: |
+            &nbsp;                                       
+            # ![Network](https://github.com/sourcefuse/arc-mono-repo-infra-template/blob/feature/icons-ui-updates/icons/network.png?raw=true) **Network**            
+        network:
+          title: Network Module
+          type: boolean
+          default: true
+        dbicon:
+          type: 'null' # Needs to be quoted
+          description: |
+            &nbsp;                                       
+            # ![Database](https://github.com/sourcefuse/arc-mono-repo-infra-template/blob/feature/icons-ui-updates/icons/database.png?raw=true) **Database**                  
+        database:
+          title: Database Module
+          type: boolean
+          default: true
+
+      dependencies:
+        bootstrap:
+          allOf:
+            - if:
+                properties:
+                  bootstrap:
+                    const: true
+                    module: bootstrap
+              then:
+                properties:
+                  bucketName:
+                    title: Bucket Name
+                    type: string
+                  dynamoDbLockTableName:
+                    title: DynamoDB Table name
+                    type: string
+                required:
+                  - bucketName
+                  - dynamoDbLockTableName
+        network:
+          allOf:
+            - if:
+                properties:
+                  network:
+                    const: true
+              then:
+                properties:
+                  vpcCidrBlock:
+                    title: VPC CIDR
+                    default: "10.0.0.0/16"
+                    type: string ## TODO: Add more details like  no of public/private subnets etc
+                required:
+                  - vpcCidrBlock
+        database:
+          allOf:
+            - if:
+                properties:
+                  database:
+                    const: true
+              then:
+                properties:
+                  databaseEngineType:
+                    title: Database Engine Type
+                    type: string
+                    default: rds
+                    enum:
+                      - rds
+                      - cluster
+                    enumNames:
+                      - 'RDS'
+                      - 'Aurora'
+                  databaseEngine:
+                    title: Database Engine
+                    type: string
+                    default: postgres
+                    enum:
+                      - aurora-mysql
+                      - aurora-postgresql
+                      - mariadb
+                      - mysql
+                      - oracle-ee
+                      - oracle-se2
+                      - postgres
+                      - sqlserver-ee
+                      - sqlserver-se
+                      - sqlserver-ex
+                      - sqlserver-web
+                    enumNames:
+                      - Aurora with MySQL compatibility
+                      - Aurora with PostgreSQL compatibility
+                      - MariaDB database
+                      - MySQL database
+                      - Oracle Enterprise Edition
+                      - Oracle Standard Edition 2
+                      - PostgreSQL
+                      - SQL Server Enterprise Edition
+                      - SQL Server Standard Edition
+                      - SQL Server Express Edition
+                      - SQL Server Web Edition
+                required:
+                  - databaseEngineType
+                  - databaseEngine
+
+    - title: ☁️ Deployment Choices 2
+      ui:order:
+        - ecs
+        - ecsFargate
+        - eks
+        - s3
+        - cloudfront
+        - elasticache
+        - ecr
+        - client_vpn
+        - waf
+        - security
+        - billing
+        - observability
+      required: []
+
+      properties:
+        ecs:
+          title: ECS Module
+          type: boolean
+          default: true
+        eks:
+          title: EKS Module
+          type: boolean
+          default: false
+        s3:
+          title: S3 Module
+          type: boolean
+          default: true
+        cloudfront:
+          title: Cloudfront Module
+          type: boolean
+          default: false
+        elasticache:
+          title: Elasticache Module
+          type: boolean
+          default: false
+        ecr:
+          title: ECR Module
+          type: boolean
+          default: false
+        client_vpn:
+          title: Client VPN Module
+          type: boolean
+          default: false
+        waf:
+          title: WAF Module
+          type: boolean
+          default: false
+        security:
+          title: Security Module
+          type: boolean
+          default: false
+        billing:
+          title: Billing Module
+          type: boolean
+          default: false
+        observability:
+          title: Observability Module
+          type: boolean
+          default: false
+
+
+      dependencies:
+        ecs:
+          allOf:
+            - if:
+                properties:
+                  ecs:
+                    const: true
+              then:
+                properties:
+                  ecsFargate:
+                    title: EC2 or Fargate
+                    type: string
+                    default: fargate
+                    enum:
+                      - fargate
+                      - ec2
+                    enumNames:
+                      - 'Fargate'
+                      - 'EC2'
+                required:
+                  - ecsFargate
+
+        observability:
+          allOf:
+            - if:
+                properties:
+                  observability:
+                    const: true
+              then:
+                properties:
+                  metrics:
+                    title: Metrics
+                    type: boolean
+                    default: true
+                  logging:
+                    title: Logging
+                    type: boolean
+                    default: false
+        logging:
+          allOf:
+            - if:
+                properties:
+                  logging:
+                    const: true
+              then:
+                properties:
+                  metrics:
+                    title: Metrics
+                    type: boolean
+                    default: true
+                  logging:
+                    title: Logging
+                    type: boolean
+                    default: false
+
+
+    - title: 🗂️ Choose a location
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+            allowedOwners:
+              - sourcefuse
+
+
+  steps:
+    - id: template
+      name: Fetch Skeleton + Template
+      action: fetch:template
+      input:
+        url: ../skeleton
+        copyWithoutRender:
+          - .github/workflows/*
+        values:
+          environment: ${{ parameters.environments[0] }}
+          namespace: ${{ parameters.namespace }}
+          region: ${{ parameters.region }}
+          bucketName: ${{ parameters.bucketName }}
+          dynamoDbLockTableName: ${{ parameters.dynamoDbLockTableName }}
+          component_id: ${{ parameters.component_id }}
+          databaseEngine: ${{ parameters.databaseEngine }}
+          databaseEngineType: ${{ parameters.databaseEngineType }}
+          route53Domain: ${{ parameters.route53Domain }}
+
+    - id: prepareModules
+      name: Prepare the modules
+      action: acme:iac:modify
+      input:
+        workingDir: "${{ parameters.namespace }}-${{ parameters.environments[0] }}"
+        envList: ${{ parameters.environments }}
+        route53Domain: ${{ parameters.route53Domain }}
+        modules :
+          bootstrap: ${{ parameters.bootstrap }}
+          network: ${{ parameters.network }}
+          db: ${{ parameters.database }}
+          ecs: ${{ parameters.ecs }}
+          eks: ${{ parameters.eks }}
+          elasticache: ${{ parameters.elasticache }}
+          security: ${{ parameters.security }}
+          waf: ${{ parameters.waf }}
+          s3: ${{ parameters.s3 }}
+          client-vpn: ${{ parameters.client_vpn }}
+          cloudfront: ${{ parameters.cloudfront }}
+          ecr: ${{ parameters.ecr }}
+          billing: ${{ parameters.billing }}
+          observability: ${{ parameters.observability }}
+
+    - id: publish
+      name: Publish
+      action: publish:github
+      input:
+        allowedHosts: ["github.com"]
+        description: This is ${{ parameters.component_id }}
+        repoUrl: ${{ parameters.repoUrl }}
+
+  output:
+    remoteUrl: ${{ steps.publish.output.remoteUrl }}
+    entityRef: ${{ steps.register.output.entityRef }}
