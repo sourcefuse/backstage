@@ -137,25 +137,16 @@ catalog:
           frequency: { hours: 1 }
           timeout: { minutes: 15 }
     github:
-      # the provider ID can be any camelCase string
       providerId:
-        organization: 'sourcefuse' # string
-  #        catalogPath: '/catalog-info.yaml' # string
-  #        filters:
-  #          branch: 'main' # string
-  #          repository: '.*' # Regex
-  #        schedule: # optional; same options as in TaskScheduleDefinition
-  #          # supports cron, ISO duration, "human duration" as used in code
-  #          frequency: { minutes: 1440 }
-  #          # supports ISO duration, "human duration" as used in code
-  #          timeout: { minutes: 3 }
-  #      validateLocationsExist:
-  #        organization: 'sourcefuse' # string
-  #        catalogPath: '/catalog-info.yaml' # string
-  #        #        filters:
-  #        #          branch: 'main' # string
-  #        #          repository: '.*' # Regex
-  #        validateLocationsExist: true # optional boolean
+        organization: 'sourcefuse'
+        catalogPath: '/catalog-info.yaml'
+        filters:
+          branch: 'main'
+          repository: '.*'
+        schedule:
+          initialDelay: { seconds: 30 }
+          frequency: { hours: 1 }
+          timeout: { minutes: 15 }
 
   rules:
     - allow: [Component, System, API, Group, User, Resource, Location]
