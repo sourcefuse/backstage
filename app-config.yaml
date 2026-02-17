@@ -302,6 +302,11 @@ catalog:
       rules:
         - allow: [Template]
 
+    - type: url
+      target: https://github.com/sourcefuse/telescope-health-backend-api/blob/develop/catalog-info.yaml
+      rules:
+        - allow: [Component, API]
+
 # kubernetes:
 # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
 # see https://backstage.io/docs/permissions/getting-started for more on the permission framework
