@@ -47,10 +47,13 @@ import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
-import { githubAuthApiRef } from '@backstage/core-plugin-api';
+import { githubAuthApiRef, configApiRef, useApi } from '@backstage/core-plugin-api';
 import { Box } from '@material-ui/core';
 import { EntitySnykContent } from 'backstage-plugin-snyk';
 import { AutoLogout } from './components/AutoLogout';
+import { TechRadarPage } from '@backstage-community/plugin-tech-radar';
+import { HomePageContent } from './components/home/HomePage';
+import { HomepageCompositionRoot, VisitListener } from '@backstage/plugin-home';
 
 /* My Custom Theme */
 const customTheme = createTheme({
@@ -274,6 +277,61 @@ const githubProvider: SignInProviderConfig = {
   apiRef: githubAuthApiRef,
 };
 
+function CustomSignInPage(props: any) {
+  const configApi = useApi(configApiRef);
+  const enableGuestLogin =
+    configApi.getOptionalConfig('auth.providers.guest') !== undefined;
+  const providers: (SignInProviderConfig | 'guest')[] = enableGuestLogin
+    ? [githubProvider, 'guest']
+    : [githubProvider];
+
+  return (
+    <Box
+      style={{
+        display: 'grid',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+      }}
+      className="sign-in-page"
+    >
+      <style>{css}</style>
+      <Box
+        style={{
+          display: 'grid',
+          alignSelf: 'center',
+          padding: '3rem',
+          boxShadow:
+            'rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px',
+          background: 'rgba(255,255,255,0.5)',
+          borderRadius: '15px',
+          justifyContent: 'center',
+        }}
+        className="sign-in-box"
+      >
+        <Box
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div>
+            <img
+              src={sfLogoMinimal}
+              width={60}
+              alt="SourceFuse Backstage"
+              style={{margin: '0 auto'}}
+            />
+          </div>
+          <h1>BackStage</h1>
+        </Box>
+        <SignInPage {...props} providers={providers} />
+      </Box>
+    </Box>
+  );
+}
+
 const css = `
 body{
   background-image: url(${loginBg});
@@ -295,51 +353,7 @@ body{
 const app = createApp({
   apis,
   components: {
-    SignInPage: props => (
-      <Box
-        style={{
-          display: 'grid',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-        className="sign-in-page"
-      >
-        <style>{css}</style>
-        <Box
-          style={{
-            display: 'grid',
-            alignSelf: 'center',
-            padding: '3rem',
-            boxShadow:
-              'rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px',
-            background: 'rgba(255,255,255,0.5)',
-            borderRadius: '15px',
-            justifyContent: 'center',
-          }}
-          className="sign-in-box"
-        >
-          <Box
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <div>
-              <img
-                src={sfLogoMinimal}
-                width={60}
-                alt="SourceFuse Backstage"
-                style={{ margin: '0 auto' }}
-              />
-            </div>
-            <h1>BackStage</h1>
-          </Box>
-          <SignInPage {...props} provider={githubProvider} />
-        </Box>
-      </Box>
-    ),
+    SignInPage: props => <CustomSignInPage {...props} />,
   },
   bindRoutes({ bind }) {
     bind(catalogPlugin.externalRoutes, {
@@ -376,7 +390,8 @@ const app = createApp({
 
 const routes = (
   <FlatRoutes>
-    <Route path="/" element={<Navigate to="catalog" />} />
+    <Route path="/" element={<Navigate to="home" />} />
+    <Route path="/home" element={<HomepageCompositionRoot><HomePageContent /></HomepageCompositionRoot>} />
     <Route path="/catalog" element={<CatalogIndexPage />} />
     {/* <CustomCatalogPage />
     </Route> */}
@@ -427,6 +442,7 @@ const routes = (
     </Route>
     <Route path="/settings" element={<UserSettingsPage />} />
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
+    <Route path="/tech-radar" element={<TechRadarPage />} />
   </FlatRoutes>
 );
 
@@ -441,6 +457,7 @@ export default app.createRoot(
       logoutIfDisconnected={false}
     />
     <AppRouter>
+      <VisitListener />
       <Root>{routes}</Root>
     </AppRouter>
   </>,

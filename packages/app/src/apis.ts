@@ -7,7 +7,10 @@ import {
   AnyApiFactory,
   configApiRef,
   createApiFactory,
+  identityApiRef,
+  storageApiRef,
 } from '@backstage/core-plugin-api';
+import { visitsApiRef, VisitsWebStorageApi } from '@backstage/plugin-home';
 
 export const apis: AnyApiFactory[] = [
   createApiFactory({
@@ -16,4 +19,10 @@ export const apis: AnyApiFactory[] = [
     factory: ({ configApi }) => ScmIntegrationsApi.fromConfig(configApi),
   }),
   ScmAuth.createDefaultApiFactory(),
+  createApiFactory({
+    api: visitsApiRef,
+    deps: {storageApi: storageApiRef, identityApi: identityApiRef},
+    factory: ({storageApi, identityApi}) =>
+      VisitsWebStorageApi.create({storageApi, identityApi}),
+  }),
 ];
