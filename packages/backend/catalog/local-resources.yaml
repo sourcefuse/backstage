@@ -1,0 +1,66 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: backstage-postgres
+  title: Backstage PostgreSQL
+  description: PostgreSQL database used by Backstage (catalog, auth, search, scaffolder)
+  annotations:
+    backstage.io/managed-by-location: "file:./catalog/local-resources.yaml"
+  tags:
+    - database
+    - postgresql
+    - backstage
+    - local
+  links:
+    - title: Database Host
+      url: "postgresql://localhost:5432"
+spec:
+  type: database
+  lifecycle: development
+  owner: group:default/sourcefuse
+  system: backstage
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: sourcefuse-postgres
+  title: SourceFuse PostgreSQL
+  description: Shared PostgreSQL instance at localhost:5432 used by SourceFuse services
+  annotations:
+    backstage.io/managed-by-location: "file:./catalog/local-resources.yaml"
+  tags:
+    - database
+    - postgresql
+    - local
+  links:
+    - title: Database Host
+      url: "postgresql://localhost:5432"
+spec:
+  type: database
+  lifecycle: development
+  owner: group:default/sourcefuse
+  system: sourcefuse
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: backstage
+  title: Backstage
+  description: Internal developer portal powered by Backstage
+  tags:
+    - internal
+    - platform
+spec:
+  owner: group:default/sourcefuse
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: sourcefuse
+  title: SourceFuse Platform
+  description: SourceFuse microservices platform
+  tags:
+    - internal
+    - platform
+spec:
+  owner: group:default/sourcefuse

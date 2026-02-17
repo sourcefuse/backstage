@@ -29,6 +29,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import { MyGroupsSidebarItem } from '@backstage/plugin-org';
 import GroupIcon from '@material-ui/icons/People';
+import PersonIcon from '@material-ui/icons/Person';
+import StorageIcon from '@material-ui/icons/Storage';
 import CategoryIcon from '@material-ui/icons/Category';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { useApi, identityApiRef } from '@backstage/core-plugin-api';
@@ -88,6 +90,9 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
         {/* Global nav, not org-specific */}
         <SidebarItem icon={Homeicon} to="home" text="Home" />
         <SidebarItem icon={CategoryIcon} to="catalog" text="Catalog" />
+        <SidebarItem icon={PersonIcon} to="catalog?filters[kind]=user" text="Users" />
+        <SidebarItem icon={GroupIcon} to="catalog?filters[kind]=group" text="Groups" />
+        <SidebarItem icon={StorageIcon} to="catalog?filters[kind]=resource" text="Resources" />
         <MyGroupsSidebarItem
           singularTitle="My Group"
           pluralTitle="My Groups"

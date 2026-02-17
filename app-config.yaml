@@ -112,6 +112,12 @@ proxy:
       auth: '${SONARCLOUD_TOKEN}:'
       credentials: require
 
+sonarqube:
+  instances:
+    - name: sourcefuse-cloud
+      baseUrl: https://sonarcloud.io
+      apiKey: ${SONARCLOUD_TOKEN}
+
 jenkins:
   instances:
     - name: default
@@ -126,6 +132,10 @@ catalog:
       - id: production
         githubUrl: 'https://github.com'
         orgs: ['sourcefuse']
+        schedule:
+          initialDelay: { seconds: 30 }
+          frequency: { hours: 1 }
+          timeout: { minutes: 15 }
     github:
       # the provider ID can be any camelCase string
       providerId:
@@ -150,6 +160,10 @@ catalog:
   rules:
     - allow: [Component, System, API, Group, User, Resource, Location]
   locations:
+    # Local infrastructure resources (PostgreSQL databases)
+    - type: file
+      target: ./catalog/local-resources.yaml
+
     # Backstage example templates
     - type: url
       target: https://github.com/backstage/software-templates/blob/main/scaffolder-templates/react-ssr-template/template.yaml
