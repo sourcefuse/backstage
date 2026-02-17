@@ -276,6 +276,12 @@ class RequestPermissionPolicy implements PermissionPolicy {
       return { result: AuthorizeResult.ALLOW };
     }
 
+    // Guest users (development/guest) bypass GitHub repo-based checks
+    if (user.identity.userEntityRef === 'user:development/guest') {
+      this.logger.info('Guest user detected, allowing all catalog permissions');
+      return { result: AuthorizeResult.ALLOW };
+    }
+
     const userRepoPermission = await this.resolveAuthorizedRepoList(
       user.identity.userEntityRef,
     );

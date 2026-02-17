@@ -59,11 +59,6 @@ import {
   EntityGithubPullRequestsContent,
   EntityGithubPullRequestsOverviewCard,
 } from '@roadiehq/backstage-plugin-github-pull-requests';
-import {
-  SnykOverview,
-  EntitySnykContent,
-  isSnykAvailable,
-} from 'backstage-plugin-snyk';
 import { EntitySonarQubeCard } from '@backstage-community/plugin-sonarqube';
 
 import {
@@ -76,6 +71,10 @@ import {
   EntityLatestJenkinsRunCard,
   isJenkinsAvailable,
 } from '@internal/backstage-plugin-jenkins-with-reporting';
+import {
+  EntityGithubActionsContent,
+  isGithubActionsAvailable,
+} from '@backstage-community/plugin-github-actions';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -86,9 +85,11 @@ const techdocsContent = (
 );
 
 const cicdContent = (
-  // This is an example of how you can implement your company's logic in entity page.
-  // You can for example enforce that all components of type 'service' should use GitHubActions
   <EntitySwitch>
+    <EntitySwitch.Case if={isGithubActionsAvailable}>
+      <EntityGithubActionsContent />
+    </EntitySwitch.Case>
+
     <EntitySwitch.Case>
       <EmptyState
         title="No CI/CD available for this entity"
@@ -110,18 +111,10 @@ const cicdContent = (
 
 const entityWarningContent = (
   <>
-    <SnykOverview />
     <EntitySwitch>
       <EntitySwitch.Case if={hasRelationWarnings}>
         <Grid item xs={12}>
           <EntityRelationWarning />
-        </Grid>
-      </EntitySwitch.Case>
-    </EntitySwitch>
-    <EntitySwitch>
-      <EntitySwitch.Case if={isSnykAvailable}>
-        <Grid item md={6}>
-          <SnykOverview />
         </Grid>
       </EntitySwitch.Case>
     </EntitySwitch>
@@ -230,9 +223,6 @@ const serviceEntityPage = (
 
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
-    </EntityLayout.Route>
-    <EntityLayout.Route path="/snyk" title="Security">
-      <EntitySnykContent />
     </EntityLayout.Route>
     <EntityLayout.Route path="/codequality" title="Code Quality">
       <EntitySonarQubeCard />

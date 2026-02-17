@@ -2,7 +2,10 @@ import React from 'react';
 import { Navigate, Route } from 'react-router-dom';
 import './App.css';
 import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
-import { createTheme, lightTheme, BackstageTheme } from '@backstage/theme';
+import { createTheme, lightTheme, BackstageTheme, themes, UnifiedThemeProvider } from '@backstage/theme';
+import Brightness4Icon from '@material-ui/icons/Brightness4';
+import Brightness7Icon from '@material-ui/icons/Brightness7';
+import PaletteIcon from '@material-ui/icons/Palette';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/core/styles';
 import {
@@ -47,9 +50,8 @@ import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
-import { githubAuthApiRef, configApiRef, useApi } from '@backstage/core-plugin-api';
+import { githubAuthApiRef, configApiRef, identityApiRef, oauthRequestApiRef, useApi } from '@backstage/core-plugin-api';
 import { Box } from '@material-ui/core';
-import { EntitySnykContent } from 'backstage-plugin-snyk';
 import { AutoLogout } from './components/AutoLogout';
 import { TechRadarPage } from '@backstage-community/plugin-tech-radar';
 import { HomePageContent } from './components/home/HomePage';
@@ -270,6 +272,32 @@ const customfinalTheme: BackstageTheme = {
   },
 };
 
+// Auto-rejects OAuth popups for guest users so the dialog never appears
+function GuestAwareOAuthDialog() {
+  const identityApi = useApi(identityApiRef);
+  const oauthRequestApi = useApi(oauthRequestApiRef);
+  const [isGuest, setIsGuest] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    identityApi.getBackstageIdentity().then(identity => {
+      if (identity.userEntityRef === 'user:development/guest') {
+        setIsGuest(true);
+      }
+    }).catch(() => {});
+  }, [identityApi]);
+
+  React.useEffect(() => {
+    if (!isGuest) return;
+    const subscription = oauthRequestApi.authRequest$().subscribe(requests => {
+      requests.forEach(request => request.reject());
+    });
+    return () => subscription.unsubscribe();
+  }, [isGuest, oauthRequestApi]);
+
+  if (isGuest) return null;
+  return <OAuthRequestDialog />;
+}
+
 const githubProvider: SignInProviderConfig = {
   id: 'github-auth-provider',
   title: 'GitHub',
@@ -375,9 +403,28 @@ const app = createApp({
 
   themes: [
     {
+      id: 'light',
+      title: 'Light',
+      variant: 'light',
+      icon: <Brightness7Icon />,
+      Provider: ({ children }) => (
+        <UnifiedThemeProvider theme={themes.light} children={children} />
+      ),
+    },
+    {
+      id: 'dark',
+      title: 'Dark',
+      variant: 'dark',
+      icon: <Brightness4Icon />,
+      Provider: ({ children }) => (
+        <UnifiedThemeProvider theme={themes.dark} children={children} />
+      ),
+    },
+    {
       id: 'custom-theme',
       title: 'My Custom Theme',
       variant: 'light',
+      icon: <PaletteIcon />,
       Provider: ({ children }) => (
         <ThemeProvider theme={customfinalTheme}>
           <CssBaseline />
@@ -428,7 +475,6 @@ const routes = (
       path="/tech-radar"
       element={<TechRadarPage width={1500} height={800} />}
     /> */}
-    <Route path="/snyk" element={<EntitySnykContent />} />
     <Route
       path="/catalog-import"
       element={
@@ -449,7 +495,7 @@ const routes = (
 export default app.createRoot(
   <>
     <AlertDisplay />
-    <OAuthRequestDialog />
+    <GuestAwareOAuthDialog />
     <AutoLogout
       idleTimeoutMinutes={30}
       promptBeforeIdleSeconds={30}

@@ -26,15 +26,25 @@ export async function createRouter(
     response.json({ status: 'ok' });
   });
 
+  // Returns the integration GitHub token for authenticated users (including guest)
+  // Used by the frontend to fetch PR data when logged in as guest
+  router.get('/github-token', (_, res) => {
+    res.json({ token: process.env.GITHUB_TOKEN || '' });
+  });
+
   router.get('/validateuser', async (_, res) => {
     const token = _.headers?.authorization as string;
     console.log('token***************', token); //NOSONAR
     if (token !== '') {
       const userIdentityDetails = jose.decodeJwt(token);
       console.log('userIdentityDetails***************', userIdentityDetails); //NOSONAR
-      const userAllowed = await isUserAllowed(
-        userIdentityDetails?.sub?.split('/')[1] as string,
-      );
+      const username = userIdentityDetails?.sub?.split('/')[1] as string;
+      // Guest users bypass GitHub team check
+      if (username === 'guest') {
+        res.json({ allowed: true });
+        return;
+      }
+      const userAllowed = await isUserAllowed(username);
       res.json({ allowed: userAllowed });
     } else {
       res.json({ allowed: false });

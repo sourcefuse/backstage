@@ -30,6 +30,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import { MyGroupsSidebarItem } from '@backstage/plugin-org';
 import GroupIcon from '@material-ui/icons/People';
 import CategoryIcon from '@material-ui/icons/Category';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import { useApi, identityApiRef } from '@backstage/core-plugin-api';
 
 const useSidebarLogoStyles = makeStyles({
   root: {
@@ -49,6 +51,17 @@ const useSidebarLogoStyles = makeStyles({
   },
 });
 
+
+const LogoutButton = () => {
+  const identityApi = useApi(identityApiRef);
+  return (
+    <SidebarItem
+      icon={ExitToAppIcon}
+      text="Logout"
+      onClick={() => identityApi.signOut()}
+    />
+  );
+};
 
 const SidebarLogo = () => {
   const classes = useSidebarLogoStyles();
@@ -97,6 +110,7 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
         to="/settings"
       >
         <SidebarSettings />
+        <LogoutButton />
       </SidebarGroup>
     </Sidebar>
     {children}
