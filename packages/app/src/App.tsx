@@ -22,6 +22,7 @@ import { PermissionWrapper } from './PermissionWrapper';
 import {
   CatalogEntityPage,
   CatalogIndexPage,
+  CatalogTable,
   catalogPlugin,
 } from '@backstage/plugin-catalog';
 import {
@@ -439,7 +440,14 @@ const routes = (
   <FlatRoutes>
     <Route path="/" element={<Navigate to="home" />} />
     <Route path="/home" element={<HomepageCompositionRoot><HomePageContent /></HomepageCompositionRoot>} />
-    <Route path="/catalog" element={<CatalogIndexPage />} />
+    <Route path="/catalog" element={
+      <CatalogIndexPage
+        initiallySelectedFilter="all"
+        columns={ctx => CatalogTable.defaultColumnsFunc(ctx).filter(
+          col => col.title !== 'System',
+        )}
+      />
+    } />
     {/* <CustomCatalogPage />
     </Route> */}
     <Route

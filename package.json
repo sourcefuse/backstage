@@ -6,9 +6,9 @@
     "node": "18 || 20"
   },
   "scripts": {
-    "dev": "concurrently \"yarn start\" \"yarn start-backend\"",
+    "dev": "sh -c 'set -a; [ -f .env.local ] && . .env.local; set +a; concurrently \"yarn start\" \"yarn workspace backend start\"'",
     "start": "yarn workspace app start",
-    "start-backend": "yarn workspace backend start",
+    "start-backend": "sh -c 'set -a; [ -f .env.local ] && . .env.local; set +a; yarn workspace backend start'",
     "build:backend": "yarn workspace backend build",
     "build:all": "backstage-cli repo build --all",
     "build-image": "yarn workspace backend build-image",
@@ -85,7 +85,8 @@
     "react": "^18",
     "react-dom": "^18",
     "@types/react": "^18",
-    "@types/react-dom": "^18"
+    "@types/react-dom": "^18",
+    "@backstage/core-plugin-api": "1.9.4"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

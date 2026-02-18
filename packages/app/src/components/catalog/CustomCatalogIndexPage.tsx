@@ -41,7 +41,7 @@ import {
     EntityNamespacePicker,
   } from '@backstage/plugin-catalog-react';
   import React, { ReactNode } from 'react';
-  import { CatalogTable, CatalogTableRow } from '@backstage/plugin-catalog';
+  import { CatalogTable, CatalogTableRow, CatalogTableColumnsFunc } from '@backstage/plugin-catalog';
 import { EntityLanguagePicker } from '../../filters/language.filter';
 
   /**
@@ -51,7 +51,7 @@ import { EntityLanguagePicker } from '../../filters/language.filter';
    */
   export interface CatalogPageProps {
     initiallySelectedFilter?: UserListFilterKind;
-    columns?: TableColumn<CatalogTableRow>[];
+    columns?: TableColumn<CatalogTableRow>[] | CatalogTableColumnsFunc;
     actions?: TableProps<CatalogTableRow>['actions'];
     initialKind?: string;
     tableOptions?: TableProps<CatalogTableRow>['options'];
@@ -61,8 +61,14 @@ import { EntityLanguagePicker } from '../../filters/language.filter';
     createButtonTitle: string;
   };
 
+const columnsWithoutSystem: CatalogTableColumnsFunc = ctx => {
+  return CatalogTable.defaultColumnsFunc(ctx).filter(
+    col => col.title !== 'System',
+  );
+};
+
   export const CustomCatalogPage = ({
-      columns,
+      columns = columnsWithoutSystem,
       actions,
       initiallySelectedFilter = 'owned',
       initialKind = 'component',

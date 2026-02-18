@@ -33,6 +33,10 @@ export const accessValidatePlugin = createBackendPlugin({
           path: '/validateuser',
           allow: 'unauthenticated',
         });
+        httpRouter.addAuthPolicy({
+          path: '/github-token',
+          allow: 'unauthenticated',
+        });
       },
     });
   },
