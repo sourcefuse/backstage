@@ -312,18 +312,6 @@ catalog:
       rules:
         - allow: [Component, API]
 
-kubernetes:
-  serviceLocatorMethod:
-    type: 'multiTenant'
-  clusterLocatorMethods:
-    - type: 'config'
-      clusters:
-        - url: ${K8S_CLUSTER_URL}
-          name: ${K8S_CLUSTER_NAME}
-          authProvider: 'serviceAccount'
-          skipTLSVerify: false
-          skipMetricsLookup: false
-          serviceAccountToken: ${K8S_SERVICE_ACCOUNT_TOKEN}
-          caData: ${K8S_CA_DATA}
 # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
+# Kubernetes config is in app-config.production.yaml — only loaded in production
 # see https://backstage.io/docs/permissions/getting-started for more on the permission framework

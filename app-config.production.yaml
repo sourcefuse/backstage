@@ -1,0 +1,13 @@
+kubernetes:
+  serviceLocatorMethod:
+    type: 'multiTenant'
+  clusterLocatorMethods:
+    - type: 'config'
+      clusters:
+        - url: ${K8S_CLUSTER_URL}
+          name: ${K8S_CLUSTER_NAME}
+          authProvider: 'serviceAccount'
+          skipTLSVerify: false
+          skipMetricsLookup: false
+          serviceAccountToken: ${K8S_SERVICE_ACCOUNT_TOKEN}
+          caData: ${K8S_CA_DATA}
