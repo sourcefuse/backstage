@@ -21,7 +21,7 @@ ARG FRONTEND_BASE_URL="http://localhost:7007"
 WORKDIR /app
 COPY --from=packages /app .
 RUN apt-get update -y && apt-get install software-properties-common make gcc g++ -y
-RUN yarn install  --network-timeout 600000 && rm -rf "$(yarn cache dir)"
+RUN yarn install --ignore-engines --network-timeout 600000 && rm -rf "$(yarn cache dir)"
 
 COPY . .
 
@@ -51,7 +51,7 @@ RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
 
 COPY --from=packages /app .
 COPY ./plugins ./plugins
-RUN yarn install --network-timeout 600000 && rm -rf "$(yarn cache dir)"
+RUN yarn install --ignore-engines --network-timeout 600000 && rm -rf "$(yarn cache dir)"
 COPY ./patches ./patches
 
 RUN yarn run postinstall
