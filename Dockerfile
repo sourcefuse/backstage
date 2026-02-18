@@ -38,8 +38,7 @@ WORKDIR /app
 ARG baseUrl="http://localhost:7007"
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git libsqlite3-dev -y && \
-    apt-get install -y python3.10 python3-pip build-essential && \
+    apt-get install -y --no-install-recommends git libsqlite3-dev build-essential && \
     rm -rf /var/lib/apt/lists/* && \
     yarn config set python /usr/bin/python3 && \
     pip3 install --upgrade setuptools wheel && \
