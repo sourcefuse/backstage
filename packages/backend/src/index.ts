@@ -127,6 +127,7 @@ backend.add(scaffolderModuleCustomExtensions);
 
 backend.add(import('@backstage-community/plugin-jenkins-backend'));
 backend.add(import('@backstage-community/plugin-sonarqube-backend'));
+backend.add(import('@backstage/plugin-kubernetes-backend/alpha'));
 
 backend.add(
   import('@internal/backstage-plugin-jenkins-with-reporting-backend-backend'),

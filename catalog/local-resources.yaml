@@ -1,0 +1,22 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: backstage-postgres
+  description: PostgreSQL database for Backstage
+  tags:
+    - postgresql
+    - backstage
+spec:
+  type: database
+  lifecycle: production
+  owner: group:default/platform-team
+  system: backstage
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: backstage
+  description: Internal developer portal powered by Backstage
+spec:
+  owner: group:default/platform-team
+  domain: internal
