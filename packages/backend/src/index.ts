@@ -129,6 +129,10 @@ backend.add(import('@backstage-community/plugin-jenkins-backend'));
 backend.add(import('@backstage-community/plugin-sonarqube-backend'));
 backend.add(import('@backstage/plugin-kubernetes-backend/alpha'));
 
+// announcements + real-time signals
+backend.add(import('@backstage-community/plugin-announcements-backend'));
+backend.add(import('@backstage/plugin-signals-backend'));
+
 backend.add(
   import('@internal/backstage-plugin-jenkins-with-reporting-backend-backend'),
 );

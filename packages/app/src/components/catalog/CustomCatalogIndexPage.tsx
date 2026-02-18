@@ -81,7 +81,7 @@ export const CustomCatalogPage = ({
 }: CatalogPageProps) => {
   const orgName =
     useApi(configApiRef).getOptionalString('organization.name') ?? 'Backstage';
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
 
   return (
     <PageWithHeader title={`${orgName} Catalog`} themeId="home">

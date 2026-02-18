@@ -6,6 +6,7 @@ import {
   HomePageToolkit,
 } from '@backstage/plugin-home';
 import { HomePageSearchBar } from '@backstage/plugin-search';
+import { AnnouncementsCard } from '@backstage-community/plugin-announcements';
 import { SearchContextProvider } from '@backstage/plugin-search-react';
 import { Grid, makeStyles, Typography } from '@material-ui/core';
 import GitHubIcon from '@material-ui/icons/GitHub';
@@ -285,6 +286,12 @@ export const HomePageContent = () => {
         {/* ── Content grid ── */}
         <div className={classes.mainContent}>
           <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <div className={classes.cardWrapper}>
+                <AnnouncementsCard max={3} />
+              </div>
+            </Grid>
+
             <Grid item xs={12} md={6}>
               <div className={classes.cardWrapper}>
                 <HomePageTopVisited />

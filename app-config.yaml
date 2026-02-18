@@ -135,11 +135,15 @@ proxy:
       headers:
         X-Api-Key: ${NEW_RELIC_USER_KEY}
 
-    '/grafana/api':
-      target: ${GRAFANA_URL}
-      headers:
-        Authorization: Bearer ${GRAFANA_TOKEN}
-      allowedMethods: ['GET', 'POST']
+newrelic:
+  token: ${NEW_RELIC_USER_KEY}
+
+# Grafana - domain required by plugin schema; override in app-config.local.yaml with real URL
+# Per-entity config (dashboards, alerts) comes from grafana/* annotations in catalog-info.yaml
+grafana:
+  domain: http://localhost:3000
+  proxyPath: /grafana/api
+  unifiedAlerting: true
 
 sonarqube:
   instances:

@@ -164,6 +164,15 @@ body {
   color: #ffffff !important;
 }
 
+[class*="BackstageHeaderTabs-tabsWrapper"] [class*="MuiTab-root"]:hover {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[class*="BackstageHeaderTabs-tabsWrapper"] [class*="MuiTab-root"]:hover [class*="MuiTouchRipple-root"] {
+  display: none !important;
+}
+
 [class*="BackstageHeaderTabs-tabsWrapper"] [class*="MuiTabs-indicator"] {
   background-color: #E81823 !important;
   height: 3px !important;

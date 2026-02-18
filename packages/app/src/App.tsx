@@ -64,7 +64,12 @@ import { Box, Grid } from '@material-ui/core';
 import { AutoLogout } from './components/AutoLogout';
 import { TechRadarPage } from '@backstage-community/plugin-tech-radar';
 import { HomePageContent } from './components/home/HomePage';
+import { Router as GithubPullRequestsRouter } from '@roadiehq/backstage-plugin-github-pull-requests';
 import { HomepageCompositionRoot, VisitListener } from '@backstage/plugin-home';
+import {
+  AnnouncementsPage,
+  NewAnnouncementBanner,
+} from '@backstage-community/plugin-announcements';
 
 /* My Custom Theme */
 const customTheme = createTheme({
@@ -564,12 +569,15 @@ const routes = (
     } />
     <Route path="/tech-radar" element={<TechRadarPage />} />
     <Route path="/newrelic" element={<NewRelicPage />} />
+    <Route path="/github-pull-requests" element={<GithubPullRequestsRouter />} />
+    <Route path="/announcements" element={<AnnouncementsPage />} />
   </FlatRoutes>
 );
 
 export default app.createRoot(
   <>
     <AlertDisplay />
+    <NewAnnouncementBanner />
     <GuestAwareOAuthDialog />
     <AutoLogout
       idleTimeoutMinutes={30}

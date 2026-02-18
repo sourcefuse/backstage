@@ -3,6 +3,7 @@ import { Button, Grid } from '@material-ui/core';
 import { NewRelicApmCard, isNewRelicApmAvailable } from '../newrelic/NewRelicApmCard';
 import { NewRelicFacadesTab, isNewRelicFacadesTabAvailable } from '../newrelic/NewRelicFacadesTab';
 import { EntityJiraOverviewCard, isJiraAvailable } from '@roadiehq/backstage-plugin-jira';
+import { configApiRef, useApi } from '@backstage/core-plugin-api';
 import {
   EntityGrafanaAlertsCard,
   EntityGrafanaDashboardsCard,
@@ -66,7 +67,7 @@ import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
 import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import { EntityTeamPullRequestsCard } from '@backstage-community/plugin-github-pull-requests-board';
 import {
-  EntityGithubPullRequestsContent,
+  Router as GithubPullRequestsRouter,
   EntityGithubPullRequestsOverviewCard,
 } from '@roadiehq/backstage-plugin-github-pull-requests';
 import { EntitySonarQubeCard } from '@backstage-community/plugin-sonarqube';
@@ -123,184 +124,195 @@ const cicdContent = (
 );
 
 
-const overviewContent = (
-  <Grid container spacing={3} alignItems="stretch">
-    <Grid item md={6}>
-      <EntityAboutCard variant="gridItem" />
-    </Grid>
-    <Grid item md={6} xs={12}>
-      <EntityCatalogGraphCard variant="gridItem" height={400} />
-    </Grid>
-
-    <Grid item md={4} xs={12}>
-      <EntityLinksCard />
-    </Grid>
-    <Grid item md={8} xs={12}>
-      <EntityHasSubcomponentsCard variant="gridItem" />
-    </Grid>
-    <Grid item md={12}>
-      <EntityGithubPullRequestsOverviewCard />
-    </Grid>
-    <EntitySwitch>
-      <EntitySwitch.Case if={isNewRelicApmAvailable}>
-        <Grid item md={6} xs={12}>
-          <NewRelicApmCard />
-        </Grid>
-      </EntitySwitch.Case>
-    </EntitySwitch>
-    <EntitySwitch>
-      <EntitySwitch.Case if={isNewRelicDashboardAvailable}>
-        <Grid item md={6} xs={12}>
-          <EntityNewRelicDashboardCard />
-        </Grid>
-      </EntitySwitch.Case>
-    </EntitySwitch>
-    <EntitySwitch>
-      <EntitySwitch.Case if={isAlertSelectorAvailable}>
-        <Grid item md={6} xs={12}>
-          <EntityGrafanaAlertsCard />
-        </Grid>
-      </EntitySwitch.Case>
-    </EntitySwitch>
-    <EntitySwitch>
-      <EntitySwitch.Case if={isDashboardSelectorAvailable}>
-        <Grid item md={6} xs={12}>
-          <EntityGrafanaDashboardsCard />
-        </Grid>
-      </EntitySwitch.Case>
-    </EntitySwitch>
-  </Grid>
-);
-
-const serviceEntityPage = (
-  <EntityLayout>
-    <EntityLayout.Route path="/" title="Overview">
-      {overviewContent}
-    </EntityLayout.Route>
-
-    <EntityLayout.Route path="/ci-cd" title="CI/CD">
-      {cicdContent}
-    </EntityLayout.Route>
-
-    <EntityLayout.Route path="/jenkins" title="Jenkins" if={isJenkinsAvailable}>
-      <EntityJenkinsContent />
-    </EntityLayout.Route>
-
-    <EntityLayout.Route path="/api" title="API">
-      <Grid container spacing={3} alignItems="stretch">
-        <Grid item md={6}>
-          <EntityProvidedApisCard />
-        </Grid>
-        <Grid item md={6}>
-          <EntityConsumedApisCard />
-        </Grid>
+const OverviewContent = () => {
+  return (
+    <Grid container spacing={3} alignItems="stretch">
+      <Grid item md={6}>
+        <EntityAboutCard variant="gridItem" />
       </Grid>
-    </EntityLayout.Route>
-
-    <EntityLayout.Route
-      path="/kubernetes"
-      title="Kubernetes"
-      if={isKubernetesAvailable}
-    >
-      <EntityKubernetesContent />
-    </EntityLayout.Route>
-
-    <EntityLayout.Route path="/dependencies" title="Dependencies">
-      <Grid container spacing={3} alignItems="stretch">
-        <Grid item md={6}>
-          <EntityDependsOnComponentsCard variant="gridItem" />
-        </Grid>
-        <Grid item md={6}>
-          <EntityDependsOnResourcesCard variant="gridItem" />
-        </Grid>
+      <Grid item md={6} xs={12}>
+        <EntityCatalogGraphCard variant="gridItem" height={400} />
       </Grid>
-    </EntityLayout.Route>
 
-    <EntityLayout.Route path="/docs" title="Docs">
-      {techdocsContent}
-    </EntityLayout.Route>
-    <EntityLayout.Route path="/codequality" title="Code Quality">
-      <EntitySonarQubeCard />
-    </EntityLayout.Route>
-    <EntityLayout.Route
-      path="/pull-requests"
-      title="Pull Requests"
-      // Uncomment the line below if you'd like to only show the tab on entities with the correct annotations already set
-      // if={isGithubPullRequestsAvailable}
-    >
-      <EntityGithubPullRequestsContent />
-    </EntityLayout.Route>
-    <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
-      <EntityJiraOverviewCard />
-    </EntityLayout.Route>
-    <EntityLayout.Route
-      path="/newrelic-dashboard"
-      title="New Relic"
-      if={isNewRelicDashboardAvailable}
-    >
-      <EntityNewRelicDashboardContent />
-    </EntityLayout.Route>
-    <EntityLayout.Route
-      path="/newrelic-apm"
-      title="New Relic APM"
-      if={isNewRelicFacadesTabAvailable}
-    >
-      <NewRelicFacadesTab />
-    </EntityLayout.Route>
-    <EntityLayout.Route
-      path="/grafana"
-      title="Grafana"
-      if={isOverviewDashboardAvailable}
-    >
-      <EntityOverviewDashboardViewer />
-    </EntityLayout.Route>
-  </EntityLayout>
-);
-
-const websiteEntityPage = (
-  <EntityLayout>
-    <EntityLayout.Route path="/" title="Overview">
-      {overviewContent}
-    </EntityLayout.Route>
-
-    <EntityLayout.Route path="/ci-cd" title="CI/CD">
-      {cicdContent}
-    </EntityLayout.Route>
-
-    <EntityLayout.Route path="/dependencies" title="Dependencies">
-      <Grid container spacing={3} alignItems="stretch">
-        <Grid item md={6}>
-          <EntityDependsOnComponentsCard variant="gridItem" />
-        </Grid>
-        <Grid item md={6}>
-          <EntityDependsOnResourcesCard variant="gridItem" />
-        </Grid>
+      <Grid item md={4} xs={12}>
+        <EntityLinksCard />
       </Grid>
-    </EntityLayout.Route>
+      <Grid item md={8} xs={12}>
+        <EntityHasSubcomponentsCard variant="gridItem" />
+      </Grid>
+      <Grid item md={12}>
+        <EntityGithubPullRequestsOverviewCard />
+      </Grid>
+      <EntitySwitch>
+        <EntitySwitch.Case if={isNewRelicApmAvailable}>
+          <Grid item md={6} xs={12}>
+            <NewRelicApmCard />
+          </Grid>
+        </EntitySwitch.Case>
+      </EntitySwitch>
+      <EntitySwitch>
+        <EntitySwitch.Case if={isNewRelicDashboardAvailable}>
+          <Grid item md={6} xs={12}>
+            <EntityNewRelicDashboardCard />
+          </Grid>
+        </EntitySwitch.Case>
+      </EntitySwitch>
+      <EntitySwitch>
+        <EntitySwitch.Case if={isAlertSelectorAvailable}>
+          <Grid item md={6} xs={12}>
+            <EntityGrafanaAlertsCard />
+          </Grid>
+        </EntitySwitch.Case>
+      </EntitySwitch>
+      <EntitySwitch>
+        <EntitySwitch.Case if={isDashboardSelectorAvailable}>
+          <Grid item md={6} xs={12}>
+            <EntityGrafanaDashboardsCard />
+          </Grid>
+        </EntitySwitch.Case>
+      </EntitySwitch>
+    </Grid>
+  );
+};
 
-    <EntityLayout.Route path="/docs" title="Docs">
-      {techdocsContent}
-    </EntityLayout.Route>
+const ServiceEntityPage = () => {
+  const config = useApi(configApiRef);
+  const isJiraConfigured = Boolean(config.getOptionalString('jira.token'));
 
-    <EntityLayout.Route path="/codequality" title="Code Quality">
-      <EntitySonarQubeCard />
-    </EntityLayout.Route>
+  return (
+    <EntityLayout>
+      <EntityLayout.Route path="/" title="Overview">
+        <OverviewContent />
+      </EntityLayout.Route>
 
-    <EntityLayout.Route path="/pull-requests" title="Pull Requests">
-      <EntityGithubPullRequestsContent />
-    </EntityLayout.Route>
-    <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
-      <EntityJiraOverviewCard />
-    </EntityLayout.Route>
-    <EntityLayout.Route
-      path="/newrelic-dashboard"
-      title="New Relic"
-      if={isNewRelicDashboardAvailable}
-    >
-      <EntityNewRelicDashboardContent />
-    </EntityLayout.Route>
-  </EntityLayout>
-);
+      <EntityLayout.Route path="/ci-cd" title="CI/CD">
+        {cicdContent}
+      </EntityLayout.Route>
+
+      <EntityLayout.Route path="/jenkins" title="Jenkins" if={isJenkinsAvailable}>
+        <EntityJenkinsContent />
+      </EntityLayout.Route>
+
+      <EntityLayout.Route path="/api" title="API">
+        <Grid container spacing={3} alignItems="stretch">
+          <Grid item md={6}>
+            <EntityProvidedApisCard />
+          </Grid>
+          <Grid item md={6}>
+            <EntityConsumedApisCard />
+          </Grid>
+        </Grid>
+      </EntityLayout.Route>
+
+      <EntityLayout.Route
+        path="/kubernetes"
+        title="Kubernetes"
+        if={isKubernetesAvailable}
+      >
+        <EntityKubernetesContent />
+      </EntityLayout.Route>
+
+      <EntityLayout.Route path="/dependencies" title="Dependencies">
+        <Grid container spacing={3} alignItems="stretch">
+          <Grid item md={6}>
+            <EntityDependsOnComponentsCard variant="gridItem" />
+          </Grid>
+          <Grid item md={6}>
+            <EntityDependsOnResourcesCard variant="gridItem" />
+          </Grid>
+        </Grid>
+      </EntityLayout.Route>
+
+      <EntityLayout.Route path="/docs" title="Docs">
+        {techdocsContent}
+      </EntityLayout.Route>
+      <EntityLayout.Route path="/codequality" title="Code Quality">
+        <EntitySonarQubeCard />
+      </EntityLayout.Route>
+      <EntityLayout.Route path="/pull-requests" title="Pull Requests">
+        <GithubPullRequestsRouter />
+      </EntityLayout.Route>
+      {isJiraConfigured && (
+        <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
+          <EntityJiraOverviewCard />
+        </EntityLayout.Route>
+      )}
+      <EntityLayout.Route
+        path="/newrelic-dashboard"
+        title="New Relic"
+        if={isNewRelicDashboardAvailable}
+      >
+        <EntityNewRelicDashboardContent />
+      </EntityLayout.Route>
+      <EntityLayout.Route
+        path="/newrelic-apm"
+        title="New Relic APM"
+        if={isNewRelicFacadesTabAvailable}
+      >
+        <NewRelicFacadesTab />
+      </EntityLayout.Route>
+      <EntityLayout.Route
+        path="/grafana"
+        title="Grafana"
+        if={isOverviewDashboardAvailable}
+      >
+        <EntityOverviewDashboardViewer />
+      </EntityLayout.Route>
+    </EntityLayout>
+  );
+};
+
+const WebsiteEntityPage = () => {
+  const config = useApi(configApiRef);
+  const isJiraConfigured = Boolean(config.getOptionalString('jira.token'));
+
+  return (
+    <EntityLayout>
+      <EntityLayout.Route path="/" title="Overview">
+        <OverviewContent />
+      </EntityLayout.Route>
+
+      <EntityLayout.Route path="/ci-cd" title="CI/CD">
+        {cicdContent}
+      </EntityLayout.Route>
+
+      <EntityLayout.Route path="/dependencies" title="Dependencies">
+        <Grid container spacing={3} alignItems="stretch">
+          <Grid item md={6}>
+            <EntityDependsOnComponentsCard variant="gridItem" />
+          </Grid>
+          <Grid item md={6}>
+            <EntityDependsOnResourcesCard variant="gridItem" />
+          </Grid>
+        </Grid>
+      </EntityLayout.Route>
+
+      <EntityLayout.Route path="/docs" title="Docs">
+        {techdocsContent}
+      </EntityLayout.Route>
+
+      <EntityLayout.Route path="/codequality" title="Code Quality">
+        <EntitySonarQubeCard />
+      </EntityLayout.Route>
+
+      <EntityLayout.Route path="/pull-requests" title="Pull Requests">
+        <GithubPullRequestsRouter />
+      </EntityLayout.Route>
+      {isJiraConfigured && (
+        <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
+          <EntityJiraOverviewCard />
+        </EntityLayout.Route>
+      )}
+      <EntityLayout.Route
+        path="/newrelic-dashboard"
+        title="New Relic"
+        if={isNewRelicDashboardAvailable}
+      >
+        <EntityNewRelicDashboardContent />
+      </EntityLayout.Route>
+    </EntityLayout>
+  );
+};
 
 /**
  * NOTE: This page is designed to work on small screens such as mobile devices.
@@ -312,7 +324,7 @@ const websiteEntityPage = (
 const defaultEntityPage = (
   <EntityLayout>
     <EntityLayout.Route path="/" title="Overview">
-      {overviewContent}
+      <OverviewContent />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/docs" title="Docs">
@@ -324,11 +336,11 @@ const defaultEntityPage = (
 const componentPage = (
   <EntitySwitch>
     <EntitySwitch.Case if={isComponentType('service')}>
-      {serviceEntityPage}
+      <ServiceEntityPage />
     </EntitySwitch.Case>
 
     <EntitySwitch.Case if={isComponentType('website')}>
-      {websiteEntityPage}
+      <WebsiteEntityPage />
     </EntitySwitch.Case>
 
     <EntitySwitch.Case>{defaultEntityPage}</EntitySwitch.Case>

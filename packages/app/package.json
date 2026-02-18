@@ -20,6 +20,7 @@
     "cy:run": "cypress run --browser chrome"
   },
   "dependencies": {
+    "@backstage-community/plugin-announcements": "2.3.0",
     "@backstage-community/plugin-github-actions": "^0.6.16",
     "@backstage-community/plugin-github-pull-requests-board": "^0.2.1",
     "@backstage-community/plugin-grafana": "0.15.0",
@@ -47,6 +48,7 @@
     "@backstage/plugin-scaffolder": "^1.25.0",
     "@backstage/plugin-search": "^1.4.16",
     "@backstage/plugin-search-react": "^1.8.0",
+    "@backstage/plugin-signals": "0.0.28",
     "@backstage/plugin-techdocs": "^1.10.9",
     "@backstage/plugin-techdocs-module-addons-contrib": "^1.1.14",
     "@backstage/plugin-techdocs-react": "^1.2.8",

@@ -17,6 +17,10 @@ import {
 import { GithubAuth } from '@backstage/core-app-api';
 import { discoveryApiRef } from '@backstage/core-plugin-api';
 import { visitsApiRef, VisitsWebStorageApi } from '@backstage/plugin-home';
+import {
+  githubPullRequestsApiRef,
+  GithubPullRequestsClient,
+} from '@roadiehq/backstage-plugin-github-pull-requests';
 
 async function getGuestGithubToken(identityApi: any): Promise<string> {
   // eslint-disable-next-line no-console
@@ -32,6 +36,11 @@ async function getGuestGithubToken(identityApi: any): Promise<string> {
 }
 
 export const apis: AnyApiFactory[] = [
+  createApiFactory({
+    api: githubPullRequestsApiRef,
+    deps: {githubAuthApi: githubAuthApiRef},
+    factory: ({githubAuthApi}) => new GithubPullRequestsClient({githubAuthApi}),
+  }),
   createApiFactory({
     api: scmIntegrationsApiRef,
     deps: {configApi: configApiRef},

@@ -7,4 +7,12 @@ export interface Config {
      */
     enableGuestLogin?: boolean;
   };
+  newrelic?: {
+    /**
+     * New Relic API key used to enable New Relic tabs in the entity page.
+     * Set NEW_RELIC_USER_KEY in your environment.
+     * @visibility frontend
+     */
+    token?: string;
+  };
 }
