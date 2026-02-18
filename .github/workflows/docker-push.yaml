@@ -5,10 +5,12 @@ on:            # yamllint disable-line rule:truthy
   push:
     tags:
       - '**'
-#  workflow_run:
-#    workflows: ["Tag"]
-#    types:
-#      - completed
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Image tag to build and push'
+        required: true
+        default: 'latest'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -30,7 +32,7 @@ jobs:
 
       - name: Set output
         id: vars
-        run: echo "git_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        run: echo "git_tag=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}" >> $GITHUB_OUTPUT
 
       # configure iam
       - name: Configure IAM Role
@@ -64,7 +66,7 @@ jobs:
 
       - name: Set output
         id: vars
-        run: echo "git_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        run: echo "git_tag=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}" >> $GITHUB_OUTPUT
 
       # configure iam
       - name: Configure IAM Role

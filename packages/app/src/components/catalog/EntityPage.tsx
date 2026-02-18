@@ -90,6 +90,10 @@ const cicdContent = (
       <EntityGithubActionsContent />
     </EntitySwitch.Case>
 
+    <EntitySwitch.Case if={isJenkinsAvailable}>
+      <EntityJenkinsContent />
+    </EntitySwitch.Case>
+
     <EntitySwitch.Case>
       <EmptyState
         title="No CI/CD available for this entity"
