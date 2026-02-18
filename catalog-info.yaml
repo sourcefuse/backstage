@@ -9,7 +9,10 @@ metadata:
     backstage.io/techdocs-ref: dir:.
 spec:
   type: website
-  owner: sourcefuse
+  owner: group:arc/sourcefuse
   lifecycle: production
+  system: backstage
+  dependsOn:
+    - resource:default/backstage-postgres
   targets:
-    - ./vijay-stephen.yaml  
+    - ./vijay-stephen.yaml

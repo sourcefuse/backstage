@@ -21,7 +21,7 @@ metadata:
 spec:
   type: database
   lifecycle: production
-  owner: group:default/platform-team
+  owner: group:arc/sourcefuse
   system: backstage
 ---
 apiVersion: backstage.io/v1alpha1
@@ -30,5 +30,5 @@ metadata:
   name: backstage
   description: Internal developer portal powered by Backstage
 spec:
-  owner: group:default/platform-team
+  owner: group:arc/sourcefuse
   domain: internal

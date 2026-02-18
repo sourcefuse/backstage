@@ -120,7 +120,8 @@ proxy:
         Authorization: Basic ${JIRA_TOKEN}
         Accept: application/json
         Content-Type: application/json
-        X-Custom-Token: ${JIRA_TOKEN}
+        X-Atlassian-Token: no-check
+        User-Agent: Backstage
 
 sonarqube:
   instances:
@@ -327,9 +328,9 @@ catalog:
         - allow: [Component, API]
 
     - type: url
-      target: https://github.com/sourcefuse/biz-book-api/blob/backstage-dev/catalog-info.yml
+      target: https://github.com/sourcefuse/biz-book-api/blob/dev/catalog-info.yaml
       rules:
-        - allow: [Component]
+        - allow: [Component, API, System, Resource, Group, User, Location]
 
 # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
 # Kubernetes config is in app-config.production.yaml — only loaded in production

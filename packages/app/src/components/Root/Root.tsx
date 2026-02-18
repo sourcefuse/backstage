@@ -36,6 +36,7 @@ import AssignmentIcon from '@material-ui/icons/Assignment';
 import RoomIcon from '@material-ui/icons/Room';
 import PersonIcon from '@material-ui/icons/Person';
 import DevicesIcon from '@material-ui/icons/Devices';
+import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import { useApi, identityApiRef } from '@backstage/core-plugin-api';
 
 const useSidebarLogoStyles = makeStyles(theme => ({
@@ -149,6 +150,7 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
             />
           </SidebarSubmenu>
         </SidebarItem>
+        <SidebarItem icon={AccountTreeIcon} to="catalog-graph" text="Catalog Graph" />
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
         <SidebarItem icon={MapIcon} to="tech-radar" text="Tech Radar" />
         <SidebarItem icon={CreateComponentIcon} to="create" text="Create..." />
