@@ -114,11 +114,6 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
         <SidebarItem icon={CategoryIcon} to="catalog" text="Catalog">
           <SidebarSubmenu title="Catalog">
             <SidebarSubmenuItem
-              title="APIs"
-              to="catalog?filters[kind]=api"
-              icon={ExtensionIcon}
-            />
-            <SidebarSubmenuItem
               title="Components"
               to="catalog?filters[kind]=component"
               icon={CategoryIcon}
