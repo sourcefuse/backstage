@@ -22,7 +22,6 @@
   "dependencies": {
     "@backstage-community/plugin-github-actions": "^0.6.16",
     "@backstage-community/plugin-github-pull-requests-board": "^0.2.1",
-    "@backstage-community/plugin-jenkins": "^0.12.1",
     "@backstage-community/plugin-newrelic": "0.18.0",
     "@backstage-community/plugin-newrelic-dashboard": "0.20.0",
     "@backstage-community/plugin-sonarqube": "^0.8.0",
@@ -57,13 +56,11 @@
     "@material-ui/icons": "^4.9.1",
     "@roadiehq/backstage-plugin-github-pull-requests": "^2.5.14",
     "@roadiehq/backstage-plugin-jira": "2.14.0",
-    "history": "^5.0.0",
     "react": "^18.0.2",
     "react-dom": "^18.0.2",
     "react-idle-timer": "^5.7.2",
     "react-router": "^6.3.0",
-    "react-router-dom": "^6.3.0",
-    "react-use": "^17.2.4"
+    "react-router-dom": "^6.3.0"
   },
   "devDependencies": {
     "@backstage/test-utils": "^1.6.0",

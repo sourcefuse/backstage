@@ -58,7 +58,7 @@ import { Root } from './components/Root';
 
 import { createApp } from '@backstage/app-defaults';
 import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
-import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
+import { CatalogGraphPage, catalogGraphPlugin } from '@backstage/plugin-catalog-graph';
 import { NewRelicPage } from '@backstage-community/plugin-newrelic';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
@@ -444,6 +444,9 @@ const app = createApp({
     bind(orgPlugin.externalRoutes, {
       catalogIndex: catalogPlugin.routes.catalogIndex,
     });
+    bind(catalogGraphPlugin.externalRoutes, {
+      catalogEntity: catalogPlugin.routes.catalogEntity,
+    });
   },
 
   themes: [
@@ -563,7 +566,13 @@ const routes = (
         </SettingsLayout.Route>
       </SettingsLayout>
     } />
-    <Route path="/catalog-graph" element={<CatalogGraphPage />} />
+    <Route path="/catalog-graph" element={
+      <CatalogGraphPage
+        initialState={{
+          rootEntityRefs: ['system:default/backstage'],
+        }}
+      />
+    } />
     <Route path="/tech-radar" element={<TechRadarPage />} />
     <Route path="/newrelic" element={<NewRelicPage />} />
   </FlatRoutes>

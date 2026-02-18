@@ -36,7 +36,6 @@ import AssignmentIcon from '@material-ui/icons/Assignment';
 import RoomIcon from '@material-ui/icons/Room';
 import PersonIcon from '@material-ui/icons/Person';
 import DevicesIcon from '@material-ui/icons/Devices';
-import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import { useApi, identityApiRef } from '@backstage/core-plugin-api';
 
@@ -151,7 +150,6 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
             />
           </SidebarSubmenu>
         </SidebarItem>
-        <SidebarItem icon={AccountTreeIcon} to="catalog-graph" text="Catalog Graph" />
         <SidebarItem icon={TimelineIcon} to="newrelic" text="New Relic" />
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
         <SidebarItem icon={MapIcon} to="tech-radar" text="Tech Radar" />
