@@ -137,21 +137,21 @@ const entityWarningContent = (
           <EntityProcessingErrorsPanel />
         </Grid>
       </EntitySwitch.Case>
-      <EntitySwitch.Case if={isJenkinsAvailable}>
+      {/* <EntitySwitch.Case if={isJenkinsAvailable}>
         <Grid item sm={6}>
           <EntityLatestJenkinsRunCard
             branch="main,master,dev"
             variant="gridItem"
           />
         </Grid>
-      </EntitySwitch.Case>
+      </EntitySwitch.Case> */}
     </EntitySwitch>
   </>
 );
 
 const overviewContent = (
   <Grid container spacing={3} alignItems="stretch">
-    {entityWarningContent}
+    /* {entityWarningContent} */
     <Grid item md={6}>
       <EntityAboutCard variant="gridItem" />
     </Grid>
