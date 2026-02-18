@@ -63,6 +63,7 @@ COPY --from=build /app/packages/backend/dist/bundle.tar.gz .
 RUN tar xzf bundle.tar.gz && rm bundle.tar.gz
 
 # Copy any other files that we need at runtime
-COPY app-config.yaml app-config.production.yaml ./
+COPY app-config.yaml app-config.production.yaml docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 
-CMD ["node", "packages/backend", "--config", "app-config.yaml", "--config", "app-config.production.yaml"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
