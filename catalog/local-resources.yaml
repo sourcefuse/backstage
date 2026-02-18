@@ -1,4 +1,16 @@
 apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: sourcefuse
+  namespace: arc
+  description: SourceFuse engineering organization
+spec:
+  type: organization
+  profile:
+    displayName: SourceFuse
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
 kind: Resource
 metadata:
   name: backstage-postgres
