@@ -180,12 +180,8 @@ const serviceEntityPage = (
       {cicdContent}
     </EntityLayout.Route>
 
-    <EntityLayout.Route path="/jenkins" title="jenkins">
-      <EntitySwitch>
-        <EntitySwitch.Case if={isJenkinsAvailable}>
-          <EntityJenkinsContent />
-        </EntitySwitch.Case>
-      </EntitySwitch>
+    <EntityLayout.Route path="/jenkins" title="Jenkins" if={isJenkinsAvailable}>
+      <EntityJenkinsContent />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/api" title="API">
@@ -245,14 +241,6 @@ const websiteEntityPage = (
       {cicdContent}
     </EntityLayout.Route>
 
-    <EntityLayout.Route path="/jenkins" title="jenkins">
-      <EntitySwitch>
-        <EntitySwitch.Case if={isJenkinsAvailable}>
-          <EntityJenkinsContent />
-        </EntitySwitch.Case>
-      </EntitySwitch>
-    </EntityLayout.Route>
-
     <EntityLayout.Route path="/dependencies" title="Dependencies">
       <Grid container spacing={3} alignItems="stretch">
         <Grid item md={6}>
@@ -266,6 +254,14 @@ const websiteEntityPage = (
 
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/codequality" title="Code Quality">
+      <EntitySonarQubeCard />
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/pull-requests" title="Pull Requests">
+      <EntityGithubPullRequestsContent />
     </EntityLayout.Route>
   </EntityLayout>
 );

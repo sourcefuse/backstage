@@ -18,8 +18,9 @@ import {
   SidebarGroup,
   SidebarItem,
   SidebarPage,
-  SidebarScrollWrapper,
   SidebarSpace,
+  SidebarSubmenu,
+  SidebarSubmenuItem,
   useSidebarOpenState,
   Link,
 } from '@backstage/core-components';
@@ -27,15 +28,19 @@ import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import { MyGroupsSidebarItem } from '@backstage/plugin-org';
 import GroupIcon from '@material-ui/icons/People';
-import PersonIcon from '@material-ui/icons/Person';
 import StorageIcon from '@material-ui/icons/Storage';
 import CategoryIcon from '@material-ui/icons/Category';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import AssignmentIcon from '@material-ui/icons/Assignment';
+import RoomIcon from '@material-ui/icons/Room';
+import PersonIcon from '@material-ui/icons/Person';
+import DevicesIcon from '@material-ui/icons/Devices';
 import { useApi, identityApiRef } from '@backstage/core-plugin-api';
 
-const useSidebarLogoStyles = makeStyles({
+const useSidebarLogoStyles = makeStyles(theme => ({
   root: {
-    // width: sidebarConfig.drawerWidthClosed,
     width: '100%',
     height: 3 * sidebarConfig.logoHeight,
     display: 'flex',
@@ -44,12 +49,26 @@ const useSidebarLogoStyles = makeStyles({
     marginBottom: 0,
   },
   link: {
-    // width: sidebarConfig.drawerWidthClosed,
     width: '90%',
-    // marginLeft: 15,
     margin: '0 auto',
   },
-});
+  collapseBtn: {
+    flexShrink: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    padding: theme.spacing(0.5),
+    marginRight: theme.spacing(0.5),
+    borderRadius: 4,
+    color: theme.palette.common.white,
+    opacity: 0.6,
+    '&:hover': {
+      opacity: 1,
+      background: 'rgba(255,255,255,0.12)',
+    },
+  },
+}));
 
 
 const LogoutButton = () => {
@@ -65,13 +84,18 @@ const LogoutButton = () => {
 
 const SidebarLogo = () => {
   const classes = useSidebarLogoStyles();
-  const { isOpen } = useSidebarOpenState();
+  const { isOpen, setOpen } = useSidebarOpenState();
 
   return (
     <div className={classes.root}>
       <Link to="/" underline="none" className={classes.link} aria-label="Home">
         {isOpen ? <LogoFull /> : <LogoIcon />}
       </Link>
+      {isOpen && (
+        <div className={classes.collapseBtn} onClick={() => setOpen(false)}>
+          <ChevronLeftIcon fontSize="small" />
+        </div>
+      )}
     </div>
   );
 };
@@ -85,25 +109,55 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
       </SidebarGroup>
       {/* <SidebarDivider /> */}
       <SidebarGroup label="Menu" icon={<MenuIcon />}>
-        {/* Global nav, not org-specific */}
         <SidebarItem icon={Homeicon} to="home" text="Home" />
-        <SidebarItem icon={CategoryIcon} to="catalog?filters[kind]=component&filters[user]=all" text="Catalog" />
-        <SidebarItem icon={PersonIcon} to="catalog?filters[kind]=user" text="Users" />
-        <SidebarItem icon={GroupIcon} to="catalog?filters[kind]=group" text="Groups" />
-        <SidebarItem icon={StorageIcon} to="catalog?filters[kind]=resource" text="Resources" />
-        <MyGroupsSidebarItem
-          singularTitle="My Group"
-          pluralTitle="My Groups"
-          icon={GroupIcon}
-        />
         <SidebarItem icon={ExtensionIcon} to="api-docs" text="APIs" />
+        <SidebarItem icon={CategoryIcon} to="catalog" text="Catalog">
+          <SidebarSubmenu title="Catalog">
+            <SidebarSubmenuItem
+              title="APIs"
+              to="catalog?filters[kind]=api"
+              icon={ExtensionIcon}
+            />
+            <SidebarSubmenuItem
+              title="Components"
+              to="catalog?filters[kind]=component"
+              icon={CategoryIcon}
+            />
+            <SidebarSubmenuItem
+              title="Groups"
+              to="catalog?filters[kind]=group"
+              icon={GroupIcon}
+            />
+            <SidebarSubmenuItem
+              title="Locations"
+              to="catalog?filters[kind]=location"
+              icon={RoomIcon}
+            />
+            <SidebarSubmenuItem
+              title="Resources"
+              to="catalog?filters[kind]=resource"
+              icon={StorageIcon}
+            />
+            <SidebarSubmenuItem
+              title="Systems"
+              to="catalog?filters[kind]=system"
+              icon={DevicesIcon}
+            />
+            <SidebarSubmenuItem
+              title="Templates"
+              to="catalog?filters[kind]=template"
+              icon={AssignmentIcon}
+            />
+            <SidebarSubmenuItem
+              title="Users"
+              to="catalog?filters[kind]=user"
+              icon={PersonIcon}
+            />
+          </SidebarSubmenu>
+        </SidebarItem>
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
+        <SidebarItem icon={MapIcon} to="tech-radar" text="Tech Radar" />
         <SidebarItem icon={CreateComponentIcon} to="create" text="Create..." />
-        {/* End global nav */}
-        {/* <SidebarDivider /> */}
-        <SidebarScrollWrapper>
-          <SidebarItem icon={MapIcon} to="tech-radar" text="Tech Radar" />
-        </SidebarScrollWrapper>
       </SidebarGroup>
       <SidebarSpace />
       {/* <SidebarDivider /> */}
@@ -113,6 +167,11 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
         to="/settings"
       >
         <SidebarItem icon={SettingsIcon} to="settings" text="Settings" />
+        <MyGroupsSidebarItem
+          singularTitle="My Group"
+          pluralTitle="My Groups"
+          icon={GroupIcon}
+        />
         <LogoutButton />
       </SidebarGroup>
     </Sidebar>

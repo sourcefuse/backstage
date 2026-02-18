@@ -486,7 +486,13 @@ const routes = (
         </PermissionWrapper>
       }
     />
-    <Route path="/api-docs" element={<ApiExplorerPage />} />
+    <Route path="/api-docs" element={
+      <ApiExplorerPage
+        columns={ctx => CatalogTable.defaultColumnsFunc(ctx).filter(
+          col => col.title !== 'System',
+        )}
+      />
+    } />
     {/* <Route
       path="/tech-radar"
       element={<TechRadarPage width={1500} height={800} />}
