@@ -1,5 +1,5 @@
 # Stage 1 - Create yarn install skeleton layer
-FROM node:18 AS packages
+FROM node:20 AS packages
 RUN yarn config set unsafe-perm true
 
 WORKDIR /app
@@ -13,7 +13,7 @@ COPY plugins plugins
 RUN find packages \! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} \+
 
 # Stage 2 - Install dependencies and build packages
-FROM node:18 AS build
+FROM node:20 AS build
 
 ARG BASE_URL="http://localhost:7007"
 ARG FRONTEND_BASE_URL="http://localhost:7007"
@@ -30,8 +30,8 @@ RUN yarn tsc
 RUN yarn --cwd packages/backend backstage-cli package build
 
 # Stage 3 - Build the actual backend image and install production dependencies
-#FROM node:18-buster-slim
-FROM nikolaik/python-nodejs:python3.10-nodejs18-slim
+#FROM node:20-slim
+FROM nikolaik/python-nodejs:python3.10-nodejs20-slim
 
 WORKDIR /app
 
