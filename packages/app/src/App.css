@@ -22,3 +22,472 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #000000;
   }
+
+/* ── SourceFuse Sidebar – applies to ALL themes ─────────────────────── */
+
+/* Sidebar drawer background: SF navy */
+[class*="BackstageSidebar-drawer"] {
+  background-color: #1A252F !important;
+  border-right: 1px solid #2D3D4A !important;
+}
+
+/* Nav items: light gray text */
+[class*="BackstageSidebarItem-root"] {
+  color: #b5b5b5 !important;
+}
+
+/* Nav item labels */
+[class*="BackstageSidebarItem-label"] {
+  color: inherit !important;
+  font-size: 14px !important;
+  font-family: Gotham, sans-serif !important;
+}
+
+/* Nav icons */
+[class*="BackstageSidebarItem-iconContainer"] svg {
+  color: #b5b5b5 !important;
+  fill: #b5b5b5 !important;
+}
+
+/* Hover state */
+[class*="BackstageSidebarItem-root"]:hover {
+  background-color: #212D38 !important;
+  color: #ffffff !important;
+}
+[class*="BackstageSidebarItem-root"]:hover svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+/* Active / selected item */
+[class*="BackstageSidebarItem-root"][class*="selected"] {
+  background-color: #212D38 !important;
+  color: #ffffff !important;
+}
+[class*="BackstageSidebarItem-root"][class*="selected"] svg {
+  color: #E81823 !important;
+  fill: #E81823 !important;
+}
+[class*="BackstageSidebarItem-root"][class*="selected"] [class*="label"] {
+  color: #ffffff !important;
+}
+
+/* Active indicator: SF red left border */
+[class*="BackstageSidebarItem-root"][class*="selected"]::before,
+[class*="BackstageSidebarItem-root"][class*="highlighted"]::before {
+  background-color: #E81823 !important;
+}
+
+/* Search button in sidebar */
+[class*="search-icon"] {
+  color: #b5b5b5 !important;
+}
+
+/* Submenu background */
+[class*="BackstageSidebarSubmenu"] {
+  background-color: #212D38 !important;
+}
+
+/* Sidebar divider line */
+[class*="BackstageSidebarDivider"],
+[class*="BackstageSidebar-divider"] {
+  background-color: #2D3D4A !important;
+}
+
+/* ── SourceFuse Inner Pages – applies to ALL themes ─────────────────── */
+
+/* Page body background: SF light gray */
+body {
+  background-color: #F7F8F9 !important;
+}
+
+/* ── Page Header Banner: SF navy gradient ────────────────────────────── */
+[class*="BackstageHeader-header"] {
+  background: linear-gradient(135deg, #212D38 0%, #060C3A 100%) !important;
+  background-image: linear-gradient(135deg, #212D38 0%, #060C3A 100%) !important;
+  padding: 28px 40px !important;
+}
+
+/* Add subtle red accent strip at bottom of header */
+[class*="BackstageHeader-header"]::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #E81823 0%, #212D38 55%, transparent 100%);
+}
+
+/* Header title */
+[class*="BackstageHeader-title"] {
+  color: #ffffff !important;
+  font-family: Gotham, sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 2rem !important;
+}
+
+/* Header subtitle */
+[class*="BackstageHeader-subtitle"] {
+  color: rgba(255, 255, 255, 0.70) !important;
+  font-family: Gotham, sans-serif !important;
+}
+
+/* Header type label */
+[class*="BackstageHeader-type"] {
+  color: rgba(255, 255, 255, 0.55) !important;
+  font-family: Gotham, sans-serif !important;
+}
+
+/* Header label/value pairs (e.g. owner: ...) */
+[class*="BackstageHeaderLabel-value"],
+[class*="BackstageHeaderLabel-label"] {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* ── Tab bar below header ─────────────────────────────────────────────── */
+[class*="BackstageHeaderTabs-tabsWrapper"] {
+  background-color: #1A252F !important;
+  border-bottom: 1px solid #2D3D4A !important;
+}
+
+[class*="BackstageHeaderTabs-tabsWrapper"] [class*="MuiTab-root"] {
+  color: rgba(255, 255, 255, 0.60) !important;
+  font-family: Gotham, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  min-width: 120px !important;
+}
+
+[class*="BackstageHeaderTabs-tabsWrapper"] [class*="MuiTab-root"][class*="Mui-selected"] {
+  color: #ffffff !important;
+}
+
+[class*="BackstageHeaderTabs-tabsWrapper"] [class*="MuiTabs-indicator"] {
+  background-color: #E81823 !important;
+  height: 3px !important;
+}
+
+/* ── Content body background ─────────────────────────────────────────── */
+[class*="BackstageContent-root"] {
+  background-color: #F7F8F9 !important;
+}
+
+/* ── Cards and panels ────────────────────────────────────────────────── */
+[class*="BackstageContent-root"] [class*="MuiCard-root"],
+[class*="BackstageContent-root"] [class*="MuiPaper-root"] {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #525252 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiCardContent-root"],
+[class*="BackstageContent-root"] [class*="MuiCardActions-root"] {
+  background-color: #ffffff !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiCardHeader-root"] {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-bottom: 2px solid #E81823 !important;
+  padding-bottom: 12px !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiCardHeader-title"] {
+  color: #212D38 !important;
+  font-weight: 700 !important;
+  font-family: Gotham, sans-serif !important;
+  font-size: 1rem !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiCardHeader-subheader"] {
+  color: #525252 !important;
+}
+
+/* ── Typography inside content ──────────────────────────────────────── */
+[class*="BackstageContent-root"] [class*="MuiTypography-h4"],
+[class*="BackstageContent-root"] [class*="MuiTypography-h5"],
+[class*="BackstageContent-root"] [class*="MuiTypography-h6"] {
+  color: #212D38 !important;
+  font-family: Gotham, sans-serif !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiTypography-body1"],
+[class*="BackstageContent-root"] [class*="MuiTypography-body2"] {
+  color: #525252 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiTypography-subtitle1"],
+[class*="BackstageContent-root"] [class*="MuiTypography-subtitle2"] {
+  color: #525252 !important;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────── */
+
+/* All table rows: white base */
+[class*="BackstageContent-root"] [class*="MuiTableRow-root"] {
+  background-color: #ffffff !important;
+}
+
+/* Alternate body rows: very subtle stripe */
+[class*="BackstageContent-root"] [class*="MuiTableRow-root"]:not([class*="MuiTableRow-head"]):nth-child(even) {
+  background-color: #F7F8F9 !important;
+}
+
+/* Header row */
+[class*="BackstageContent-root"] [class*="MuiTableRow-head"] {
+  background-color: #F7F8F9 !important;
+}
+
+/* Hover row */
+[class*="BackstageContent-root"] [class*="MuiTableRow-root"]:hover {
+  background-color: rgba(33, 45, 56, 0.05) !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiTableCell-head"] {
+  color: #212D38 !important;
+  font-weight: 700 !important;
+  background-color: #F7F8F9 !important;
+  border-bottom: 2px solid #E4E4E4 !important;
+  font-family: Gotham, sans-serif !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiTableCell-body"] {
+  color: #525252 !important;
+  background-color: inherit !important;
+  border-bottom: 1px solid #E4E4E4 !important;
+}
+
+/* ── Content sub-header / breadcrumb area ────────────────────────────── */
+[class*="BackstageContentHeader"] {
+  background-color: #F7F8F9 !important;
+}
+
+[class*="BackstageContentHeader"] [class*="MuiTypography-h3"],
+[class*="BackstageContentHeader"] [class*="MuiTypography-h4"] {
+  color: #212D38 !important;
+  font-family: Gotham, sans-serif !important;
+}
+
+/* ── Tabs inside content area ────────────────────────────────────────── */
+[class*="BackstageContent-root"] [class*="MuiTabs-root"] [class*="MuiTab-root"] {
+  color: #525252 !important;
+  font-family: Gotham, sans-serif !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiTabs-root"] [class*="MuiTab-root"][class*="Mui-selected"] {
+  color: #212D38 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiTabs-root"] [class*="MuiTabs-indicator"] {
+  background-color: #E81823 !important;
+}
+
+/* ── Form inputs, labels, selects inside content ─────────────────────── */
+[class*="BackstageContent-root"] [class*="MuiInputBase-root"] {
+  background-color: #ffffff !important;
+  color: #212D38 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiInputBase-input"] {
+  color: #212D38 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiFormLabel-root"],
+[class*="BackstageContent-root"] [class*="MuiInputLabel-root"] {
+  color: #525252 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiFormLabel-root"][class*="Mui-focused"],
+[class*="BackstageContent-root"] [class*="MuiInputLabel-root"][class*="Mui-focused"] {
+  color: #E81823 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiFormHelperText-root"] {
+  color: #525252 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiSelect-root"],
+[class*="BackstageContent-root"] [class*="MuiSelect-select"],
+[class*="BackstageContent-root"] [class*="MuiNativeSelect-select"] {
+  color: #212D38 !important;
+  background-color: #ffffff !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiSelect-icon"] {
+  color: #525252 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiOutlinedInput-root"] [class*="MuiOutlinedInput-notchedOutline"] {
+  border-color: #E4E4E4 !important;
+}
+
+/* Pagination text */
+[class*="BackstageContent-root"] [class*="MuiTypography-caption"] {
+  color: #525252 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiTablePagination"] {
+  color: #212D38 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiTablePagination"] [class*="MuiTypography-root"] {
+  color: #525252 !important;
+}
+
+/* Section headers inside filter panels (PERSONAL, SOURCEFUSE, OWNER) */
+[class*="BackstageContent-root"] [class*="MuiTypography-overline"],
+[class*="BackstageContent-root"] [class*="MuiTypography-subtitle2"] {
+  color: #212D38 !important;
+}
+
+/* List items in filter panels */
+[class*="BackstageContent-root"] [class*="MuiListItem-root"],
+[class*="BackstageContent-root"] [class*="MuiListItemText-root"] {
+  color: #525252 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiListItemText-primary"] {
+  color: #212D38 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiListItemText-secondary"] {
+  color: #525252 !important;
+}
+
+/* Toolbar text */
+[class*="BackstageContent-root"] [class*="MuiToolbar-root"] {
+  background-color: #ffffff !important;
+  color: #212D38 !important;
+}
+
+/* Checkbox / radio colors */
+[class*="BackstageContent-root"] [class*="MuiCheckbox-root"],
+[class*="BackstageContent-root"] [class*="MuiRadio-root"] {
+  color: #212D38 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiCheckbox-colorSecondary"][class*="Mui-checked"],
+[class*="BackstageContent-root"] [class*="MuiRadio-colorSecondary"][class*="Mui-checked"] {
+  color: #E81823 !important;
+}
+
+/* ── Toggle buttons (theme selector etc.) ───────────────────────────── */
+[class*="BackstageContent-root"] [class*="MuiToggleButton-root"] {
+  color: #525252 !important;
+  border-color: #E4E4E4 !important;
+  background-color: #ffffff !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiToggleButton-root"][class*="Mui-selected"] {
+  color: #212D38 !important;
+  background-color: rgba(33, 45, 56, 0.08) !important;
+  border-color: #212D38 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiToggleButton-label"] {
+  color: inherit !important;
+}
+
+/* Toggle switch (on/off) */
+[class*="BackstageContent-root"] [class*="MuiSwitch-track"] {
+  background-color: #b5b5b5 !important;
+  opacity: 1 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiSwitch-colorSecondary"][class*="Mui-checked"] + [class*="MuiSwitch-track"],
+[class*="BackstageContent-root"] [class*="MuiSwitch-colorPrimary"][class*="Mui-checked"] + [class*="MuiSwitch-track"] {
+  background-color: #E81823 !important;
+  opacity: 1 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiSwitch-thumb"] {
+  background-color: #ffffff !important;
+}
+
+/* ── Chips / tags ────────────────────────────────────────────────────── */
+[class*="BackstageContent-root"] [class*="MuiChip-root"] {
+  background-color: #212D38 !important;
+  color: #ffffff !important;
+}
+
+/* ── Dividers ────────────────────────────────────────────────────────── */
+[class*="BackstageContent-root"] [class*="MuiDivider-root"] {
+  background-color: #E4E4E4 !important;
+}
+
+/* ── Icons inside content ────────────────────────────────────────────── */
+[class*="BackstageContent-root"] [class*="MuiSvgIcon-root"] {
+  color: #212D38 !important;
+}
+
+/* ── Links inside content ────────────────────────────────────────────── */
+
+/* Default link: SF navy — calm, readable, no visual noise */
+[class*="BackstageContent-root"] a:not([class*="MuiButton"]) {
+  color: #212D38 !important;
+  text-decoration: none !important;
+}
+
+/* Hover: reveal SF red — brand color as interaction feedback, not ambient color */
+[class*="BackstageContent-root"] a:not([class*="MuiButton"]):hover {
+  color: #E81823 !important;
+  text-decoration: underline !important;
+}
+
+/* MuiLink (catalog entity names, owner names): use typed hierarchy */
+[class*="BackstageContent-root"] [class*="MuiLink-root"] {
+  color: #212D38 !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiLink-root"]:hover {
+  color: #E81823 !important;
+  text-decoration: underline !important;
+}
+
+/* Entity name column (primary link): slightly bolder weight for visual hierarchy */
+[class*="BackstageContent-root"] [class*="MuiTableCell-body"]:first-child [class*="MuiLink-root"] {
+  font-weight: 600 !important;
+  color: #212D38 !important;
+}
+
+/* Owner / team column (secondary link): subtler gray */
+[class*="BackstageContent-root"] [class*="MuiTableCell-body"]:nth-child(2) [class*="MuiLink-root"] {
+  color: #525252 !important;
+  font-weight: 400 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiTableCell-body"]:nth-child(2) [class*="MuiLink-root"]:hover {
+  color: #E81823 !important;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────── */
+[class*="BackstageContent-root"] [class*="MuiButton-textPrimary"],
+[class*="BackstageContent-root"] [class*="MuiButton-text"] {
+  color: #E81823 !important;
+}
+
+[class*="BackstageContent-root"] [class*="MuiButton-containedPrimary"] {
+  background-color: #E81823 !important;
+  color: #ffffff !important;
+}
+
+/* ── Select dropdowns ────────────────────────────────────────────────── */
+[class*="BackstageContent-root"] [class*="MuiSelect-select"] {
+  color: #212D38 !important;
+  background-color: #ffffff !important;
+}
+
+/* ── Table toolbar (search + filter bar) ─────────────────────────────── */
+[class*="BackstageTableToolbar-root"],
+[class*="BackstageTable-root"] [class*="MuiPaper-root"] {
+  background-color: #ffffff !important;
+}
+
+[class*="BackstageTableFilters-root"] {
+  background-color: #F7F8F9 !important;
+  border-right: 1px solid #E4E4E4 !important;
+}

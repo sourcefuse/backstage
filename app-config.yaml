@@ -123,6 +123,18 @@ proxy:
         X-Atlassian-Token: no-check
         User-Agent: Backstage
 
+    '/newrelic/apm/api':
+      target: https://api.newrelic.com/v2
+      headers:
+        X-Api-Key: ${NEW_RELIC_USER_KEY}
+      allowedHeaders:
+        - link
+
+    '/newrelic/api':
+      target: https://api.newrelic.com
+      headers:
+        X-Api-Key: ${NEW_RELIC_USER_KEY}
+
 sonarqube:
   instances:
     - name: sourcefuse-cloud

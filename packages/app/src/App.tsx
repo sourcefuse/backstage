@@ -21,11 +21,11 @@ import { PermissionWrapper } from './PermissionWrapper';
 
 import {
   CatalogEntityPage,
-  CatalogIndexPage,
   CatalogTable,
   CatalogTableRow,
   catalogPlugin,
 } from '@backstage/plugin-catalog';
+import { CustomCatalogPage } from './components/catalog/CustomCatalogIndexPage';
 import { TableColumn } from '@backstage/core-components';
 import {
   CatalogImportPage,
@@ -59,6 +59,7 @@ import { Root } from './components/Root';
 import { createApp } from '@backstage/app-defaults';
 import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
+import { NewRelicPage } from '@backstage-community/plugin-newrelic';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
 import { githubAuthApiRef, configApiRef, identityApiRef, oauthRequestApiRef, useApi } from '@backstage/core-plugin-api';
@@ -268,6 +269,38 @@ export const createCustomThemeOverrides = (): // theme: BackstageTheme,
         },
       },
     },
+    BackstageInfoCard: {
+      headerTitle: {
+        color: '#212D38',
+        fontWeight: 700,
+        fontFamily: 'Gotham, sans-serif',
+      },
+      subheader: {
+        color: '#525252',
+      },
+    },
+    MuiCard: {
+      root: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: '10px',
+      },
+    },
+    MuiCardContent: {
+      root: {
+        backgroundColor: '#FFFFFF',
+      },
+    },
+    MuiCardHeader: {
+      root: {
+        backgroundColor: '#FFFFFF',
+        backgroundImage: 'none',
+      },
+      title: {
+        color: '#212D38',
+        fontWeight: 700,
+        fontSize: '1rem',
+      },
+    },
   };
 };
 
@@ -282,6 +315,7 @@ const customfinalTheme: BackstageTheme = {
     ...createCustomThemeOverrides(),
   },
 };
+
 
 // Auto-rejects OAuth popups for guest users so the dialog never appears
 function GuestAwareOAuthDialog() {
@@ -450,18 +484,7 @@ const routes = (
   <FlatRoutes>
     <Route path="/" element={<Navigate to="home" />} />
     <Route path="/home" element={<HomepageCompositionRoot><HomePageContent /></HomepageCompositionRoot>} />
-    <Route path="/catalog" element={
-      <CatalogIndexPage
-        initiallySelectedFilter="all"
-        columns={(ctx: Parameters<typeof CatalogTable.defaultColumnsFunc>[0]) =>
-          CatalogTable.defaultColumnsFunc(ctx).filter(
-            (col: TableColumn<CatalogTableRow>) => col.title !== 'System',
-          )
-        }
-      />
-    } />
-    {/* <CustomCatalogPage />
-    </Route> */}
+    <Route path="/catalog" element={<CustomCatalogPage initiallySelectedFilter="all" />} />
     <Route
       path="/catalog/:namespace/:kind/:name"
       element={
@@ -542,6 +565,7 @@ const routes = (
     } />
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
     <Route path="/tech-radar" element={<TechRadarPage />} />
+    <Route path="/newrelic" element={<NewRelicPage />} />
   </FlatRoutes>
 );
 

@@ -1,6 +1,13 @@
 import React from 'react';
 import { Button, Grid } from '@material-ui/core';
+import { NewRelicApmCard, isNewRelicApmAvailable } from '../newrelic/NewRelicApmCard';
+import { NewRelicFacadesTab, isNewRelicFacadesTabAvailable } from '../newrelic/NewRelicFacadesTab';
 import { EntityJiraOverviewCard, isJiraAvailable } from '@roadiehq/backstage-plugin-jira';
+import {
+  isNewRelicDashboardAvailable,
+  EntityNewRelicDashboardContent,
+  EntityNewRelicDashboardCard,
+} from '@backstage-community/plugin-newrelic-dashboard';
 import {
   EntityApiDefinitionCard,
   EntityConsumedApisCard,
@@ -168,6 +175,20 @@ const overviewContent = (
     <Grid item md={12}>
       <EntityGithubPullRequestsOverviewCard />
     </Grid>
+    <EntitySwitch>
+      <EntitySwitch.Case if={isNewRelicApmAvailable}>
+        <Grid item md={6} xs={12}>
+          <NewRelicApmCard />
+        </Grid>
+      </EntitySwitch.Case>
+    </EntitySwitch>
+    <EntitySwitch>
+      <EntitySwitch.Case if={isNewRelicDashboardAvailable}>
+        <Grid item md={6} xs={12}>
+          <EntityNewRelicDashboardCard />
+        </Grid>
+      </EntitySwitch.Case>
+    </EntitySwitch>
   </Grid>
 );
 
@@ -232,6 +253,20 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
       <EntityJiraOverviewCard />
     </EntityLayout.Route>
+    <EntityLayout.Route
+      path="/newrelic-dashboard"
+      title="New Relic"
+      if={isNewRelicDashboardAvailable}
+    >
+      <EntityNewRelicDashboardContent />
+    </EntityLayout.Route>
+    <EntityLayout.Route
+      path="/newrelic-apm"
+      title="New Relic APM"
+      if={isNewRelicFacadesTabAvailable}
+    >
+      <NewRelicFacadesTab />
+    </EntityLayout.Route>
   </EntityLayout>
 );
 
@@ -269,6 +304,13 @@ const websiteEntityPage = (
     </EntityLayout.Route>
     <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
       <EntityJiraOverviewCard />
+    </EntityLayout.Route>
+    <EntityLayout.Route
+      path="/newrelic-dashboard"
+      title="New Relic"
+      if={isNewRelicDashboardAvailable}
+    >
+      <EntityNewRelicDashboardContent />
     </EntityLayout.Route>
   </EntityLayout>
 );
