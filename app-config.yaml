@@ -312,6 +312,11 @@ catalog:
       rules:
         - allow: [Component, API]
 
+    - type: url
+      target: https://github.com/sourcefuse/biz-book-api/blob/backstage-dev/catalog-info.yml
+      rules:
+        - allow: [Component]
+
 # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
 # Kubernetes config is in app-config.production.yaml — only loaded in production
 # see https://backstage.io/docs/permissions/getting-started for more on the permission framework
