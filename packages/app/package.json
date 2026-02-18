@@ -22,6 +22,7 @@
   "dependencies": {
     "@backstage-community/plugin-github-actions": "^0.6.16",
     "@backstage-community/plugin-github-pull-requests-board": "^0.2.1",
+    "@backstage-community/plugin-grafana": "0.15.0",
     "@backstage-community/plugin-newrelic": "0.18.0",
     "@backstage-community/plugin-newrelic-dashboard": "0.20.0",
     "@backstage-community/plugin-sonarqube": "^0.8.0",

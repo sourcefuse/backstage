@@ -135,6 +135,12 @@ proxy:
       headers:
         X-Api-Key: ${NEW_RELIC_USER_KEY}
 
+    '/grafana/api':
+      target: ${GRAFANA_URL}
+      headers:
+        Authorization: Bearer ${GRAFANA_TOKEN}
+      allowedMethods: ['GET', 'POST']
+
 sonarqube:
   instances:
     - name: sourcefuse-cloud

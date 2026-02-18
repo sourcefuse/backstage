@@ -4,6 +4,14 @@ import { NewRelicApmCard, isNewRelicApmAvailable } from '../newrelic/NewRelicApm
 import { NewRelicFacadesTab, isNewRelicFacadesTabAvailable } from '../newrelic/NewRelicFacadesTab';
 import { EntityJiraOverviewCard, isJiraAvailable } from '@roadiehq/backstage-plugin-jira';
 import {
+  EntityGrafanaAlertsCard,
+  EntityGrafanaDashboardsCard,
+  EntityOverviewDashboardViewer,
+  isAlertSelectorAvailable,
+  isDashboardSelectorAvailable,
+  isOverviewDashboardAvailable,
+} from '@backstage-community/plugin-grafana';
+import {
   isNewRelicDashboardAvailable,
   EntityNewRelicDashboardContent,
   EntityNewRelicDashboardCard,
@@ -148,6 +156,20 @@ const overviewContent = (
         </Grid>
       </EntitySwitch.Case>
     </EntitySwitch>
+    <EntitySwitch>
+      <EntitySwitch.Case if={isAlertSelectorAvailable}>
+        <Grid item md={6} xs={12}>
+          <EntityGrafanaAlertsCard />
+        </Grid>
+      </EntitySwitch.Case>
+    </EntitySwitch>
+    <EntitySwitch>
+      <EntitySwitch.Case if={isDashboardSelectorAvailable}>
+        <Grid item md={6} xs={12}>
+          <EntityGrafanaDashboardsCard />
+        </Grid>
+      </EntitySwitch.Case>
+    </EntitySwitch>
   </Grid>
 );
 
@@ -225,6 +247,13 @@ const serviceEntityPage = (
       if={isNewRelicFacadesTabAvailable}
     >
       <NewRelicFacadesTab />
+    </EntityLayout.Route>
+    <EntityLayout.Route
+      path="/grafana"
+      title="Grafana"
+      if={isOverviewDashboardAvailable}
+    >
+      <EntityOverviewDashboardViewer />
     </EntityLayout.Route>
   </EntityLayout>
 );
