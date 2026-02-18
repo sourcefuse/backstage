@@ -23,8 +23,10 @@ import {
   CatalogEntityPage,
   CatalogIndexPage,
   CatalogTable,
+  CatalogTableRow,
   catalogPlugin,
 } from '@backstage/plugin-catalog';
+import { TableColumn } from '@backstage/core-components';
 import {
   CatalogImportPage,
   catalogImportPlugin,
@@ -451,9 +453,11 @@ const routes = (
     <Route path="/catalog" element={
       <CatalogIndexPage
         initiallySelectedFilter="all"
-        columns={ctx => CatalogTable.defaultColumnsFunc(ctx).filter(
-          col => col.title !== 'System',
-        )}
+        columns={(ctx: Parameters<typeof CatalogTable.defaultColumnsFunc>[0]) =>
+          CatalogTable.defaultColumnsFunc(ctx).filter(
+            (col: TableColumn<CatalogTableRow>) => col.title !== 'System',
+          )
+        }
       />
     } />
     {/* <CustomCatalogPage />
@@ -488,9 +492,11 @@ const routes = (
     />
     <Route path="/api-docs" element={
       <ApiExplorerPage
-        columns={ctx => CatalogTable.defaultColumnsFunc(ctx).filter(
-          col => col.title !== 'System',
-        )}
+        columns={(ctx: Parameters<typeof CatalogTable.defaultColumnsFunc>[0]) =>
+          CatalogTable.defaultColumnsFunc(ctx).filter(
+            (col: TableColumn<CatalogTableRow>) => col.title !== 'System',
+          )
+        }
       />
     } />
     {/* <Route

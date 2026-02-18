@@ -32,7 +32,6 @@ import StorageIcon from '@material-ui/icons/Storage';
 import CategoryIcon from '@material-ui/icons/Category';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import RoomIcon from '@material-ui/icons/Room';
 import PersonIcon from '@material-ui/icons/Person';
