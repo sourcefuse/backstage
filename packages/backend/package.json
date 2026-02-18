@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@backstage-community/plugin-jenkins-backend": "^0.6.2",
+    "@backstage-community/plugin-sonarqube-backend": "^0.3.0",
     "@backstage/backend-common": "^0.25.0",
     "@backstage/backend-defaults": "^0.5.0",
     "@backstage/backend-plugin-api": "^1.0.0",
