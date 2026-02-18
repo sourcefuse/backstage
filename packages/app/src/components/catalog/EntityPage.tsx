@@ -78,7 +78,6 @@ import {
 
 import {
   EntityJenkinsContent,
-  EntityLatestJenkinsRunCard,
   isJenkinsAvailable,
 } from '@internal/backstage-plugin-jenkins-with-reporting';
 import {

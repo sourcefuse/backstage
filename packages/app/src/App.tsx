@@ -21,12 +21,9 @@ import { PermissionWrapper } from './PermissionWrapper';
 
 import {
   CatalogEntityPage,
-  CatalogTable,
-  CatalogTableRow,
   catalogPlugin,
 } from '@backstage/plugin-catalog';
 import { CustomCatalogPage } from './components/catalog/CustomCatalogIndexPage';
-import { TableColumn } from '@backstage/core-components';
 import {
   CatalogImportPage,
   catalogImportPlugin,
@@ -275,7 +272,7 @@ export const createCustomThemeOverrides = (): // theme: BackstageTheme,
         fontWeight: 700,
         fontFamily: 'Gotham, sans-serif',
       },
-      subheader: {
+      header: {
         color: '#525252',
       },
     },
@@ -516,15 +513,7 @@ const routes = (
         </PermissionWrapper>
       }
     />
-    <Route path="/api-docs" element={
-      <ApiExplorerPage
-        columns={(ctx: Parameters<typeof CatalogTable.defaultColumnsFunc>[0]) =>
-          CatalogTable.defaultColumnsFunc(ctx).filter(
-            (col: TableColumn<CatalogTableRow>) => col.title !== 'System',
-          )
-        }
-      />
-    } />
+    <Route path="/api-docs" element={<ApiExplorerPage />} />
     {/* <Route
       path="/tech-radar"
       element={<TechRadarPage width={1500} height={800} />}
