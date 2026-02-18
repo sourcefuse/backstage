@@ -8,10 +8,8 @@ import LibraryBooks from '@material-ui/icons/LibraryBooks';
 import CreateComponentIcon from '@material-ui/icons/AddCircleOutline';
 import LogoFull from './LogoFull';
 import LogoIcon from './LogoIcon';
-import {
-  Settings as SidebarSettings,
-  UserSettingsSignInAvatar,
-} from '@backstage/plugin-user-settings';
+import { UserSettingsSignInAvatar } from '@backstage/plugin-user-settings';
+import SettingsIcon from '@material-ui/icons/Settings';
 import { SidebarSearchModal } from '@backstage/plugin-search';
 import {
   Sidebar,
@@ -114,7 +112,7 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
         icon={<UserSettingsSignInAvatar />}
         to="/settings"
       >
-        <SidebarSettings />
+        <SidebarItem icon={SettingsIcon} to="settings" text="Settings" />
         <LogoutButton />
       </SidebarGroup>
     </Sidebar>

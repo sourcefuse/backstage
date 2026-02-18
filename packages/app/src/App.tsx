@@ -40,7 +40,14 @@ import {
 } from '@backstage/plugin-techdocs';
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
 import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
-import { UserSettingsPage, UserSettingsTab, UserSettingsAuthProviders, UserSettingsGeneral } from '@backstage/plugin-user-settings';
+import {
+  SettingsLayout,
+  UserSettingsAppearanceCard,
+  UserSettingsAuthProviders,
+  UserSettingsFeatureFlags,
+  UserSettingsIdentityCard,
+  UserSettingsProfileCard,
+} from '@backstage/plugin-user-settings';
 import { CustomLogoSettings } from './components/settings/CustomLogoSettings';
 import { apis } from './apis';
 import { entityPage } from './components/catalog/EntityPage';
@@ -53,7 +60,7 @@ import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
 import { githubAuthApiRef, configApiRef, identityApiRef, oauthRequestApiRef, useApi } from '@backstage/core-plugin-api';
-import { Box } from '@material-ui/core';
+import { Box, Grid } from '@material-ui/core';
 import { AutoLogout } from './components/AutoLogout';
 import { TechRadarPage } from '@backstage-community/plugin-tech-radar';
 import { HomePageContent } from './components/home/HomePage';
@@ -496,17 +503,30 @@ const routes = (
       {searchPage}
     </Route>
     <Route path="/settings" element={
-      <UserSettingsPage>
-        <UserSettingsTab path="/general" title="General">
-          <UserSettingsGeneral />
-        </UserSettingsTab>
-        <UserSettingsTab path="/auth-providers" title="Auth Providers">
+      <SettingsLayout>
+        <SettingsLayout.Route path="general" title="General">
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <UserSettingsProfileCard />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <UserSettingsAppearanceCard />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <UserSettingsIdentityCard />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <CustomLogoSettings />
+            </Grid>
+          </Grid>
+        </SettingsLayout.Route>
+        <SettingsLayout.Route path="auth-providers" title="Authentication Providers">
           <UserSettingsAuthProviders />
-        </UserSettingsTab>
-        <UserSettingsTab path="/branding" title="Branding">
-          <CustomLogoSettings />
-        </UserSettingsTab>
-      </UserSettingsPage>
+        </SettingsLayout.Route>
+        <SettingsLayout.Route path="feature-flags" title="Feature Flags">
+          <UserSettingsFeatureFlags />
+        </SettingsLayout.Route>
+      </SettingsLayout>
     } />
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
     <Route path="/tech-radar" element={<TechRadarPage />} />
