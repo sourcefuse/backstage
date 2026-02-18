@@ -64,6 +64,7 @@ RUN tar xzf bundle.tar.gz && rm bundle.tar.gz
 
 # Copy any other files that we need at runtime
 COPY app-config.yaml app-config.production.yaml docker-entrypoint.sh ./
+COPY ./catalog ./catalog
 RUN chmod +x docker-entrypoint.sh
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
