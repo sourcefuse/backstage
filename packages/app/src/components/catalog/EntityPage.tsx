@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button, Grid } from '@material-ui/core';
+import { EntityJiraOverviewCard, isJiraAvailable } from '@roadiehq/backstage-plugin-jira';
 import {
   EntityApiDefinitionCard,
   EntityConsumedApisCard,
@@ -228,6 +229,9 @@ const serviceEntityPage = (
     >
       <EntityGithubPullRequestsContent />
     </EntityLayout.Route>
+    <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
+      <EntityJiraOverviewCard />
+    </EntityLayout.Route>
   </EntityLayout>
 );
 
@@ -262,6 +266,9 @@ const websiteEntityPage = (
 
     <EntityLayout.Route path="/pull-requests" title="Pull Requests">
       <EntityGithubPullRequestsContent />
+    </EntityLayout.Route>
+    <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
+      <EntityJiraOverviewCard />
     </EntityLayout.Route>
   </EntityLayout>
 );

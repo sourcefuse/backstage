@@ -114,11 +114,23 @@ proxy:
       auth: '${SONARCLOUD_TOKEN}:'
       credentials: require
 
+    '/jira/api':
+      target: https://sourcefuse.atlassian.net
+      headers:
+        Authorization: Basic ${JIRA_TOKEN}
+        Accept: application/json
+        Content-Type: application/json
+        X-Custom-Token: ${JIRA_TOKEN}
+
 sonarqube:
   instances:
     - name: sourcefuse-cloud
       baseUrl: https://sonarcloud.io
       apiKey: ${SONARCLOUD_TOKEN}
+
+jira:
+  baseUrl: https://sourcefuse.atlassian.net
+  token: ${JIRA_TOKEN}
 
 jenkins:
   instances:
