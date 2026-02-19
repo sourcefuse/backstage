@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npx --no-install commitlint --edit
+TS_NODE_SKIP_PROJECT=true npx --no-install commitlint --edit
