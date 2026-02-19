@@ -34,6 +34,18 @@ jobs:
         id: vars
         run: echo "git_tag=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}" >> $GITHUB_OUTPUT
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build backend artifacts
+        run: |
+          yarn install --ignore-engines --network-timeout 600000
+          yarn tsc
+          yarn build:all
+          ls -la packages/backend/dist/
+
       # configure iam
       - name: Configure IAM Role
         uses: aws-actions/configure-aws-credentials@v2
@@ -67,6 +79,18 @@ jobs:
       - name: Set output
         id: vars
         run: echo "git_tag=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build backend artifacts
+        run: |
+          yarn install --ignore-engines --network-timeout 600000
+          yarn tsc
+          yarn build:all
+          ls -la packages/backend/dist/
 
       # configure iam
       - name: Configure IAM Role

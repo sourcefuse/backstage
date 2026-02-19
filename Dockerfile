@@ -12,22 +12,13 @@ COPY plugins plugins
 
 RUN find packages \! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} \+
 
-# Stage 2 - Install dependencies and build packages
+# Stage 2 - Provides pre-built backend artifacts (built in CI before Docker)
 FROM node:20 AS build
 
-ARG BASE_URL="http://localhost:7007"
-ARG FRONTEND_BASE_URL="http://localhost:7007"
-
 WORKDIR /app
-COPY --from=packages /app .
-RUN apt-get update -y && apt-get install software-properties-common make gcc g++ -y
-RUN yarn install --ignore-engines --network-timeout 600000 && rm -rf "$(yarn cache dir)"
-
-COPY . .
-
-RUN yarn run postinstall
-RUN yarn tsc
-RUN yarn build:all
+COPY yarn.lock package.json ./
+COPY packages/backend/dist/skeleton.tar.gz packages/backend/dist/skeleton.tar.gz
+COPY packages/backend/dist/bundle.tar.gz packages/backend/dist/bundle.tar.gz
 
 # Stage 3 - Build the actual backend image and install production dependencies
 #FROM node:20-slim
