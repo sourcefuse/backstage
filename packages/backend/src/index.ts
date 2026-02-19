@@ -19,6 +19,7 @@ import { modifyIaCModules } from './plugins/iac-scaffold';
 import { deleteDirectory } from './plugins/iac-scaffold';
 import { grafanaSettingsPlugin } from './plugins/grafana-settings';
 import { prometheusSettingsPlugin } from './plugins/prometheus-settings';
+import { awsCostSettingsPlugin } from './plugins/aws-cost-settings';
 
 // Custom GitHub auth module.
 // Overrides usernameMatchingUserEntityName to try catalog first, then fall back
@@ -144,5 +145,8 @@ backend.add(grafanaSettingsPlugin);
 
 // Prometheus per-entity settings (stores URL + token + PromQL queries in PostgreSQL)
 backend.add(prometheusSettingsPlugin);
+
+// AWS Cost per-entity settings (stores credentials in PostgreSQL, proxies Cost Explorer)
+backend.add(awsCostSettingsPlugin);
 
 backend.start();

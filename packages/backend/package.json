@@ -21,6 +21,7 @@
     "test:ci": "backstage-cli package test --coverage"
   },
   "dependencies": {
+    "@aws-sdk/client-cost-explorer": "3.993.0",
     "@backstage-community/plugin-announcements-backend": "0.21.1",
     "@backstage-community/plugin-jenkins-backend": "^0.6.2",
     "@backstage-community/plugin-sonarqube-backend": "^0.3.0",
