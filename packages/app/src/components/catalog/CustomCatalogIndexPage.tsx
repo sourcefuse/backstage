@@ -40,7 +40,7 @@ import {
   EntityKindPicker,
   EntityNamespacePicker,
 } from '@backstage/plugin-catalog-react';
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { CatalogTable, CatalogTableRow, CatalogTableColumnsFunc, catalogPlugin } from '@backstage/plugin-catalog';
 import { EntityLanguagePicker } from '../../filters/language.filter';
 import Grid from '@material-ui/core/Grid';
@@ -81,7 +81,12 @@ export const CustomCatalogPage = ({
 }: CatalogPageProps) => {
   const orgName =
     useApi(configApiRef).getOptionalString('organization.name') ?? 'Backstage';
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowFilters(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <PageWithHeader title={`${orgName} Catalog`} themeId="home">

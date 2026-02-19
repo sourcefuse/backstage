@@ -5,6 +5,7 @@ import {
   discoveryApiRef,
   fetchApiRef,
   useApi,
+  type FetchApi,
 } from '@backstage/core-plugin-api';
 import {stringifyEntityRef} from '@backstage/catalog-model';
 import {
@@ -262,7 +263,71 @@ function GrafanaIframeViewer({
 
 // ─── Native dashboard fetcher (used when a service token is stored) ───────────
 
-type GrafanaPanel = {id: number; title: string; type: string};
+type GrafanaPanel = {
+  id: number;
+  title: string;
+  type: string;
+  targets?: any[];
+  datasource?: any;
+};
+
+/** Format a numeric metric value for display */
+function formatValue(v: number | null): string {
+  if (v === null) return '—';
+  const abs = Math.abs(v);
+  if (abs >= 1e9) return `${(v / 1e9).toFixed(2)}B`;
+  if (abs >= 1e6) return `${(v / 1e6).toFixed(2)}M`;
+  if (abs >= 1e3) return `${(v / 1e3).toFixed(1)}K`;
+  if (v % 1 !== 0) return v.toFixed(2);
+  return String(Math.round(v));
+}
+
+/** Extract the last value and full time-series array from a Grafana data-frames response */
+function extractSeriesFromResults(results: any): {value: number | null; series: number[]} {
+  const frames: any[] = Object.values(results ?? {}).flatMap(
+    (r: any) => r?.frames ?? [],
+  );
+  if (!frames.length) return {value: null, series: []};
+
+  const frame = frames[0];
+  const fields: any[] = frame.schema?.fields ?? [];
+  const dataValues: any[][] = frame.data?.values ?? [];
+
+  const valueIdx = fields.findIndex(f => f.type === 'number');
+  if (valueIdx === -1) return {value: null, series: []};
+
+  const series = (dataValues[valueIdx] ?? []).filter(
+    (x: any) => x !== null && x !== undefined,
+  ) as number[];
+  const value = series.length > 0 ? series[series.length - 1] : null;
+  return {value, series};
+}
+
+/** Minimal SVG sparkline — no dependencies */
+function Sparkline({series}: {series: number[]}) {
+  if (series.length < 2) return null;
+  const W = 280;
+  const H = 50;
+  const PAD = 3;
+  const min = Math.min(...series);
+  const max = Math.max(...series);
+  const range = max - min || 1;
+  const pts = series.map((v, i) => [
+    PAD + (i / (series.length - 1)) * (W - 2 * PAD),
+    PAD + (1 - (v - min) / range) * (H - 2 * PAD),
+  ]);
+  const d = pts
+    .map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`)
+    .join(' ');
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      style={{width: '100%', height: H, display: 'block'}}
+    >
+      <path d={d} fill="none" stroke="#1976d2" strokeWidth="1.5" />
+    </svg>
+  );
+}
 
 const TIME_RANGES = [
   {label: 'Last 1 hour', value: 'now-1h'},
@@ -286,7 +351,7 @@ function GrafanaDashboardFetcher({
 }: {
   dashboard: Dashboard;
   proxyBase: string;
-  fetchApi: ReturnType<typeof useApi<typeof fetchApiRef>>;
+  fetchApi: FetchApi;
   openUrl: string;
 }) {
   const uid = extractUid(dashboard.dashboard_path);

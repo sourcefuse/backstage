@@ -17,6 +17,7 @@ import { createExtensionAction } from './plugins/sourceloop-extension';
 import { createScaffoldAction } from './plugins/sourceloop-scaffold';
 import { modifyIaCModules } from './plugins/iac-scaffold';
 import { deleteDirectory } from './plugins/iac-scaffold';
+import { grafanaSettingsPlugin } from './plugins/grafana-settings';
 
 // Custom GitHub auth module.
 // Overrides usernameMatchingUserEntityName to try catalog first, then fall back
@@ -136,4 +137,8 @@ backend.add(import('@backstage/plugin-signals-backend'));
 backend.add(
   import('@internal/backstage-plugin-jenkins-with-reporting-backend-backend'),
 );
+
+// Grafana per-entity settings (stores dashboard URL + path in PostgreSQL)
+backend.add(grafanaSettingsPlugin);
+
 backend.start();

@@ -24,6 +24,8 @@ import {
   useSidebarOpenState,
   Link,
 } from '@backstage/core-components';
+import AddIcon from '@material-ui/icons/Add';
+import ListIcon from '@material-ui/icons/List';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import { MyGroupsSidebarItem } from '@backstage/plugin-org';
@@ -158,7 +160,20 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
             />
           </SidebarSubmenu>
         </SidebarItem>
-        <SidebarItem icon={AnnouncementIcon} to="announcements" text="Announcements" />
+        <SidebarItem icon={AnnouncementIcon} to="announcements" text="Announcements">
+          <SidebarSubmenu title="Announcements">
+            <SidebarSubmenuItem
+              title="All Announcements"
+              to="announcements"
+              icon={ListIcon}
+            />
+            <SidebarSubmenuItem
+              title="Admin / Create"
+              to="announcements/admin"
+              icon={AddIcon}
+            />
+          </SidebarSubmenu>
+        </SidebarItem>
         <SidebarItem icon={TimelineIcon} to="newrelic" text="New Relic" />
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
         <SidebarItem icon={MapIcon} to="tech-radar" text="Tech Radar" />

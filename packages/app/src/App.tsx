@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Route } from 'react-router-dom';
 import './App.css';
+import '@backstage/ui/css/styles.css';
 import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
 import { createTheme, lightTheme, BackstageTheme, themes, UnifiedThemeProvider } from '@backstage/theme';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
@@ -65,6 +66,7 @@ import { AutoLogout } from './components/AutoLogout';
 import { TechRadarPage } from '@backstage-community/plugin-tech-radar';
 import { HomePageContent } from './components/home/HomePage';
 import { Router as GithubPullRequestsRouter } from '@roadiehq/backstage-plugin-github-pull-requests';
+import { Router as GithubActionsRouter } from '@backstage-community/plugin-github-actions';
 import { HomepageCompositionRoot, VisitListener } from '@backstage/plugin-home';
 import {
   AnnouncementsPage,
@@ -571,6 +573,7 @@ const routes = (
     <Route path="/tech-radar" element={<TechRadarPage />} />
     <Route path="/newrelic" element={<NewRelicPage />} />
     <Route path="/github-pull-requests" element={<GithubPullRequestsRouter />} />
+    <Route path="/github-actions" element={<GithubActionsRouter />} />
     <Route path="/announcements" element={<AnnouncementsPage />} />
   </FlatRoutes>
 );
@@ -578,7 +581,6 @@ const routes = (
 export default app.createRoot(
   <>
     <AlertDisplay />
-    <NewAnnouncementBanner />
     <GuestAwareOAuthDialog />
     <AutoLogout
       idleTimeoutMinutes={30}
@@ -587,6 +589,7 @@ export default app.createRoot(
       logoutIfDisconnected={false}
     />
     <AppRouter>
+      <NewAnnouncementBanner />
       <VisitListener />
       <Root>{routes}</Root>
     </AppRouter>

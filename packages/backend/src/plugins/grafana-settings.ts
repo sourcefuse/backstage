@@ -148,6 +148,45 @@ export const grafanaSettingsPlugin = createBackendPlugin({
           }
         });
 
+        // Proxy POST requests (used for the Grafana query API: /api/ds/query)
+        router.post('/proxy/:id/*', async (req, res) => {
+          const {id} = req.params;
+          const grafanaPath = (req.params as any)[0] as string;
+
+          const row = await db(TABLE).where({id: Number(id)}).first();
+          if (!row) return res.status(404).json({error: 'Dashboard not found'});
+          if (!row.grafana_token) {
+            return res.status(400).json({error: 'No service token configured for this dashboard'});
+          }
+
+          const qs =
+            Object.keys(req.query).length > 0
+              ? `?${new URLSearchParams(req.query as Record<string, string>).toString()}`
+              : '';
+          const targetUrl = `${row.grafana_url.replace(/\/$/, '')}/${grafanaPath}${qs}`;
+
+          try {
+            const upstream = await fetch(targetUrl, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${row.grafana_token}`,
+                'Content-Type': req.headers['content-type'] ?? 'application/json',
+              },
+              body: JSON.stringify(req.body),
+            });
+
+            const contentType =
+              upstream.headers.get('content-type') ?? 'application/json';
+            res.setHeader('Content-Type', contentType);
+            res.status(upstream.status);
+            return res.send(Buffer.from(await upstream.arrayBuffer()));
+          } catch (e: any) {
+            return res
+              .status(502)
+              .json({error: `Failed to reach Grafana: ${e.message ?? e}`});
+          }
+        });
+
         httpRouter.use(router);
         // No addAuthPolicy — requires valid Backstage user token (sent automatically by fetchApiRef)
       },
