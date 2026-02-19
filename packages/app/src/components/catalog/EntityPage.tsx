@@ -107,7 +107,7 @@ const cicdContent = (
       <EmptyState
         title="No CI/CD available for this entity"
         missing="info"
-        description="You need to add an annotation to your component if you want to enable CI/CD for it. You can read more about annotations in Backstage by clicking the button below."
+        description="You need to add an annotation to your component if you want to enable CI/CD for it. You can read more information about annotations in Backstage by clicking the button below."
         action={
           <Button
             variant="contained"
