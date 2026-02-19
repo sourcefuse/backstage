@@ -29,12 +29,22 @@ export const awsCostSettingsPlugin = createBackendPlugin({
             // Credentials stored server-side only, never returned to frontend
             table.text('aws_access_key_id').notNullable();
             table.text('aws_secret_access_key').notNullable();
+            table.text('aws_session_token').nullable(); // STS temporary credentials
             table.string('aws_region', 64).notNullable().defaultTo('us-east-1');
             table.string('aws_account_id', 32).defaultTo('');
             table.timestamps(true, true);
             table.unique(['entity_ref', 'config_name']);
           });
           logger.info('Created plugin_aws_cost_entity_settings table');
+        } else {
+          // Migrate existing table: add session_token column if missing
+          const hasSessionToken = await db.schema.hasColumn(TABLE, 'aws_session_token');
+          if (!hasSessionToken) {
+            await db.schema.alterTable(TABLE, table => {
+              table.text('aws_session_token').nullable();
+            });
+            logger.info('Migrated plugin_aws_cost_entity_settings: added aws_session_token column');
+          }
         }
 
         const router = Router();
@@ -55,10 +65,23 @@ export const awsCostSettingsPlugin = createBackendPlugin({
               'config_name',
               'aws_region',
               'aws_account_id',
+              'aws_session_token', // included only as a boolean flag below
               'created_at',
               'updated_at',
             );
-          return res.json(rows.map((r: any) => ({...r, has_credentials: true})));
+          return res.json(
+            rows.map((r: any) => ({
+              id: r.id,
+              entity_ref: r.entity_ref,
+              config_name: r.config_name,
+              aws_region: r.aws_region,
+              aws_account_id: r.aws_account_id,
+              created_at: r.created_at,
+              updated_at: r.updated_at,
+              has_credentials: true,
+              has_session_token: Boolean(r.aws_session_token?.trim()),
+            })),
+          );
         });
 
         // POST create new config
@@ -68,6 +91,7 @@ export const awsCostSettingsPlugin = createBackendPlugin({
             configName,
             awsAccessKeyId,
             awsSecretAccessKey,
+            awsSessionToken,
             awsRegion,
             awsAccountId,
           } = req.body;
@@ -82,6 +106,7 @@ export const awsCostSettingsPlugin = createBackendPlugin({
               config_name: configName?.trim() || 'Default',
               aws_access_key_id: awsAccessKeyId.trim(),
               aws_secret_access_key: awsSecretAccessKey.trim(),
+              aws_session_token: awsSessionToken?.trim() || null,
               aws_region: awsRegion?.trim() || 'us-east-1',
               aws_account_id: awsAccountId?.trim() || '',
             })
@@ -91,10 +116,21 @@ export const awsCostSettingsPlugin = createBackendPlugin({
               'config_name',
               'aws_region',
               'aws_account_id',
+              'aws_session_token',
               'created_at',
               'updated_at',
             ]);
-          return res.status(201).json({...row, has_credentials: true});
+          return res.status(201).json({
+            id: row.id,
+            entity_ref: row.entity_ref,
+            config_name: row.config_name,
+            aws_region: row.aws_region,
+            aws_account_id: row.aws_account_id,
+            created_at: row.created_at,
+            updated_at: row.updated_at,
+            has_credentials: true,
+            has_session_token: Boolean(row.aws_session_token?.trim()),
+          });
         });
 
         // PUT update existing config — only update credentials if new values provided
@@ -104,6 +140,7 @@ export const awsCostSettingsPlugin = createBackendPlugin({
             configName,
             awsAccessKeyId,
             awsSecretAccessKey,
+            awsSessionToken,
             awsRegion,
             awsAccountId,
           } = req.body;
@@ -116,6 +153,11 @@ export const awsCostSettingsPlugin = createBackendPlugin({
           if (awsAccessKeyId?.trim()) updates.aws_access_key_id = awsAccessKeyId.trim();
           if (awsSecretAccessKey?.trim())
             updates.aws_secret_access_key = awsSecretAccessKey.trim();
+          // Allow explicitly clearing session token by passing empty string,
+          // or updating it when a new value is provided
+          if (awsSessionToken !== undefined) {
+            updates.aws_session_token = awsSessionToken?.trim() || null;
+          }
           await db(TABLE).where({id}).update(updates);
           const row = await db(TABLE)
             .where({id})
@@ -125,11 +167,22 @@ export const awsCostSettingsPlugin = createBackendPlugin({
               'config_name',
               'aws_region',
               'aws_account_id',
+              'aws_session_token',
               'created_at',
               'updated_at',
             )
             .first();
-          return res.json({...row, has_credentials: true});
+          return res.json({
+            id: row.id,
+            entity_ref: row.entity_ref,
+            config_name: row.config_name,
+            aws_region: row.aws_region,
+            aws_account_id: row.aws_account_id,
+            created_at: row.created_at,
+            updated_at: row.updated_at,
+            has_credentials: true,
+            has_session_token: Boolean(row.aws_session_token?.trim()),
+          });
         });
 
         // DELETE config
@@ -147,12 +200,24 @@ export const awsCostSettingsPlugin = createBackendPlugin({
           const row = await db(TABLE).where({id}).first();
           if (!row) return res.status(404).json({error: 'Config not found'});
 
+          // Use session token (STS temporary credentials) if present,
+          // otherwise fall back to permanent IAM access key + secret
+          const credentials: {
+            accessKeyId: string;
+            secretAccessKey: string;
+            sessionToken?: string;
+          } = {
+            accessKeyId: row.aws_access_key_id,
+            secretAccessKey: row.aws_secret_access_key,
+          };
+          if (row.aws_session_token?.trim()) {
+            credentials.sessionToken = row.aws_session_token.trim();
+            logger.info(`aws-cost-settings: using STS session token for config ${id}`);
+          }
+
           const client = new CostExplorerClient({
             region: 'us-east-1', // Cost Explorer API is always us-east-1
-            credentials: {
-              accessKeyId: row.aws_access_key_id,
-              secretAccessKey: row.aws_secret_access_key,
-            },
+            credentials,
           });
 
           const today = new Date().toISOString().split('T')[0];

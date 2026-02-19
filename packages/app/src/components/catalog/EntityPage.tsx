@@ -11,6 +11,7 @@ import {
 } from '@backstage-community/plugin-grafana';
 import {GrafanaEntityTab} from '../grafana/GrafanaEntityTab';
 import {PrometheusEntityTab} from '../prometheus/PrometheusEntityTab';
+import {AwsCostEntityTab} from '../aws/AwsCostEntityTab';
 import {
   isNewRelicDashboardAvailable,
   EntityNewRelicDashboardContent,
@@ -250,6 +251,9 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/prometheus" title="Prometheus">
       <PrometheusEntityTab />
     </EntityLayout.Route>
+    <EntityLayout.Route path="/aws-cost" title="AWS Cost">
+      <AwsCostEntityTab />
+    </EntityLayout.Route>
   </EntityLayout>
 );
 
@@ -300,6 +304,9 @@ const websiteEntityPage = (
     </EntityLayout.Route>
     <EntityLayout.Route path="/prometheus" title="Prometheus">
       <PrometheusEntityTab />
+    </EntityLayout.Route>
+    <EntityLayout.Route path="/aws-cost" title="AWS Cost">
+      <AwsCostEntityTab />
     </EntityLayout.Route>
   </EntityLayout>
 );

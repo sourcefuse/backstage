@@ -35,6 +35,7 @@ interface AwsConfig {
   aws_region: string;
   aws_account_id: string;
   has_credentials: boolean;
+  has_session_token: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -109,6 +110,7 @@ interface ConfigFormProps {
     configName: string;
     awsAccessKeyId: string;
     awsSecretAccessKey: string;
+    awsSessionToken: string;
     awsRegion: string;
     awsAccountId: string;
   }) => Promise<void>;
@@ -118,6 +120,7 @@ function ConfigFormDialog({open, existing, onClose, onSave}: ConfigFormProps) {
   const [configName, setConfigName] = useState('');
   const [awsAccessKeyId, setAwsAccessKeyId] = useState('');
   const [awsSecretAccessKey, setAwsSecretAccessKey] = useState('');
+  const [awsSessionToken, setAwsSessionToken] = useState('');
   const [awsRegion, setAwsRegion] = useState('us-east-1');
   const [awsAccountId, setAwsAccountId] = useState('');
   const [saving, setSaving] = useState(false);
@@ -128,6 +131,7 @@ function ConfigFormDialog({open, existing, onClose, onSave}: ConfigFormProps) {
       setConfigName(existing?.config_name ?? 'Default');
       setAwsAccessKeyId('');
       setAwsSecretAccessKey('');
+      setAwsSessionToken('');
       setAwsRegion(existing?.aws_region ?? 'us-east-1');
       setAwsAccountId(existing?.aws_account_id ?? '');
       setError('');
@@ -141,7 +145,14 @@ function ConfigFormDialog({open, existing, onClose, onSave}: ConfigFormProps) {
     }
     setSaving(true);
     try {
-      await onSave({configName, awsAccessKeyId, awsSecretAccessKey, awsRegion, awsAccountId});
+      await onSave({
+        configName,
+        awsAccessKeyId,
+        awsSecretAccessKey,
+        awsSessionToken,
+        awsRegion,
+        awsAccountId,
+      });
       onClose();
     } catch (e: any) {
       setError(e.message ?? 'Save failed');
@@ -180,6 +191,24 @@ function ConfigFormDialog({open, existing, onClose, onSave}: ConfigFormProps) {
             size="small"
             fullWidth
             placeholder={existing ? 'Leave blank to keep existing' : ''}
+          />
+          <TextField
+            label="AWS Session Token (optional)"
+            value={awsSessionToken}
+            onChange={e => setAwsSessionToken(e.target.value)}
+            type="password"
+            size="small"
+            fullWidth
+            placeholder={
+              existing?.has_session_token
+                ? 'Leave blank to keep existing, clear to remove'
+                : 'For STS temporary credentials only'
+            }
+            helperText={
+              existing?.has_session_token
+                ? 'A session token is currently stored. Leave blank to keep it.'
+                : 'Leave empty to use permanent IAM credentials (access key + secret only).'
+            }
           />
           <TextField
             label="AWS Region"
@@ -318,6 +347,7 @@ export function AwsCostEntityTab() {
     configName: string;
     awsAccessKeyId: string;
     awsSecretAccessKey: string;
+    awsSessionToken: string;
     awsRegion: string;
     awsAccountId: string;
   }) => {
@@ -439,6 +469,9 @@ export function AwsCostEntityTab() {
                 )}
                 <Typography variant="caption" color="textSecondary">
                   Region: {activeConfig.aws_region}
+                </Typography>
+                <Typography variant="caption" color="textSecondary">
+                  Auth: {activeConfig.has_session_token ? 'STS (session token)' : 'IAM (access key)'}
                 </Typography>
                 <Select
                   value={period}
