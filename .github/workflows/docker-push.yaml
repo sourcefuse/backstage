@@ -50,6 +50,7 @@ jobs:
           yarn tsc
           yarn build:all
           ls -la packages/backend/dist/
+          ls -la packages/app/dist/
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -60,8 +61,8 @@ jobs:
             packages/app/dist/
           retention-days: 1
 
-  push_poc:
-    name: Push Image - POC
+  build_and_push_poc:
+    name: Build & Push Image - POC
     runs-on: ubuntu-latest
     needs: build
     permissions:
@@ -91,10 +92,10 @@ jobs:
           export DOCKERHUB_PASSWORD=${{ secrets.SF_ARCH_DOCKERHUB_PASSWORD }}
           ./scripts/docker-build-tag-and-push.sh
 
-  push_prod:
-    name: Push Image - Prod
+  build_and_push_prod:
+    name: Build & Push Image - Prod
     runs-on: ubuntu-latest
-    needs: push_poc
+    needs: build_and_push_poc
     permissions:
       id-token: write
       contents: read
