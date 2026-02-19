@@ -96,7 +96,7 @@ jobs:
   build_and_push_prod:
     name: Build & Push Image - Prod
     runs-on: ubuntu-latest
-    needs: build_and_push_poc
+    needs: [build, build_and_push_poc]
     permissions:
       id-token: write
       contents: read
