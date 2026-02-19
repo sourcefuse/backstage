@@ -1,4 +1,3 @@
-import React from 'react';
 // import { renderWithEffects } from '@backstage/test-utils';
 import { render, waitFor } from '@testing-library/react';
 import App from './App';

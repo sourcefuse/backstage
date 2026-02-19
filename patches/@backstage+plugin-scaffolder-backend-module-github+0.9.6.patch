@@ -1,0 +1,54 @@
+diff --git a/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/actions/githubRepoCreate.cjs.js b/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/actions/githubRepoCreate.cjs.js
+--- a/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/actions/githubRepoCreate.cjs.js
++++ b/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/actions/githubRepoCreate.cjs.js
+@@ -39,7 +39,7 @@
+         allowRebaseMerge = true,
+         allowAutoMerge = false,
+         allowUpdateBranch = false,
+-        collaborators,
++        // collaborators,
+         hasProjects = void 0,
+         hasWiki = void 0,
+         hasIssues = void 0,
+@@ -53,6 +53,14 @@
+         autoInit = void 0,
+         workflowAccess
+       } = ctx.input;
++      let collaborators = ctx.input.collaborators;
++      // If collaborators not added from template, add current logged in github userId as collaborator with admin role
++      if (!collaborators) {
++        const payloadUser = ctx?.user?.ref ?? null;
++        let loggedInUserId = payloadUser?.split('/')[1];
++        if (payloadUser && loggedInUserId)
++          collaborators = [{ user: loggedInUserId, access: 'admin' }];
++      }
+       const { host, owner, repo } = pluginScaffolderNode.parseRepoUrl(repoUrl, integrations);
+       if (!owner) {
+         throw new errors.InputError("Invalid repository owner provided in repoUrl");
+diff --git a/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/actions/github.cjs.js b/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/actions/github.cjs.js
+--- a/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/actions/github.cjs.js
++++ b/node_modules/@backstage/plugin-scaffolder-backend-module-github/dist/actions/github.cjs.js
+@@ -96,7 +96,7 @@
+         allowRebaseMerge = true,
+         allowAutoMerge = false,
+         allowUpdateBranch = false,
+-        collaborators,
++        // collaborators,
+         hasProjects = void 0,
+         hasWiki = void 0,
+         hasIssues = void 0,
+@@ -110,6 +110,14 @@
+         requiredCommitSigning = false,
+         requiredLinearHistory = false
+       } = ctx.input;
++      let collaborators = ctx.input.collaborators;
++      // If collaborators not added from template, add current logged in github userId as collaborator with admin role
++      if (!collaborators) {
++        const payloadUser = ctx?.user?.ref ?? null;
++        let loggedInUserId = payloadUser?.split('/')[1];
++        if (payloadUser && loggedInUserId)
++          collaborators = [{ user: loggedInUserId, access: 'admin' }];
++      }
+       const { host, owner, repo } = pluginScaffolderNode.parseRepoUrl(repoUrl, integrations);
+       if (!owner) {
+         throw new errors.InputError("Invalid repository owner provided in repoUrl");
