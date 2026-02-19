@@ -82,7 +82,7 @@ const scaffolderModuleCustomExtensions = createBackendModule({
           modifyIaCModules(),
           deleteDirectory()
         );
-        //scaffolder.addActions(modifyIaCModules());
+        // scaffolder.addActions(modifyIaCModules());
       },
     });
   },

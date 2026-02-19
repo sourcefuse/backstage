@@ -93,7 +93,14 @@ const SidebarLogo = () => {
         {isOpen ? <LogoFull /> : <LogoIcon />}
       </Link>
       {isOpen && (
-        <div className={classes.collapseBtn} onClick={() => setOpen(false)}>
+        <div
+          className={classes.collapseBtn}
+          onClick={() => setOpen(false)}
+          onKeyDown={e => e.key === 'Enter' && setOpen(false)}
+          role="button"
+          tabIndex={0}
+          aria-label="Collapse sidebar"
+        >
           <ChevronLeftIcon fontSize="small" />
         </div>
       )}

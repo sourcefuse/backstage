@@ -38,8 +38,8 @@ async function getGuestGithubToken(identityApi: any): Promise<string> {
 export const apis: AnyApiFactory[] = [
   createApiFactory({
     api: githubPullRequestsApiRef,
-    deps: {githubAuthApi: githubAuthApiRef},
-    factory: ({githubAuthApi}) => new GithubPullRequestsClient({githubAuthApi}),
+    deps: {},
+    factory: () => new GithubPullRequestsClient(),
   }),
   createApiFactory({
     api: scmIntegrationsApiRef,

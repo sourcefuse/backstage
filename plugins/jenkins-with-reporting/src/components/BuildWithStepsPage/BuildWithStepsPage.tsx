@@ -32,7 +32,7 @@ import { Breadcrumbs, Content, Link } from '@backstage/core-components';
 import { useRouteRefParams, useApi } from '@backstage/core-plugin-api';
 
 import { jenkinsApiRef } from '../../api';
-import { CircularProgress } from '@material-ui/core';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { useEntity } from '@backstage/plugin-catalog-react';
 import { getCompoundEntityRef } from '@backstage/catalog-model';
 
@@ -72,7 +72,7 @@ const ReportsTableCell: React.FC<ReportsTableCellProps> = ({
       }
     };
     fetchReports();
-  }, [jenkinsApi, jobFullName, buildNumber]);
+  }, [jenkinsApi, jobFullName, buildNumber, entity]);
 
   if (loading) {
     return <CircularProgress size={20} />;

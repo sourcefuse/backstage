@@ -39,8 +39,8 @@ class RequestPermissionPolicy implements PermissionPolicy {
   readonly catalogRepos: Promise<Set<string>>;
   readonly userRepoPermissions: Record<
     string,
-    //type "(string & {})" used to provide auto complate in the typescript
-    Record<string, ('admin' | 'write' | 'read' | 'none') | (string & {})> //NOSONAR
+    // type "(string & {})" used to provide auto complate in the typescript
+    Record<string, ('admin' | 'write' | 'read' | 'none') | (string & {})> // NOSONAR
   > = {};
   readonly permissionResetOffset = 1000 * 60 * 60 * 0.5; // 1/5 hour
 
@@ -261,7 +261,7 @@ class RequestPermissionPolicy implements PermissionPolicy {
         ),
         requestedPermission: JSON.stringify(request.permission),
       });
-      return;
+      return undefined;
     }
 
     if (
@@ -301,7 +301,7 @@ class RequestPermissionPolicy implements PermissionPolicy {
       _.pickBy(userRepoPermission, permission =>
         currentOperation.includes(permission),
       ),
-      (_, repo) => repo,
+      (_val, repo) => repo,
     );
 
     return createCatalogConditionalDecision(

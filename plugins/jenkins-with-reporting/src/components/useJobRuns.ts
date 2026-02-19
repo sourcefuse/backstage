@@ -31,7 +31,7 @@ export function useJobRuns(jobFullName: string) {
   const errorApi = useApi(errorApiRef);
 
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(5); //NOSONAR
+  const [pageSize, setPageSize] = useState(5); // NOSONAR
 
   const [error, setError] = useState<{
     message: string;

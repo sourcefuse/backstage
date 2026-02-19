@@ -3,13 +3,14 @@ import { z } from 'zod';
 import { createCatalogPermissionRule } from '@backstage/plugin-catalog-backend/alpha';
 import { createConditionFactory } from '@backstage/plugin-permission-node';
 
-export const isHaveRepositoryAccess = createCatalogPermissionRule({
+export const isHaveRepositoryAccess = createCatalogPermissionRule<{repos: string[]}>({
   name: 'IS_HAVE_REPO_ACCESS',
   description: 'Checks if entity have repository access',
   resourceType: 'catalog-entity',
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   paramsSchema: z.object({
     repos: z.string().array().describe('name of repositories to check'),
-  }),
+  }) as any,
   apply: (resource: Entity, { repos }) => {
     if (!resource.relations) {
       return false;

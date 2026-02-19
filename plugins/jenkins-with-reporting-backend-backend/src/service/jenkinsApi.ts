@@ -97,17 +97,17 @@ export class JenkinsApiImpl {
         )
       );
      // @ts-ignore
-      projects.push(this.augmentProject(job)); //NOSONAR
+      projects.push(this.augmentProject(job)); // NOSONAR
     } else {
       const rootProjects = await this.getNestedJobs(client, jenkinsInfo.jobFullName, treeSpec);
       // @ts-ignore
-      projects.push(...rootProjects); //NOSONAR
+      projects.push(...rootProjects); // NOSONAR
     }
 
     return projects;
   }
 
-  async  getNestedJobs(client:any, jobName  : string, treeSpec: string):Promise<any> { //NOSONAR
+  async  getNestedJobs(client:any, jobName  : string, treeSpec: string):Promise<any> { // NOSONAR
     const project = await client.job.get({
       name: jobName,
       tree: treeSpec.replace(/\s/g, ""),
@@ -119,15 +119,15 @@ export class JenkinsApiImpl {
         if (subJob._class === 'com.cloudbees.hudson.plugins.folder.Folder') {
           const nestedProjects = await this.getNestedJobs(client, subJob.fullName, treeSpec);
           // @ts-ignore
-          projects.push(...nestedProjects); //NOSONAR
+          projects.push(...nestedProjects); // NOSONAR
         } else {
           // @ts-ignore
-          projects.push(this.augmentProject(subJob)); //NOSONAR
+          projects.push(this.augmentProject(subJob)); // NOSONAR
         }
       }
     } else {
       // @ts-ignore
-      projects.push(this.augmentProject(project)); //NOSONAR
+      projects.push(this.augmentProject(project)); // NOSONAR
     }
     return projects;
   }
@@ -174,7 +174,7 @@ export class JenkinsApiImpl {
       // permission api returns always at least one item, we need to check only one result since we do not expect any additional results
       const { result } = response[0];
       if (result === AuthorizeResult.DENY) {
-        return 401; //NOSONAR
+        return 401; // NOSONAR
       }
     }
 
@@ -193,7 +193,7 @@ export class JenkinsApiImpl {
 
   private static async getClient(jenkinsInfo: JenkinsInfo) {
     // The typings for the jenkins library are out of date so just cast to any
-    return new (Jenkins as any)({ //NOSONAR
+    return new (Jenkins as any)({ // NOSONAR
       baseUrl: jenkinsInfo.baseUrl,
       headers: jenkinsInfo.headers,
       promisify: true,
@@ -235,11 +235,11 @@ export class JenkinsApiImpl {
     const source =
       build.actions
         .filter(
-          (action: any) => //NOSONAR
+          (action: any) => // NOSONAR
             action?._class === 'hudson.plugins.git.util.BuildData',
         )
-        .map((action: any) => { //NOSONAR
-          const [first]: any = Object.values(action.buildsByBranchName); //NOSONAR
+        .map((action: any) => { // NOSONAR
+          const [first]: any = Object.values(action.buildsByBranchName); // NOSONAR
           const branch = first.revision.branch[0];
           return {
             branchName: branch.name,
@@ -277,10 +277,10 @@ export class JenkinsApiImpl {
   ): ScmDetails | undefined {
     const scmInfo: ScmDetails | undefined = project.actions
       .filter(
-        (action: any) =>  //NOSONAR
+        (action: any) =>  // NOSONAR
           action?._class === 'jenkins.scm.api.metadata.ObjectMetadataAction',
       )
-      .map((action: any) => { //NOSONAR
+      .map((action: any) => { // NOSONAR
         return {
           url: action?.objectUrl,
           // https://javadoc.jenkins.io/plugin/scm-api/jenkins/scm/api/metadata/ObjectMetadataAction.html
@@ -296,13 +296,13 @@ export class JenkinsApiImpl {
 
     const author = project.actions
       .filter(
-        (action: any) => //NOSONAR
+        (action: any) => // NOSONAR
           action?._class ===
           'jenkins.scm.api.metadata.ContributorMetadataAction',
       )
-      .map((action: any) => { //NOSONAR
-        return action.contributorDisplayName; //NOSONAR
-      }) //NOSONAR
+      .map((action: any) => { // NOSONAR
+        return action.contributorDisplayName; // NOSONAR
+      }) // NOSONAR
       .pop();
 
     if (author) {
@@ -321,10 +321,10 @@ export class JenkinsApiImpl {
   } {
     return build.actions
       .filter(
-        (action: any) => //NOSONAR
+        (action: any) => // NOSONAR
           action?._class === 'hudson.tasks.junit.TestResultAction',
       )
-      .map((action: any) => { //NOSONAR
+      .map((action: any) => { // NOSONAR
         return {
           total: action.totalCount,
           passed: action.totalCount - action.failCount - action.skipCount,

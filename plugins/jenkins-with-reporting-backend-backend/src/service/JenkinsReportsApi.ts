@@ -28,7 +28,7 @@ export class JenkinsReportsApi {
 
     // Step 1: Assume the specified IAM role using default credentials
     const stsClient = new STSClient({ region: s3BucketRegion });
-    console.log("Assume role sts inputs--------",s3BucketRoleArn, s3BucketRegion); //NOSONAR
+    console.log("Assume role sts inputs--------",s3BucketRoleArn, s3BucketRegion); // NOSONAR
     const assumeRoleCommand = new AssumeRoleCommand({
       // The Amazon Resource Name (ARN) of the role to assume.
       // RoleArn: "arn:aws:iam::804295906245:role/sf-test-assumrole-s3",
@@ -44,7 +44,7 @@ export class JenkinsReportsApi {
       const assumedRole = await stsClient.send(assumeRoleCommand);
 
       const { Credentials } = assumedRole;
-      console.log("Assume role sts Credentials--------",Credentials); //NOSONAR
+      console.log("Assume role sts Credentials--------",Credentials); // NOSONAR
       // Step 2: Configure S3 client with temporary credentials from AssumeRole
       const s3Client = new S3Client({
         region: s3BucketRegion,
@@ -100,10 +100,10 @@ export class JenkinsReportsApi {
           return { fileName, url };
         }),
       );
-      console.log("S3 Files--------",files); //NOSONAR
+      console.log("S3 Files--------",files); // NOSONAR
       return files;
     } catch (error) {
-      console.log("s3 report error---------",error); //NOSONAR
+      console.log("s3 report error---------",error); // NOSONAR
       return { error: 'error' };
     }
   }

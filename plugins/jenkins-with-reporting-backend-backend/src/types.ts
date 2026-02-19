@@ -34,7 +34,7 @@ interface CommonBuild {
 
 export interface JenkinsBuild extends CommonBuild {
   // read by us from jenkins but not passed to frontend
-  actions: any; //NOSONAR
+  actions: any; // NOSONAR
 }
 
 /**

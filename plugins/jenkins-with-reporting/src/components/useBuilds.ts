@@ -38,7 +38,7 @@ export function useBuilds({ branch }: { branch?: string } = {}) {
 
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(5); //NOSONAR
+  const [pageSize, setPageSize] = useState(5); // NOSONAR
   const [error, setError] = useState<{
     message: string;
     errorType: ErrorType;

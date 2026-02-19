@@ -334,7 +334,7 @@ function GuestAwareOAuthDialog() {
   }, [identityApi]);
 
   React.useEffect(() => {
-    if (!isGuest) return;
+    if (!isGuest) return undefined;
     const subscription = oauthRequestApi.authRequest$().subscribe(requests => {
       requests.forEach(request => request.reject());
     });
@@ -370,6 +370,7 @@ function CustomSignInPage(props: any) {
       }}
       className="sign-in-page"
     >
+      {/* eslint-disable-next-line @typescript-eslint/no-use-before-define */}
       <style>{css}</style>
       <Box
         style={{

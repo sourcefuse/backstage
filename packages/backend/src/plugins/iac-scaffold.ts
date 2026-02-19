@@ -103,9 +103,9 @@ function deleteDir(folder: string) {
 }
 
 function processDirectories(workingDir: string, envList: string[]) {
-  let hclSourceFile: string = path.join(workingDir, "backend", 'config.env.hcl');
+  const hclSourceFile: string = path.join(workingDir, "backend", 'config.env.hcl');
   let hclTargetFile: string
-  let tfvarsSourceFile: string = path.join(workingDir, "tfvars", 'env.tfvars');
+  const tfvarsSourceFile: string = path.join(workingDir, "tfvars", 'env.tfvars');
   let tfvarsTargetFile: string
 
   envList.forEach(env => {

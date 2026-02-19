@@ -300,10 +300,10 @@ export const NewRelicApmCard = () => {
                 align="center"
                 className={apdexClass(row.apdexScore)}
               >
-                {row.apdexScore != null ? row.apdexScore.toFixed(2) : '-'}
+                {row.apdexScore !== null ? row.apdexScore.toFixed(2) : '-'}
               </TableCell>
               <TableCell align="center">
-                {row.responseTimeAverage != null
+                {row.responseTimeAverage !== null
                   ? row.responseTimeAverage.toFixed(0)
                   : '-'}
               </TableCell>
@@ -311,12 +311,12 @@ export const NewRelicApmCard = () => {
                 align="center"
                 className={errClass(row.errorRate)}
               >
-                {row.errorRate != null
+                {row.errorRate !== null
                   ? `${(row.errorRate * 100).toFixed(2)}%`
                   : '-'}
               </TableCell>
               <TableCell align="center">
-                {row.throughput != null ? row.throughput.toFixed(0) : '-'}
+                {row.throughput !== null ? row.throughput.toFixed(0) : '-'}
               </TableCell>
               <TableCell align="center">
                 {row.alertSeverity !== 'NOT_CONFIGURED' ? (

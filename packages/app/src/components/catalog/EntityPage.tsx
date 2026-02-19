@@ -165,7 +165,7 @@ const OverviewContent = () => {
         </EntitySwitch.Case>
       </EntitySwitch>
       <EntitySwitch>
-        <EntitySwitch.Case if={isDashboardSelectorAvailable}>
+        <EntitySwitch.Case if={e => Boolean(isDashboardSelectorAvailable(e))}>
           <Grid item md={6} xs={12}>
             <EntityGrafanaDashboardsCard />
           </Grid>

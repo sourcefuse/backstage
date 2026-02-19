@@ -16,7 +16,7 @@
 import { useRef } from 'react';
 
 export const useAsyncPolling = (
-  pollingFn: () => Promise<any>, //NOSONAR
+  pollingFn: () => Promise<any>, // NOSONAR
   interval: number,
 ) => {
   const isPolling = useRef<boolean>(false);

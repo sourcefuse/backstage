@@ -3,6 +3,7 @@ describe('SourceFuse Backstage Template Execution', () => {
   const templateUrl = `${frontendBaseUrl}/create/templates/default/arc-lambda-boilerplate`;
   const randVal = Math.floor(Math.random() * 1000);// NOSONAR
   const timeOutVal = 50000;
+  // eslint-disable-next-line jest/expect-expect
   it('should execute the template ARC Lambda Boilerplate', () => {
     // Visit the page where the template can be executed
     cy.visit(templateUrl);

@@ -92,8 +92,11 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const alertChipColor = (s: string): 'default' | 'primary' | 'secondary' =>
-  s === 'CRITICAL' ? 'secondary' : s === 'WARNING' ? 'primary' : 'default';
+const alertChipColor = (s: string): 'default' | 'primary' | 'secondary' => {
+  if (s === 'CRITICAL') return 'secondary';
+  if (s === 'WARNING') return 'primary';
+  return 'default';
+};
 
 type AppRow = {
   id: string;
@@ -296,7 +299,7 @@ export const NewRelicFacadesTab = () => {
       field: 'apdexScore',
       render: row => (
         <Typography variant="body2" className={apdexClass(row.apdexScore)}>
-          {row.apdexScore != null ? row.apdexScore.toFixed(2) : '—'}
+          {row.apdexScore !== null ? row.apdexScore.toFixed(2) : '—'}
         </Typography>
       ),
     },
@@ -305,7 +308,7 @@ export const NewRelicFacadesTab = () => {
       field: 'responseTime',
       render: row => (
         <Typography variant="body2" style={{ fontWeight: 600 }}>
-          {row.responseTime != null ? `${row.responseTime.toFixed(0)} ms` : '—'}
+          {row.responseTime !== null ? `${row.responseTime.toFixed(0)} ms` : '—'}
         </Typography>
       ),
     },
@@ -314,7 +317,7 @@ export const NewRelicFacadesTab = () => {
       field: 'errorRate',
       render: row => (
         <Typography variant="body2" className={errorClass(row.errorRate)}>
-          {row.errorRate != null
+          {row.errorRate !== null
             ? `${(row.errorRate * 100).toFixed(2)}%`
             : '—'}
         </Typography>
@@ -325,7 +328,7 @@ export const NewRelicFacadesTab = () => {
       field: 'throughput',
       render: row => (
         <Typography variant="body2" style={{ fontWeight: 600 }}>
-          {row.throughput != null ? `${row.throughput.toFixed(0)} rpm` : '—'}
+          {row.throughput !== null ? `${row.throughput.toFixed(0)} rpm` : '—'}
         </Typography>
       ),
     },

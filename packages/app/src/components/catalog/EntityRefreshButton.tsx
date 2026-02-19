@@ -31,6 +31,7 @@ export const EntityRefreshButton = () => {
           variant="outlined"
           size="small"
           startIcon={
+            // eslint-disable-next-line no-nested-ternary
             loading ? (
               <CircularProgress size={14} />
             ) : done ? (
