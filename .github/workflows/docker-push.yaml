@@ -43,7 +43,7 @@ jobs:
         run: |
           yarn install --ignore-engines --network-timeout 600000
           yarn tsc
-          yarn build:all
+          yarn workspace backend build
           ls -la packages/backend/dist/
 
       # configure iam
@@ -89,7 +89,7 @@ jobs:
         run: |
           yarn install --ignore-engines --network-timeout 600000
           yarn tsc
-          yarn build:all
+          yarn workspace backend build
           ls -la packages/backend/dist/
 
       # configure iam
