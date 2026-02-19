@@ -5,9 +5,8 @@ import * as utils from '../utility';
 
 export function createExtensionAction() {
  
-  return createTemplateAction<{
-    command: string;
-  }>({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (createTemplateAction as any)({
         id: 'run:extension',
         description: 'Create all the provided extension',
         schema: {

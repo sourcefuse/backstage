@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import arcLogo from './logo/arc.png';
 import { CUSTOM_LOGO_KEY } from '../settings/CustomLogoSettings';
 

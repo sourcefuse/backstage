@@ -1,5 +1,4 @@
 import { DefaultEntityFilters, EntityFilter, useEntityList } from '@backstage/plugin-catalog-react';
-import React from 'react';
 import { FormControl, Typography, FormGroup, FormControlLabel, Checkbox } from '@material-ui/core';
 
 class EntityLanguageFilter implements EntityFilter {

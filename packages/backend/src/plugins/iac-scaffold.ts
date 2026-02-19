@@ -6,7 +6,8 @@ import fs from 'fs';
 //  Use 'simple-git' for cloning repo
 
 export const modifyIaCModules = () => {
-  return createTemplateAction<{ workingDir: string, modules: object, envList: string[] }>({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (createTemplateAction as any)({
     id: 'acme:iac:modify',
     description: 'Prepare IaC modules',
     schema: {
@@ -22,12 +23,12 @@ export const modifyIaCModules = () => {
         },
       },
     },
-    async handler(ctx) {
-      ctx.logger.info('ctx.input.workingDir ', ctx.input.workingDir);
-      ctx.logger.info('ctx.input.modules ', ctx.input.modules);
-      ctx.logger.info('ctx.input.envList ', ctx.input.envList);
+    async handler(ctx: any) { // NOSONAR
+      ctx.logger.info(`ctx.input.workingDir: ${ctx.input.workingDir}`);
+      ctx.logger.info(`ctx.input.modules: ${JSON.stringify(ctx.input.modules)}`);
+      ctx.logger.info(`ctx.input.envList: ${JSON.stringify(ctx.input.envList)}`);
       const originalCwd = process.cwd();
-      ctx.logger.info("originalCwd -------", originalCwd);
+      ctx.logger.info(`originalCwd: ${originalCwd}`);
 
       const workspacePath = ctx.workspacePath;
       console.info("workspacePath -------", workspacePath);
@@ -65,9 +66,8 @@ export const modifyIaCModules = () => {
 export function deleteDirectory() {
   // For more information on how to define custom actions, see
   //   https://backstage.io/docs/features/software-templates/writing-custom-actions
-  return createTemplateAction<{
-    directory: string;
-  }>({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (createTemplateAction as any)({
     id: 'acme:file:delete',
     description: 'Deletes provided directory',
     schema: {
@@ -83,7 +83,7 @@ export function deleteDirectory() {
         },
       },
     },
-    async handler(ctx) {
+    async handler(ctx: any) { // NOSONAR
       ctx.logger.info(
         `Running example template with parameters: ${ctx.input.directory}`,
       );

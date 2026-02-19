@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Grid } from '@material-ui/core';
 import { NewRelicApmCard, isNewRelicApmAvailable } from '../newrelic/NewRelicApmCard';
 import { NewRelicFacadesTab, isNewRelicFacadesTabAvailable } from '../newrelic/NewRelicFacadesTab';

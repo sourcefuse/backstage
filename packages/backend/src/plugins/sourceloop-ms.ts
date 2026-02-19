@@ -3,7 +3,8 @@ import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
 import * as utils from '../utility';
 
 export function createMicroserviceAction() {
-  return createTemplateAction({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (createTemplateAction as any)({
     id: 'run:microservice',
     description: 'Create all the selected microservices',
     schema: {

@@ -5,7 +5,8 @@ import { GITHUB_DOCKER_BUILD_ACTION } from '../constant';
 import { writeFile,mkdir } from 'fs';
 
 export function createScaffoldAction() {
-  return createTemplateAction({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (createTemplateAction as any)({
     id: 'run:scaffold',
     description: 'Create a monorepo scaffold',
     schema: {
