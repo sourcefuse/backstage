@@ -1,5 +1,8 @@
 import { createBackendModule } from '@backstage/backend-plugin-api';
-import { catalogPermissionExtensionPoint } from '@backstage/plugin-catalog-node/alpha';
+import {
+  catalogPermissionExtensionPoint,
+  CatalogPermissionRuleInput,
+} from '@backstage/plugin-catalog-node/alpha';
 import { isHaveRepositoryAccess } from '../premissions/repository.rule';
 
 export default createBackendModule({
@@ -9,7 +12,9 @@ export default createBackendModule({
     reg.registerInit({
       deps: { catalog: catalogPermissionExtensionPoint },
       async init({ catalog }) {
-        catalog.addPermissionRules(isHaveRepositoryAccess);
+        catalog.addPermissionRules(
+          isHaveRepositoryAccess as CatalogPermissionRuleInput,
+        );
       },
     });
   },
