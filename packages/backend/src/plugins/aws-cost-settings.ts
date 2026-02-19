@@ -6,8 +6,34 @@ import {
   GetCostAndUsageCommand,
 } from '@aws-sdk/client-cost-explorer';
 import type {Granularity} from '@aws-sdk/client-cost-explorer';
+import {
+  ECSClient,
+  DescribeClustersCommand,
+  DescribeServicesCommand,
+  ListTasksCommand,
+  DescribeTasksCommand,
+  ListServicesCommand,
+} from '@aws-sdk/client-ecs';
 
 const TABLE = 'plugin_aws_cost_entity_settings';
+
+function makeEcsClient(row: any) {
+  const credentials: {
+    accessKeyId: string;
+    secretAccessKey: string;
+    sessionToken?: string;
+  } = {
+    accessKeyId: row.aws_access_key_id,
+    secretAccessKey: row.aws_secret_access_key,
+  };
+  if (row.aws_session_token?.trim()) {
+    credentials.sessionToken = row.aws_session_token.trim();
+  }
+  return new ECSClient({
+    region: row.aws_region || 'us-east-1',
+    credentials,
+  });
+}
 
 export const awsCostSettingsPlugin = createBackendPlugin({
   pluginId: 'aws-cost-settings',
@@ -29,28 +55,56 @@ export const awsCostSettingsPlugin = createBackendPlugin({
             // Credentials stored server-side only, never returned to frontend
             table.text('aws_access_key_id').notNullable();
             table.text('aws_secret_access_key').notNullable();
-            table.text('aws_session_token').nullable(); // STS temporary credentials
+            table.text('aws_session_token').nullable();
             table.string('aws_region', 64).notNullable().defaultTo('us-east-1');
             table.string('aws_account_id', 32).defaultTo('');
+            // ECS fields
+            table.string('ecs_cluster_name', 255).defaultTo('');
+            table.string('ecs_service_name', 255).defaultTo('');
             table.timestamps(true, true);
             table.unique(['entity_ref', 'config_name']);
           });
           logger.info('Created plugin_aws_cost_entity_settings table');
         } else {
-          // Migrate existing table: add session_token column if missing
+          // Migrate existing table: add missing columns
           const hasSessionToken = await db.schema.hasColumn(TABLE, 'aws_session_token');
           if (!hasSessionToken) {
-            await db.schema.alterTable(TABLE, table => {
-              table.text('aws_session_token').nullable();
+            await db.schema.alterTable(TABLE, t => {
+              t.text('aws_session_token').nullable();
             });
-            logger.info('Migrated plugin_aws_cost_entity_settings: added aws_session_token column');
+            logger.info('Migrated: added aws_session_token column');
+          }
+          const hasEcsCluster = await db.schema.hasColumn(TABLE, 'ecs_cluster_name');
+          if (!hasEcsCluster) {
+            await db.schema.alterTable(TABLE, t => {
+              t.string('ecs_cluster_name', 255).defaultTo('');
+              t.string('ecs_service_name', 255).defaultTo('');
+            });
+            logger.info('Migrated: added ecs_cluster_name and ecs_service_name columns');
           }
         }
 
         const router = Router();
         router.use(express.json());
 
-        // GET all configs for an entity — never expose credentials
+        // ── Helpers ─────────────────────────────────────────────────────────────
+        const safeRow = (r: any) => ({
+          id: r.id,
+          entity_ref: r.entity_ref,
+          config_name: r.config_name,
+          aws_region: r.aws_region,
+          aws_account_id: r.aws_account_id,
+          ecs_cluster_name: r.ecs_cluster_name ?? '',
+          ecs_service_name: r.ecs_service_name ?? '',
+          created_at: r.created_at,
+          updated_at: r.updated_at,
+          has_credentials: true,
+          has_session_token: Boolean(r.aws_session_token?.trim()),
+        });
+
+        // ── CRUD ─────────────────────────────────────────────────────────────────
+
+        // GET all configs for an entity
         router.get('/', async (req, res) => {
           const {entityRef} = req.query;
           if (!entityRef || typeof entityRef !== 'string') {
@@ -60,40 +114,19 @@ export const awsCostSettingsPlugin = createBackendPlugin({
             .where({entity_ref: entityRef})
             .orderBy('created_at', 'asc')
             .select(
-              'id',
-              'entity_ref',
-              'config_name',
-              'aws_region',
-              'aws_account_id',
-              'aws_session_token', // included only as a boolean flag below
-              'created_at',
-              'updated_at',
+              'id', 'entity_ref', 'config_name', 'aws_region', 'aws_account_id',
+              'aws_session_token', 'ecs_cluster_name', 'ecs_service_name',
+              'created_at', 'updated_at',
             );
-          return res.json(
-            rows.map((r: any) => ({
-              id: r.id,
-              entity_ref: r.entity_ref,
-              config_name: r.config_name,
-              aws_region: r.aws_region,
-              aws_account_id: r.aws_account_id,
-              created_at: r.created_at,
-              updated_at: r.updated_at,
-              has_credentials: true,
-              has_session_token: Boolean(r.aws_session_token?.trim()),
-            })),
-          );
+          return res.json(rows.map(safeRow));
         });
 
         // POST create new config
         router.post('/', async (req, res) => {
           const {
-            entityRef,
-            configName,
-            awsAccessKeyId,
-            awsSecretAccessKey,
-            awsSessionToken,
-            awsRegion,
-            awsAccountId,
+            entityRef, configName, awsAccessKeyId, awsSecretAccessKey,
+            awsSessionToken, awsRegion, awsAccountId,
+            ecsClusterName, ecsServiceName,
           } = req.body;
           if (!entityRef || !awsAccessKeyId || !awsSecretAccessKey) {
             return res.status(400).json({
@@ -109,80 +142,49 @@ export const awsCostSettingsPlugin = createBackendPlugin({
               aws_session_token: awsSessionToken?.trim() || null,
               aws_region: awsRegion?.trim() || 'us-east-1',
               aws_account_id: awsAccountId?.trim() || '',
+              ecs_cluster_name: ecsClusterName?.trim() || '',
+              ecs_service_name: ecsServiceName?.trim() || '',
             })
             .returning([
-              'id',
-              'entity_ref',
-              'config_name',
-              'aws_region',
-              'aws_account_id',
-              'aws_session_token',
-              'created_at',
-              'updated_at',
+              'id', 'entity_ref', 'config_name', 'aws_region', 'aws_account_id',
+              'aws_session_token', 'ecs_cluster_name', 'ecs_service_name',
+              'created_at', 'updated_at',
             ]);
-          return res.status(201).json({
-            id: row.id,
-            entity_ref: row.entity_ref,
-            config_name: row.config_name,
-            aws_region: row.aws_region,
-            aws_account_id: row.aws_account_id,
-            created_at: row.created_at,
-            updated_at: row.updated_at,
-            has_credentials: true,
-            has_session_token: Boolean(row.aws_session_token?.trim()),
-          });
+          return res.status(201).json(safeRow(row));
         });
 
-        // PUT update existing config — only update credentials if new values provided
+        // PUT update existing config
         router.put('/:id', async (req, res) => {
           const {id} = req.params;
           const {
-            configName,
-            awsAccessKeyId,
-            awsSecretAccessKey,
-            awsSessionToken,
-            awsRegion,
-            awsAccountId,
+            configName, awsAccessKeyId, awsSecretAccessKey, awsSessionToken,
+            awsRegion, awsAccountId, ecsClusterName, ecsServiceName,
           } = req.body;
           const updates: Record<string, any> = {
             updated_at: db.fn.now(),
             config_name: configName?.trim() || 'Default',
             aws_region: awsRegion?.trim() || 'us-east-1',
             aws_account_id: awsAccountId?.trim() || '',
+            ecs_cluster_name: ecsClusterName?.trim() ?? '',
+            ecs_service_name: ecsServiceName?.trim() ?? '',
           };
-          if (awsAccessKeyId?.trim()) updates.aws_access_key_id = awsAccessKeyId.trim();
-          if (awsSecretAccessKey?.trim())
-            updates.aws_secret_access_key = awsSecretAccessKey.trim();
-          // Allow explicitly clearing session token by passing empty string,
-          // or updating it when a new value is provided
-          if (awsSessionToken !== undefined) {
+          const updatingCredentials = Boolean(awsAccessKeyId?.trim());
+          if (updatingCredentials) {
+            updates.aws_access_key_id = awsAccessKeyId.trim();
+            updates.aws_secret_access_key = awsSecretAccessKey?.trim() || undefined;
+            // Only touch session token when replacing credentials as a whole
             updates.aws_session_token = awsSessionToken?.trim() || null;
           }
           await db(TABLE).where({id}).update(updates);
           const row = await db(TABLE)
             .where({id})
             .select(
-              'id',
-              'entity_ref',
-              'config_name',
-              'aws_region',
-              'aws_account_id',
-              'aws_session_token',
-              'created_at',
-              'updated_at',
+              'id', 'entity_ref', 'config_name', 'aws_region', 'aws_account_id',
+              'aws_session_token', 'ecs_cluster_name', 'ecs_service_name',
+              'created_at', 'updated_at',
             )
             .first();
-          return res.json({
-            id: row.id,
-            entity_ref: row.entity_ref,
-            config_name: row.config_name,
-            aws_region: row.aws_region,
-            aws_account_id: row.aws_account_id,
-            created_at: row.created_at,
-            updated_at: row.updated_at,
-            has_credentials: true,
-            has_session_token: Boolean(row.aws_session_token?.trim()),
-          });
+          return res.json(safeRow(row));
         });
 
         // DELETE config
@@ -191,17 +193,14 @@ export const awsCostSettingsPlugin = createBackendPlugin({
           return res.status(204).send();
         });
 
-        // GET /cost/:id — query AWS Cost Explorer using stored credentials
-        // Cost Explorer is a global AWS service; region is always us-east-1 for the API endpoint
+        // ── Cost Explorer ─────────────────────────────────────────────────────────
+
         router.get('/cost/:id', async (req, res) => {
           const {id} = req.params;
           const {startDate, endDate, granularity = 'MONTHLY'} = req.query;
-
           const row = await db(TABLE).where({id}).first();
           if (!row) return res.status(404).json({error: 'Config not found'});
 
-          // Use session token (STS temporary credentials) if present,
-          // otherwise fall back to permanent IAM access key + secret
           const credentials: {
             accessKeyId: string;
             secretAccessKey: string;
@@ -212,13 +211,9 @@ export const awsCostSettingsPlugin = createBackendPlugin({
           };
           if (row.aws_session_token?.trim()) {
             credentials.sessionToken = row.aws_session_token.trim();
-            logger.info(`aws-cost-settings: using STS session token for config ${id}`);
           }
 
-          const client = new CostExplorerClient({
-            region: 'us-east-1', // Cost Explorer API is always us-east-1
-            credentials,
-          });
+          const client = new CostExplorerClient({region: 'us-east-1', credentials});
 
           const today = new Date().toISOString().split('T')[0];
           const sixMonthsAgo = (() => {
@@ -227,21 +222,140 @@ export const awsCostSettingsPlugin = createBackendPlugin({
             return d.toISOString().split('T')[0];
           })();
 
-          const start = (startDate as string) || sixMonthsAgo;
-          const end = (endDate as string) || today;
-
           try {
             const command = new GetCostAndUsageCommand({
-              TimePeriod: {Start: start, End: end},
+              TimePeriod: {Start: (startDate as string) || sixMonthsAgo, End: (endDate as string) || today},
               Granularity: granularity as Granularity,
               Metrics: ['UnblendedCost'],
               GroupBy: [{Type: 'DIMENSION', Key: 'SERVICE'}],
             });
-            const data = await client.send(command);
-            return res.json(data);
+            return res.json(await client.send(command));
           } catch (err: any) {
             logger.error('AWS Cost Explorer error:', err);
             return res.status(500).json({error: err.message ?? 'AWS API error'});
+          }
+        });
+
+        // ── ECS ───────────────────────────────────────────────────────────────────
+
+        // GET /ecs/:id — full ECS dashboard data for a config
+        router.get('/ecs/:id', async (req, res) => {
+          const row = await db(TABLE).where({id: req.params.id}).first();
+          if (!row) return res.status(404).json({error: 'Config not found'});
+
+          const clusterName = row.ecs_cluster_name?.trim();
+          const serviceName = row.ecs_service_name?.trim();
+          if (!clusterName) {
+            return res.status(400).json({error: 'No ECS cluster configured for this config'});
+          }
+
+          const ecs = makeEcsClient(row);
+
+          try {
+            // 1. Cluster details
+            const clusterRes = await ecs.send(
+              new DescribeClustersCommand({clusters: [clusterName]}),
+            );
+            const cluster = clusterRes.clusters?.[0] ?? null;
+
+            // 2. Service details (if configured)
+            let serviceNames: string[] = [];
+            if (serviceName) {
+              serviceNames = [serviceName];
+            } else {
+              // List all services in the cluster (up to 10)
+              const listRes = await ecs.send(
+                new ListServicesCommand({cluster: clusterName, maxResults: 10}),
+              );
+              serviceNames = (listRes.serviceArns ?? []).map(
+                arn => arn.split('/').pop() ?? arn,
+              );
+            }
+
+            let services: any[] = [];
+            if (serviceNames.length > 0) {
+              const svcRes = await ecs.send(
+                new DescribeServicesCommand({cluster: clusterName, services: serviceNames}),
+              );
+              services = svcRes.services ?? [];
+            }
+
+            // 3. Running tasks for each service (up to 10 per service)
+            const taskDetails: any[] = [];
+            for (const svc of services.slice(0, 3)) {
+              const listTasks = await ecs.send(
+                new ListTasksCommand({
+                  cluster: clusterName,
+                  serviceName: svc.serviceName,
+                  desiredStatus: 'RUNNING',
+                  maxResults: 10,
+                }),
+              );
+              if ((listTasks.taskArns ?? []).length > 0) {
+                const descTasks = await ecs.send(
+                  new DescribeTasksCommand({
+                    cluster: clusterName,
+                    tasks: listTasks.taskArns!,
+                  }),
+                );
+                taskDetails.push({
+                  serviceName: svc.serviceName,
+                  tasks: (descTasks.tasks ?? []).map(t => ({
+                    taskArn: t.taskArn,
+                    lastStatus: t.lastStatus,
+                    healthStatus: t.healthStatus,
+                    startedAt: t.startedAt,
+                    cpu: t.cpu,
+                    memory: t.memory,
+                    containers: (t.containers ?? []).map(c => ({
+                      name: c.name,
+                      lastStatus: c.lastStatus,
+                      healthStatus: c.healthStatus,
+                      exitCode: c.exitCode,
+                    })),
+                  })),
+                });
+              }
+            }
+
+            return res.json({
+              cluster: cluster
+                ? {
+                    clusterName: cluster.clusterName,
+                    status: cluster.status,
+                    activeServicesCount: cluster.activeServicesCount,
+                    runningTasksCount: cluster.runningTasksCount,
+                    pendingTasksCount: cluster.pendingTasksCount,
+                    registeredContainerInstancesCount: cluster.registeredContainerInstancesCount,
+                    capacityProviders: cluster.capacityProviders,
+                  }
+                : null,
+              services: services.map(s => ({
+                serviceName: s.serviceName,
+                status: s.status,
+                desiredCount: s.desiredCount,
+                runningCount: s.runningCount,
+                pendingCount: s.pendingCount,
+                launchType: s.launchType,
+                taskDefinition: s.taskDefinition?.split('/').pop(),
+                deployments: (s.deployments ?? []).map((d: any) => ({
+                  status: d.status,
+                  desiredCount: d.desiredCount,
+                  runningCount: d.runningCount,
+                  pendingCount: d.pendingCount,
+                  createdAt: d.createdAt,
+                  updatedAt: d.updatedAt,
+                })),
+                events: (s.events ?? []).slice(0, 5).map((e: any) => ({
+                  createdAt: e.createdAt,
+                  message: e.message,
+                })),
+              })),
+              tasks: taskDetails,
+            });
+          } catch (err: any) {
+            logger.error('AWS ECS error:', err);
+            return res.status(500).json({error: err.message ?? 'AWS ECS API error'});
           }
         });
 
