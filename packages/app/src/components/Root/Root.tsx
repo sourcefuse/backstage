@@ -40,6 +40,7 @@ import PersonIcon from '@material-ui/icons/Person';
 import DevicesIcon from '@material-ui/icons/Devices';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import AnnouncementIcon from '@material-ui/icons/Announcement';
+import ShowChartIcon from '@material-ui/icons/ShowChart';
 import { useApi, identityApiRef } from '@backstage/core-plugin-api';
 
 const useSidebarLogoStyles = makeStyles(theme => ({
@@ -175,6 +176,7 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
           </SidebarSubmenu>
         </SidebarItem>
         <SidebarItem icon={TimelineIcon} to="newrelic" text="New Relic" />
+        <SidebarItem icon={ShowChartIcon} to="prometheus" text="Prometheus" />
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
         <SidebarItem icon={MapIcon} to="tech-radar" text="Tech Radar" />
         <SidebarItem icon={CreateComponentIcon} to="create" text="Create..." />

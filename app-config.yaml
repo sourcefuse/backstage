@@ -137,8 +137,21 @@ proxy:
       headers:
         X-Api-Key: ${NEW_RELIC_USER_KEY}
 
+    # '/prometheus/api':
+    #   target: ${PROMETHEUS_URL}
+    #   changeOrigin: true
+    #   headers:
+    #     Authorization: Bearer ${PROMETHEUS_TOKEN}
+
 newrelic:
   token: ${NEW_RELIC_USER_KEY}
+
+# Required by @backstage-community/plugin-grafana config schema.
+# We use our own backend proxy for actual Grafana queries, so this domain
+# is only used for the annotation-based dashboard/alert cards (not the tab).
+grafana:
+  domain: ${GRAFANA_URL}
+  unifiedAlerting: false
 
 sonarqube:
   instances:

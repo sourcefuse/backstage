@@ -72,6 +72,7 @@ import {
   AnnouncementsPage,
   NewAnnouncementBanner,
 } from '@backstage-community/plugin-announcements';
+import { PrometheusGlobalPage } from './components/prometheus/PrometheusGlobalPage';
 
 /* My Custom Theme */
 const customTheme = createTheme({
@@ -575,6 +576,7 @@ const routes = (
     <Route path="/github-pull-requests" element={<GithubPullRequestsRouter />} />
     <Route path="/github-actions" element={<GithubActionsRouter />} />
     <Route path="/announcements" element={<AnnouncementsPage />} />
+    <Route path="/prometheus" element={<PrometheusGlobalPage />} />
   </FlatRoutes>
 );
 

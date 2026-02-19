@@ -343,6 +343,55 @@ function extractUid(path: string): string | null {
   return path.match(/^d\/([^/?]+)/)?.[1] ?? null;
 }
 
+/**
+ * Build a map of variable name → current value from the dashboard's
+ * `templating.list` array.  We use `current.value` when it is a plain
+ * string, or the first element when it is an array (multi-value variable).
+ */
+function buildVariableDefaults(templating: any[]): Record<string, string> {
+  const vars: Record<string, string> = {};
+  for (const t of templating ?? []) {
+    // Prefer current.value, fall back to first option value
+    let val = t.current?.value;
+    if (!val || val === '$__all') {
+      const firstOpt = t.options?.[0]?.value;
+      if (firstOpt && firstOpt !== '$__all') val = firstOpt;
+    }
+    if (typeof val === 'string') {
+      if (val !== '$__all') vars[t.name] = val;
+      // When val === '$__all' (All selected) or undefined, use empty string
+      // so label filters like {cluster="$cluster"} become {cluster=""} which
+      // matches time series with no cluster label (common in single-cluster setups).
+      else vars[t.name] = '';
+    } else if (Array.isArray(val) && val.length > 0) {
+      const first = val.find((v: any) => v !== '$__all');
+      vars[t.name] = first ? String(first) : '';
+    } else {
+      // No value at all — use empty string so the variable is at least resolved
+      vars[t.name] = '';
+    }
+  }
+  return vars;
+}
+
+/**
+ * Replace ${varName} and $varName occurrences in a string with resolved values.
+ * Leaves unresolved references unchanged so Grafana returns an error rather
+ * than silently querying with a literal "$foo".
+ */
+function resolveVars(str: string, vars: Record<string, string>): string {
+  return str.replace(/\$\{(\w+)\}|\$(\w+)/g, (_, a, b) => {
+    const name = a ?? b;
+    return vars[name] ?? `$${name}`;
+  });
+}
+
+type PanelResult = {
+  value: number | null;
+  series: number[];
+  error?: string;
+};
+
 function GrafanaDashboardFetcher({
   dashboard,
   proxyBase,
@@ -356,18 +405,14 @@ function GrafanaDashboardFetcher({
 }) {
   const uid = extractUid(dashboard.dashboard_path);
   const [panels, setPanels] = useState<GrafanaPanel[]>([]);
+  const [varDefaults, setVarDefaults] = useState<Record<string, string>>({});
+  const [panelResults, setPanelResults] = useState<Record<number, PanelResult>>({});
   const [timeRange, setTimeRange] = useState('now-3h');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  // null = not yet checked; true = blocked; false = OK
-  const [embedBlocked, setEmbedBlocked] = useState<boolean | null>(null);
-  const firstChecked = useRef(false);
 
-  const slug =
-    dashboard.dashboard_path.match(/^d\/[^/]+\/([^?]+)/)?.[1] ?? uid ?? '';
-
-  // Fetch the dashboard panel list
+  // ── Step 1: Fetch dashboard JSON (panel list + query targets) ─────────────
   useEffect(() => {
     if (!uid) {
       setError(
@@ -380,8 +425,7 @@ function GrafanaDashboardFetcher({
 
     setLoading(true);
     setError(null);
-    setEmbedBlocked(null);
-    firstChecked.current = false;
+    setPanelResults({});
 
     fetchApiInst
       .fetch(`${proxyBase}/proxy/${dashboard.id}/api/dashboards/uid/${uid}`)
@@ -393,13 +437,69 @@ function GrafanaDashboardFetcher({
         const allPanels: GrafanaPanel[] = [];
         for (const p of data.dashboard?.panels ?? []) {
           if (p.type === 'row' && Array.isArray(p.panels)) {
-            allPanels.push(...p.panels);
+            for (const child of p.panels) {
+              if (child.type !== 'row') {
+                allPanels.push({
+                  id: child.id,
+                  title: child.title ?? `Panel ${child.id}`,
+                  type: child.type,
+                  targets: child.targets,
+                  datasource: child.datasource,
+                });
+              }
+            }
           } else if (p.type !== 'row') {
-            allPanels.push({id: p.id, title: p.title ?? `Panel ${p.id}`, type: p.type});
+            allPanels.push({
+              id: p.id,
+              title: p.title ?? `Panel ${p.id}`,
+              type: p.type,
+              targets: p.targets,
+              datasource: p.datasource,
+            });
           }
         }
-        setPanels(allPanels);
-        setLoading(false);
+        const defaults = buildVariableDefaults(data.dashboard?.templating?.list ?? []);
+
+        // If any variable resolved to "default" (Grafana special keyword), resolve
+        // it to the actual default datasource UID by fetching /api/datasources.
+        // We set panels ONLY after varDefaults is fully resolved to avoid firing
+        // panel queries with unresolved variables.
+        const hasDefault = Object.values(defaults).some(v => v === 'default');
+        if (hasDefault) {
+          fetchApiInst
+            .fetch(`${proxyBase}/proxy/${dashboard.id}/api/datasources`)
+            .then(r => r.json())
+            .then((dsList: any[]) => {
+              const dsMap: Record<string, string> = {};
+              for (const ds of dsList ?? []) {
+                if (ds.uid && ds.isDefault) dsMap.default = ds.uid;
+                if (ds.uid && ds.type && ds.isDefault) dsMap[ds.type] = ds.uid;
+              }
+              const resolved: Record<string, string> = {};
+              for (const [k, v] of Object.entries(defaults)) {
+                resolved[k] = dsMap[v] ?? v;
+              }
+              // eslint-disable-next-line no-console
+              console.debug('[GrafanaTab] Resolved template variables:', resolved);
+              setVarDefaults(resolved);
+              setPanels(allPanels);
+              setLoading(false);
+            })
+            .catch(() => {
+              // If datasources fetch fails, proceed with what we have
+              // eslint-disable-next-line no-console
+              console.debug('[GrafanaTab] Template variable defaults (unresolved):', defaults);
+              setVarDefaults(defaults);
+              setPanels(allPanels);
+              setLoading(false);
+            });
+        } else {
+          // eslint-disable-next-line no-console
+          console.debug('[GrafanaTab] Template variable defaults:', defaults);
+          setVarDefaults(defaults);
+          setPanels(allPanels);
+          setLoading(false);
+        }
       })
       .catch((e: any) => {
         setError(e.message ?? 'Failed to fetch dashboard data');
@@ -408,24 +508,72 @@ function GrafanaDashboardFetcher({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, dashboard.id, proxyBase, refreshKey]);
 
-  /** Called when the first panel iframe fires onLoad — detect X-Frame-Options blocking */
-  const handleFirstLoad = useCallback(
-    (el: HTMLIFrameElement | null) => {
-      if (!el || firstChecked.current) return;
-      firstChecked.current = true;
-      try {
-        // If contentDocument is accessible it means either:
-        // a) the browser's own error page loaded (chrome-error://) → blocked
-        // b) same-origin redirect happened → blocked
-        const docUrl = el.contentDocument?.URL ?? '';
-        setEmbedBlocked(docUrl.startsWith('chrome-error://') || docUrl === 'about:blank');
-      } catch {
-        // SecurityError = real Grafana page loaded cross-origin → OK
-        setEmbedBlocked(false);
-      }
-    },
-    [],
-  );
+  // ── Step 2: Query panel data via /api/ds/query for each panel ────────────
+  useEffect(() => {
+    if (!uid || panels.length === 0) return;
+
+    for (const panel of panels) {
+      const targets: any[] = panel.targets ?? [];
+      if (targets.length === 0) continue;
+
+      // Build the query payload — resolve template variables in datasource UIDs
+      // and PromQL expressions, then fall back to panel-level datasource if needed
+      const queries = targets.map(t => {
+        const rawDsUid = t.datasource?.uid ?? panel.datasource?.uid ?? '';
+        const resolvedDsUid = resolveVars(String(rawDsUid), varDefaults);
+
+        const resolved = {
+          ...t,
+          datasource: {
+            ...(t.datasource ?? panel.datasource),
+            uid: resolvedDsUid,
+          },
+          maxDataPoints: 100,
+          intervalMs: 60000,
+        };
+
+        // Resolve variables in any string fields (expr, query, etc.)
+        for (const key of ['expr', 'query', 'rawSql', 'target'] as const) {
+          if (typeof resolved[key] === 'string') {
+            resolved[key] = resolveVars(resolved[key], varDefaults);
+          }
+        }
+        return resolved;
+      });
+
+      // eslint-disable-next-line no-console
+      console.debug(`[GrafanaTab] Querying panel "${panel.title}" (id=${panel.id}):`, queries);
+      fetchApiInst
+        .fetch(`${proxyBase}/proxy/${dashboard.id}/api/ds/query`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({queries, from: timeRange, to: 'now'}),
+        })
+        .then(async r => {
+          if (!r.ok) {
+            const body = await r.json().catch(() => ({}));
+            throw new Error(body.message ?? `HTTP ${r.status}`);
+          }
+          return r.json();
+        })
+        .then((resp: any) => {
+          const {value, series} = extractSeriesFromResults(resp.results);
+          setPanelResults(prev => ({
+            ...prev,
+            [panel.id]: {value, series},
+          }));
+        })
+        .catch((e: any) => {
+          setPanelResults(prev => ({
+            ...prev,
+            [panel.id]: {value: null, series: [], error: e.message ?? 'Query failed'},
+          }));
+        });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [panels, varDefaults, timeRange, refreshKey]);
+
+  const STAT_TYPES = new Set(['stat', 'gauge', 'singlestat', 'bargauge']);
 
   if (loading) return <Progress />;
 
@@ -447,70 +595,6 @@ function GrafanaDashboardFetcher({
     );
   }
 
-  // Grafana is refusing to be embedded — show a clear message instead of 24 broken iframes
-  if (embedBlocked) {
-    return (
-      <Box p={3} textAlign="center">
-        <Typography variant="h6" gutterBottom>
-          Grafana embedding is blocked
-        </Typography>
-        <Typography variant="body2" color="textSecondary" paragraph>
-          <strong>{new URL(dashboard.grafana_url).hostname}</strong> is blocking
-          embedding via <code>X-Frame-Options</code>. To fix this, enable
-          embedding in Grafana:
-        </Typography>
-        <Box
-          component="pre"
-          p={2}
-          mb={2}
-          bgcolor="action.hover"
-          borderRadius={4}
-          textAlign="left"
-          style={{display: 'inline-block', minWidth: 280}}
-        >
-          {`[security]\nallow_embedding = true`}
-        </Box>
-        <Typography variant="body2" color="textSecondary" paragraph>
-          For <strong>Grafana Cloud</strong>, go to{' '}
-          <strong>Administration → Settings → Security</strong> and enable
-          "Allow embedding".
-        </Typography>
-        <Box mt={2} display="flex" justifyContent="center" style={{gap: 8}}>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<OpenInNewIcon />}
-            onClick={() => window.open(openUrl, '_blank')}
-          >
-            Open in Grafana
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              setEmbedBlocked(null);
-              firstChecked.current = false;
-              setRefreshKey(k => k + 1);
-            }}
-          >
-            Retry
-          </Button>
-        </Box>
-      </Box>
-    );
-  }
-
-  const base = dashboard.grafana_url.replace(/\/$/, '');
-  const token = dashboard.grafana_token;
-
-  /** Build the Grafana d-solo embed URL for a single panel */
-  const panelEmbedUrl = (panelId: number) => {
-    let url =
-      `${base}/d-solo/${uid}/${slug}` +
-      `?orgId=1&panelId=${panelId}&from=${timeRange}&to=now&theme=dark`;
-    if (token) url += `&auth_token=${encodeURIComponent(token)}`;
-    return url;
-  };
-
   return (
     <Box>
       {/* Toolbar */}
@@ -519,7 +603,10 @@ function GrafanaDashboardFetcher({
           <InputLabel>Time range</InputLabel>
           <Select
             value={timeRange}
-            onChange={e => setTimeRange(e.target.value as string)}
+            onChange={e => {
+              setTimeRange(e.target.value as string);
+              setPanelResults({});
+            }}
             label="Time range"
           >
             {TIME_RANGES.map(r => (
@@ -530,7 +617,13 @@ function GrafanaDashboardFetcher({
           </Select>
         </FormControl>
         <Tooltip title="Refresh panels">
-          <IconButton size="small" onClick={() => setRefreshKey(k => k + 1)}>
+          <IconButton
+            size="small"
+            onClick={() => {
+              setPanelResults({});
+              setRefreshKey(k => k + 1);
+            }}
+          >
             <RefreshIcon fontSize="small" />
           </IconButton>
         </Tooltip>
@@ -545,35 +638,86 @@ function GrafanaDashboardFetcher({
         </Button>
       </Box>
 
-      {/* Panel grid — each panel is an embedded iframe via d-solo */}
+      {/* Panel grid */}
       {panels.length === 0 ? (
         <Typography color="textSecondary">No panels found in this dashboard.</Typography>
       ) : (
         <Grid container spacing={2}>
-          {panels.map((panel, idx) => (
-            <Grid item xs={12} md={6} key={`${panel.id}-${refreshKey}`}>
-              <Card variant="outlined">
-                <CardContent style={{padding: '12px 16px 8px'}}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    {panel.title}
-                  </Typography>
-                  <iframe
-                    ref={idx === 0 ? handleFirstLoad : undefined}
-                    onLoad={idx === 0 ? e => handleFirstLoad(e.currentTarget) : undefined}
-                    src={panelEmbedUrl(panel.id)}
-                    title={panel.title}
-                    style={{
-                      width: '100%',
-                      height: 250,
-                      border: 'none',
-                      display: 'block',
-                      borderRadius: 4,
-                    }}
-                  />
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+          {panels.map(panel => {
+            const result = panelResults[panel.id];
+            const isStat = STAT_TYPES.has(panel.type);
+            return (
+              <Grid item xs={12} sm={6} md={4} key={panel.id}>
+                <Card variant="outlined" style={{height: '100%'}}>
+                  <CardContent style={{padding: '12px 16px 8px'}}>
+                    <Typography
+                      variant="caption"
+                      color="textSecondary"
+                      style={{textTransform: 'uppercase', letterSpacing: 1}}
+                    >
+                      {panel.title}
+                    </Typography>
+
+                    {!result && (
+                      <Box height={80} display="flex" alignItems="center" justifyContent="center">
+                        <Progress />
+                      </Box>
+                    )}
+
+                    {result?.error && (
+                      <Box
+                        height={80}
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Typography variant="caption" color="textSecondary" align="center">
+                          No data
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="textSecondary"
+                          align="center"
+                          style={{opacity: 0.6, fontSize: 10}}
+                        >
+                          {result.error}
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {result && !result.error && (
+                      <>
+                        {isStat || result.series.length <= 1 ? (
+                          // Large current value for stat/gauge panels
+                          <Box py={1} textAlign="center">
+                            <Typography
+                              variant="h4"
+                              style={{fontWeight: 600, lineHeight: 1.2}}
+                            >
+                              {formatValue(result.value)}
+                            </Typography>
+                          </Box>
+                        ) : (
+                          // Sparkline + current value for time-series panels
+                          <Box pt={1}>
+                            <Sparkline series={result.series} />
+                            <Typography
+                              variant="body2"
+                              align="right"
+                              style={{marginTop: 2, fontWeight: 600}}
+                            >
+                              {formatValue(result.value)}
+                            </Typography>
+                          </Box>
+                        )}
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            );
+          })}
         </Grid>
       )}
     </Box>

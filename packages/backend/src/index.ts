@@ -18,6 +18,7 @@ import { createScaffoldAction } from './plugins/sourceloop-scaffold';
 import { modifyIaCModules } from './plugins/iac-scaffold';
 import { deleteDirectory } from './plugins/iac-scaffold';
 import { grafanaSettingsPlugin } from './plugins/grafana-settings';
+import { prometheusSettingsPlugin } from './plugins/prometheus-settings';
 
 // Custom GitHub auth module.
 // Overrides usernameMatchingUserEntityName to try catalog first, then fall back
@@ -140,5 +141,8 @@ backend.add(
 
 // Grafana per-entity settings (stores dashboard URL + path in PostgreSQL)
 backend.add(grafanaSettingsPlugin);
+
+// Prometheus per-entity settings (stores URL + token + PromQL queries in PostgreSQL)
+backend.add(prometheusSettingsPlugin);
 
 backend.start();
