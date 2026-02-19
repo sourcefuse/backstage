@@ -113,16 +113,6 @@ const useStyles = makeStyles(theme => ({
 
 // ─── Severity helpers ─────────────────────────────────────────────────────────
 
-type SeverityColor = 'default' | 'primary' | 'secondary';
-
-function severityColor(severity?: string): SeverityColor {
-  if (!severity) return 'default';
-  const s = severity.toLowerCase();
-  if (s === 'critical') return 'secondary'; // red
-  if (s === 'warning') return 'primary';     // blue/orange depending on theme
-  return 'default';
-}
-
 function severityStyle(severity?: string): React.CSSProperties {
   if (!severity) return {};
   const s = severity.toLowerCase();
