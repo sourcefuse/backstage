@@ -27,7 +27,7 @@ COPY . .
 
 RUN yarn run postinstall
 RUN yarn tsc
-RUN yarn --cwd packages/backend backstage-cli package build
+RUN yarn build:all
 
 # Stage 3 - Build the actual backend image and install production dependencies
 #FROM node:20-slim
