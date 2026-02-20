@@ -50,8 +50,18 @@ RUN for plugin in plugins/*; do \
 RUN yarn install --ignore-engines --network-timeout 600000 && rm -rf "$(yarn cache dir)"
 
 # Verify critical dependencies are installed
-RUN ls -la node_modules/@aws-sdk/ | grep -E "(client-lambda|client-ecs|client-cloudwatch|client-cost-explorer)" || echo "WARNING: AWS SDK packages not found"
-RUN test -d node_modules/@aws-sdk/client-lambda && echo "✓ @aws-sdk/client-lambda found" || echo "✗ @aws-sdk/client-lambda MISSING"
+RUN echo "=== Checking AWS SDK packages ===" && \
+    ls -la node_modules/@aws-sdk/ | head -30 && \
+    echo "=== Searching for all client-* packages ===" && \
+    find node_modules/@aws-sdk -maxdepth 1 -type d -name "client-*" | sort && \
+    echo "=== Checking specific packages ===" && \
+    for pkg in client-cloudwatch client-cost-explorer client-ecs client-lambda; do \
+      if [ -d "node_modules/@aws-sdk/$pkg" ]; then \
+        echo "✓ @aws-sdk/$pkg FOUND"; \
+      else \
+        echo "✗ @aws-sdk/$pkg MISSING"; \
+      fi; \
+    done
 
 # Clean up TypeScript source files from plugins to prevent runtime import errors
 # This must happen AFTER building plugins
