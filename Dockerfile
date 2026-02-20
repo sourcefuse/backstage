@@ -42,6 +42,13 @@ RUN yarn run postinstall
 RUN find plugins -type d -name "src" -exec rm -rf {} + 2>/dev/null || true && \
     find node_modules/@internal -type d -name "src" -exec rm -rf {} + 2>/dev/null || true
 
+# Copy pre-built plugin bundles (output of backstage-cli package build)
+# These must be copied before backend dist to ensure correct imports
+COPY plugins/access-validate-backend/dist ./plugins/access-validate-backend/dist
+COPY plugins/jenkins-with-reporting/dist ./plugins/jenkins-with-reporting/dist
+COPY plugins/jenkins-with-reporting-backend-backend/dist ./plugins/jenkins-with-reporting-backend-backend/dist
+COPY plugins/plugin-validate-access-backend/dist ./plugins/plugin-validate-access-backend/dist
+
 # Copy pre-built backend bundle (output of backstage-cli package build)
 COPY packages/backend/dist ./packages/backend/dist
 
