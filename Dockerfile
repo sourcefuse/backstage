@@ -49,10 +49,9 @@ RUN for plugin in plugins/*; do \
 # Building plugins may have changed the workspace dependency tree
 RUN yarn install --ignore-engines --network-timeout 600000 && rm -rf "$(yarn cache dir)"
 
-# CRITICAL FIX: Explicitly install missing AWS SDK packages
-# For some reason yarn doesn't install client-lambda and client-cloudwatch despite them
-# being in package.json and yarn.lock. Install them explicitly to fix runtime errors.
-RUN cd packages/backend && yarn add @aws-sdk/client-lambda@3.993.0 @aws-sdk/client-cloudwatch@3.993.0 --ignore-engines
+# CRITICAL FIX: Force yarn to verify and reinstall missing AWS SDK packages
+# Use --check-files to detect missing packages without triggering unnecessary rebuilds
+RUN yarn install --check-files --ignore-engines --network-timeout 600000 && rm -rf "$(yarn cache dir)"
 
 # Verify critical dependencies are installed
 RUN echo "=== Checking AWS SDK packages ===" && \
