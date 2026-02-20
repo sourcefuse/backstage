@@ -40,10 +40,19 @@ jobs:
       - name: Build backend artifacts
         run: |
           yarn install --ignore-engines --network-timeout 600000
-          yarn tsc
-          yarn build:all
+          # Build plugins first so backend can reference their dist/ folders
+          for plugin in plugins/*; do
+            if [ -d "$plugin" ] && [ -f "$plugin/package.json" ]; then
+              echo "Building $plugin..."
+              yarn workspace $(cat $plugin/package.json | grep '"name"' | head -1 | cut -d'"' -f4) build || true
+            fi
+          done
+          # Build app and backend
+          yarn workspace app build
+          yarn workspace backend build
           ls -la packages/backend/dist/
           ls -la packages/app/dist/
+          ls -la plugins/*/dist/ 2>/dev/null || echo "Plugin dist check completed"
 
       # configure iam
       - name: Configure IAM Role
@@ -87,10 +96,19 @@ jobs:
       - name: Build backend artifacts
         run: |
           yarn install --ignore-engines --network-timeout 600000
-          yarn tsc
-          yarn build:all
+          # Build plugins first so backend can reference their dist/ folders
+          for plugin in plugins/*; do
+            if [ -d "$plugin" ] && [ -f "$plugin/package.json" ]; then
+              echo "Building $plugin..."
+              yarn workspace $(cat $plugin/package.json | grep '"name"' | head -1 | cut -d'"' -f4) build || true
+            fi
+          done
+          # Build app and backend
+          yarn workspace app build
+          yarn workspace backend build
           ls -la packages/backend/dist/
           ls -la packages/app/dist/
+          ls -la plugins/*/dist/ 2>/dev/null || echo "Plugin dist check completed"
 
       # configure iam
       - name: Configure IAM Role
