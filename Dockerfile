@@ -36,6 +36,10 @@ COPY ./patches ./patches
 
 RUN yarn run postinstall
 
+# Clean up TypeScript source files from plugins to prevent runtime import errors
+# This must happen AFTER yarn install completes
+RUN find plugins -type d -name "src" -exec rm -rf {} + 2>/dev/null || true
+
 # Copy pre-built backend bundle (output of backstage-cli package build)
 COPY packages/backend/dist ./packages/backend/dist
 
