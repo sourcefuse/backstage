@@ -36,9 +36,17 @@ COPY ./patches ./patches
 
 RUN yarn run postinstall
 
+# Build plugins inside Docker to create dist/ folders
+# This ensures plugins have compiled JavaScript before backend references them
+RUN for plugin in plugins/*; do \
+      if [ -d "$plugin" ] && [ -f "$plugin/package.json" ]; then \
+        echo "Building $plugin..."; \
+        yarn workspace $(cat $plugin/package.json | grep '"name"' | head -1 | cut -d'"' -f4) build || true; \
+      fi; \
+    done
+
 # Clean up TypeScript source files from plugins to prevent runtime import errors
-# This must happen AFTER yarn install completes
-# Clean both the plugins directory and node_modules/@internal/ where plugins get installed
+# This must happen AFTER building plugins
 RUN find plugins -type d -name "src" -exec rm -rf {} + 2>/dev/null || true && \
     find node_modules/@internal -type d -name "src" -exec rm -rf {} + 2>/dev/null || true
 
