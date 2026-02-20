@@ -27,7 +27,7 @@ COPY . .
 
 RUN yarn run postinstall
 RUN yarn tsc
-RUN yarn build:all
+RUN yarn --cwd packages/backend build
 
 # Stage 3 - Build the actual backend image and install production dependencies
 FROM nikolaik/python-nodejs:python3.10-nodejs20-slim
