@@ -11,25 +11,9 @@ COPY patches patches
 COPY plugins plugins
 
 RUN find packages \! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} \+
+RUN find plugins \! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} \+
 
-# Stage 2 - Install dependencies and build packages
-FROM node:20 AS build
-
-ARG BASE_URL="http://localhost:7007"
-ARG FRONTEND_BASE_URL="http://localhost:7007"
-
-WORKDIR /app
-COPY --from=packages /app .
-RUN apt-get update -y && apt-get install software-properties-common make gcc g++ -y
-RUN yarn install --ignore-engines --network-timeout 600000 && rm -rf "$(yarn cache dir)"
-
-COPY . .
-
-RUN yarn run postinstall
-RUN yarn tsc
-RUN yarn --cwd packages/backend build
-
-# Stage 3 - Build the actual backend image and install production dependencies
+# Stage 2 - Build the actual backend image and install production dependencies
 FROM nikolaik/python-nodejs:python3.10-nodejs20-slim
 
 WORKDIR /app
@@ -44,10 +28,7 @@ RUN apt-get update && \
     pip3 install mkdocs-techdocs-core==1.0.1 && \
     pip3 install mkdocs mkdocs-include-markdown-plugin mkdocs-awesome-pages-plugin
 
-# Copy the install dependencies from the build stage and context
-COPY --from=build /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton.tar.gz ./
-RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
-
+# Copy skeleton (package.json files only) and install production dependencies
 COPY --from=packages /app .
 COPY ./plugins ./plugins
 RUN yarn install --ignore-engines --network-timeout 600000 && rm -rf "$(yarn cache dir)"
@@ -55,10 +36,17 @@ COPY ./patches ./patches
 
 RUN yarn run postinstall
 
-# Copy the built packages from the build stage
-COPY --from=build /app/packages/backend/dist/bundle.tar.gz .
+# Clean up TypeScript source files from plugins to prevent runtime import errors
+# This must happen AFTER yarn install completes
+# Clean both the plugins directory and node_modules/@internal/ where plugins get installed
+RUN find plugins -type d -name "src" -exec rm -rf {} + 2>/dev/null || true && \
+    find node_modules/@internal -type d -name "src" -exec rm -rf {} + 2>/dev/null || true
 
-RUN tar xzf bundle.tar.gz && rm bundle.tar.gz
+# Copy pre-built backend bundle (output of backstage-cli package build)
+COPY packages/backend/dist ./packages/backend/dist
+
+# Copy pre-built frontend app (served by app-backend plugin)
+COPY packages/app/dist ./packages/app/dist
 
 # Copy any other files that we need at runtime
 COPY app-config.yaml app-config.production.yaml docker-entrypoint.sh ./

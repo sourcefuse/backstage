@@ -32,6 +32,19 @@ jobs:
         id: vars
         run: echo "git_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build backend artifacts
+        run: |
+          yarn install --ignore-engines --network-timeout 600000
+          yarn tsc
+          yarn build:all
+          ls -la packages/backend/dist/
+          ls -la packages/app/dist/
+
       # configure iam
       - name: Configure IAM Role
         uses: aws-actions/configure-aws-credentials@v2
@@ -65,6 +78,19 @@ jobs:
       - name: Set output
         id: vars
         run: echo "git_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build backend artifacts
+        run: |
+          yarn install --ignore-engines --network-timeout 600000
+          yarn tsc
+          yarn build:all
+          ls -la packages/backend/dist/
+          ls -la packages/app/dist/
 
       # configure iam
       - name: Configure IAM Role
