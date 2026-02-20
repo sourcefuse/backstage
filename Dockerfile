@@ -45,6 +45,14 @@ RUN for plugin in plugins/*; do \
       fi; \
     done
 
+# Re-run yarn install to ensure all dependencies are present after building plugins
+# Building plugins may have changed the workspace dependency tree
+RUN yarn install --ignore-engines --network-timeout 600000 && rm -rf "$(yarn cache dir)"
+
+# Verify critical dependencies are installed
+RUN ls -la node_modules/@aws-sdk/ | grep -E "(client-lambda|client-ecs|client-cloudwatch|client-cost-explorer)" || echo "WARNING: AWS SDK packages not found"
+RUN test -d node_modules/@aws-sdk/client-lambda && echo "✓ @aws-sdk/client-lambda found" || echo "✗ @aws-sdk/client-lambda MISSING"
+
 # Clean up TypeScript source files from plugins to prevent runtime import errors
 # This must happen AFTER building plugins
 RUN find plugins -type d -name "src" -exec rm -rf {} + 2>/dev/null || true && \
