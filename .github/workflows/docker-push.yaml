@@ -5,122 +5,204 @@ on:            # yamllint disable-line rule:truthy
   push:
     tags:
       - '**'
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Image tag to build and push'
-        required: true
-        default: 'latest'
+#  workflow_run:
+#    workflows: ["Tag"]
+#    types:
+#      - completed
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build Backend Artifacts
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    outputs:
-      git_tag: ${{ steps.vars.outputs.git_tag }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set image tag
-        id: vars
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "git_tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-          else
-            echo "git_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Build backend artifacts
-        run: |
-          yarn install --ignore-engines --network-timeout 600000
-          yarn tsc
-          yarn build:all
-          ls -la packages/backend/dist/
-          ls -la packages/app/dist/
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: |
-            packages/backend/dist/
-            packages/app/dist/
-          retention-days: 1
-
   build_and_push_poc:
     name: Build & Push Image - POC
     runs-on: ubuntu-latest
-    needs: build
     permissions:
       id-token: write
       contents: read
+      pull-requests: write
+#    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: packages
+      - name: Set output
+        id: vars
+        run: echo "git_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 
+      # configure iam
       - name: Configure IAM Role
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.POC_BACKSTAGE_DEPLOY_ARN }}
           aws-region: us-east-1
+        continue-on-error: false
 
-      - name: Build, Tag, and Push - POC
+      - name: Build, Tag, and Push
         run: |
-          export IMAGE_TAG=${{ needs.build.outputs.git_tag }}
+          export IMAGE_TAG=${{ steps.vars.outputs.git_tag }}
           export ENVIRONMENT=poc
           export DOCKERHUB_USERNAME=${{ secrets.SF_ARCH_DOCKERHUB_USERNAME }}
           export DOCKERHUB_PASSWORD=${{ secrets.SF_ARCH_DOCKERHUB_PASSWORD }}
           ./scripts/docker-build-tag-and-push.sh
 
+
   build_and_push_prod:
     name: Build & Push Image - Prod
     runs-on: ubuntu-latest
-    needs: [build, build_and_push_poc]
     permissions:
       id-token: write
       contents: read
+      pull-requests: write
+#    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: packages
+      - name: Set output
+        id: vars
+        run: echo "git_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 
+      # configure iam
       - name: Configure IAM Role
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.PROD_BACKSTAGE_DEPLOY_ARN }}
           aws-region: us-east-1
+        continue-on-error: false
 
-      - name: Build, Tag, and Push - Prod
+      - name: Build, Tag, and Push
         run: |
-          export IMAGE_TAG=${{ needs.build.outputs.git_tag }}
+          export IMAGE_TAG=${{ steps.vars.outputs.git_tag }}
           export ENVIRONMENT=prod
           export DOCKERHUB_USERNAME=${{ secrets.SF_ARCH_DOCKERHUB_USERNAME }}
           export DOCKERHUB_PASSWORD=${{ secrets.SF_ARCH_DOCKERHUB_PASSWORD }}
           ./scripts/docker-build-tag-and-push.sh
+
+
+# ---
+# name: Docker Push
+
+# on:            # yamllint disable-line rule:truthy
+#   push:
+#     tags:
+#       - '**'
+#   workflow_dispatch:
+#     inputs:
+#       tag:
+#         description: 'Image tag to build and push'
+#         required: true
+#         default: 'latest'
+
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: true
+
+# jobs:
+#   build:
+#     name: Build Backend Artifacts
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: read
+
+#     outputs:
+#       git_tag: ${{ steps.vars.outputs.git_tag }}
+
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+
+#       - name: Set image tag
+#         id: vars
+#         run: |
+#           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+#             echo "git_tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+#           else
+#             echo "git_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+#           fi
+
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: '20'
+
+#       - name: Build backend artifacts
+#         run: |
+#           yarn install --ignore-engines --network-timeout 600000
+#           yarn tsc
+#           yarn build:all
+#           ls -la packages/backend/dist/
+
+#       - name: Upload backend dist
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: backend-dist
+#           path: packages/backend/dist/
+#           retention-days: 1
+
+#   push_poc:
+#     name: Push Image - POC
+#     runs-on: ubuntu-latest
+#     needs: build
+#     permissions:
+#       id-token: write
+#       contents: read
+
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+
+#       - name: Download backend dist
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: backend-dist
+#           path: packages/backend/dist/
+
+#       - name: Configure IAM Role
+#         uses: aws-actions/configure-aws-credentials@v2
+#         with:
+#           role-to-assume: ${{ secrets.POC_BACKSTAGE_DEPLOY_ARN }}
+#           aws-region: us-east-1
+
+#       - name: Build, Tag, and Push - POC
+#         run: |
+#           export IMAGE_TAG=${{ needs.build.outputs.git_tag }}
+#           export ENVIRONMENT=poc
+#           export DOCKERHUB_USERNAME=${{ secrets.SF_ARCH_DOCKERHUB_USERNAME }}
+#           export DOCKERHUB_PASSWORD=${{ secrets.SF_ARCH_DOCKERHUB_PASSWORD }}
+#           ./scripts/docker-build-tag-and-push.sh
+
+#   push_prod:
+#     name: Push Image - Prod
+#     runs-on: ubuntu-latest
+#     needs: push_poc
+#     permissions:
+#       id-token: write
+#       contents: read
+
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+
+#       - name: Download backend dist
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: backend-dist
+#           path: packages/backend/dist/
+
+#       - name: Configure IAM Role
+#         uses: aws-actions/configure-aws-credentials@v2
+#         with:
+#           role-to-assume: ${{ secrets.PROD_BACKSTAGE_DEPLOY_ARN }}
+#           aws-region: us-east-1
+
+#       - name: Build, Tag, and Push - Prod
+#         run: |
+#           export IMAGE_TAG=${{ needs.build.outputs.git_tag }}
+#           export ENVIRONMENT=prod
+#           export DOCKERHUB_USERNAME=${{ secrets.SF_ARCH_DOCKERHUB_USERNAME }}
+#           export DOCKERHUB_PASSWORD=${{ secrets.SF_ARCH_DOCKERHUB_PASSWORD }}
+#           ./scripts/docker-build-tag-and-push.sh
