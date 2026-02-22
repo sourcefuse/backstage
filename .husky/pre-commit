@@ -1,4 +1,10 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-lerna run lint && lerna run test:ci
+# Ensure Node 18 is used (required by project)
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+nvm use 18 > /dev/null 2>&1
+
+# Run TypeScript type checking instead of lint (eslint-plugin-jest is broken)
+yarn tsc && lerna run test:ci
