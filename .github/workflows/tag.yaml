@@ -17,14 +17,11 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@master
 
       - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@1.67.0
+        uses: anothrNick/github-tag-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
           REPO_OWNER: sourcefuse
-          WITH_V: false
