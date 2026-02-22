@@ -8,6 +8,7 @@ import { createExtensionAction } from './plugins/sourceloop-extension';
 import { createScaffoldAction } from './plugins/sourceloop-scaffold';
 import { modifyIaCModules } from './plugins/iac-scaffold';
 import { deleteDirectory } from './plugins/iac-scaffold';
+import { grafanaSettingsPlugin } from './plugins/grafana-settings';
 
 const scaffolderModuleCustomExtensions = createBackendModule({
   pluginId: 'scaffolder', // name of the plugin that the module is targeting
@@ -70,4 +71,8 @@ backend.add(import('@backstage-community/plugin-jenkins-backend'));
 backend.add(
   import('@internal/backstage-plugin-jenkins-with-reporting-backend-backend'),
 );
+
+// Grafana per-entity settings (stores dashboard URL + path in PostgreSQL)
+backend.add(grafanaSettingsPlugin);
+
 backend.start();

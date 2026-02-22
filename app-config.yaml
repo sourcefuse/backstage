@@ -18,6 +18,8 @@ backend:
   csp:
     connect-src: ["'self'", 'http:', 'https:']
     img-src: ['*', 'data:']
+    # Allow Grafana dashboards to be embedded in iframes
+    frame-src: ["'self'", 'http:', 'https:']
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
@@ -132,14 +134,12 @@ proxy:
       headers:
         X-Api-Key: ${NEW_RELIC_USER_KEY}
 
-    '/grafana/api':
-      target: ${GRAFANA_URL}
-      headers:
-        Authorization: 'Bearer ${GRAFANA_TOKEN}'
-
+# Required by @backstage-community/plugin-grafana config schema.
+# We use our own backend proxy for actual Grafana queries, so this domain
+# is only used for the annotation-based dashboard/alert cards (not the tab).
 grafana:
   domain: ${GRAFANA_URL}
-  unifiedAlerting: true
+  unifiedAlerting: false
 
 jenkins:
   instances:

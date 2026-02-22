@@ -73,9 +73,12 @@ import {
 } from '@internal/backstage-plugin-jenkins-with-reporting';
 
 import {
-  EntityGrafanaDashboardsCard,
   EntityGrafanaAlertsCard,
-} from '@k-phoen/backstage-plugin-grafana';
+  EntityGrafanaDashboardsCard,
+  isAlertSelectorAvailable,
+  isDashboardSelectorAvailable,
+} from '@backstage-community/plugin-grafana';
+import {GrafanaEntityTab} from '../grafana/GrafanaEntityTab';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -140,12 +143,20 @@ const overviewContent = (
         </Grid>
       </EntitySwitch.Case>
     </EntitySwitch>
-    <Grid item md={6} xs={12}>
-      <EntityGrafanaDashboardsCard />
-    </Grid>
-    <Grid item md={6} xs={12}>
-      <EntityGrafanaAlertsCard />
-    </Grid>
+    <EntitySwitch>
+      <EntitySwitch.Case if={isAlertSelectorAvailable}>
+        <Grid item md={6} xs={12}>
+          <EntityGrafanaAlertsCard />
+        </Grid>
+      </EntitySwitch.Case>
+    </EntitySwitch>
+    <EntitySwitch>
+      <EntitySwitch.Case if={e => Boolean(isDashboardSelectorAvailable(e))}>
+        <Grid item md={6} xs={12}>
+          <EntityGrafanaDashboardsCard />
+        </Grid>
+      </EntitySwitch.Case>
+    </EntitySwitch>
   </Grid>
 );
 
@@ -232,6 +243,9 @@ const serviceEntityPage = (
     >
       <NewRelicFacadesTab />
     </EntityLayout.Route>
+    <EntityLayout.Route path="/grafana" title="Grafana">
+      <GrafanaEntityTab />
+    </EntityLayout.Route>
   </EntityLayout>
 );
 
@@ -273,6 +287,9 @@ const websiteEntityPage = (
       if={isNewRelicDashboardAvailable}
     >
       <EntityNewRelicDashboardContent />
+    </EntityLayout.Route>
+    <EntityLayout.Route path="/grafana" title="Grafana">
+      <GrafanaEntityTab />
     </EntityLayout.Route>
   </EntityLayout>
 );
