@@ -1,12 +1,12 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {useEntity} from '@backstage/plugin-catalog-react';
-import {InfoCard, Progress, WarningPanel} from '@backstage/core-components';
+import { useCallback, useEffect, useState } from 'react';
+import { useEntity } from '@backstage/plugin-catalog-react';
+import { InfoCard, Progress, WarningPanel } from '@backstage/core-components';
 import {
   discoveryApiRef,
   fetchApiRef,
   useApi,
 } from '@backstage/core-plugin-api';
-import {stringifyEntityRef} from '@backstage/catalog-model';
+import { stringifyEntityRef } from '@backstage/catalog-model';
 import {
   Box,
   Button,
@@ -33,7 +33,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
-import {makeStyles} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -116,15 +116,15 @@ const useStyles = makeStyles(theme => ({
 function severityStyle(severity?: string): React.CSSProperties {
   if (!severity) return {};
   const s = severity.toLowerCase();
-  if (s === 'critical') return {backgroundColor: '#d32f2f', color: '#fff'};
-  if (s === 'warning') return {backgroundColor: '#f57c00', color: '#fff'};
-  if (s === 'info') return {backgroundColor: '#0288d1', color: '#fff'};
+  if (s === 'critical') return { backgroundColor: '#d32f2f', color: '#fff' };
+  if (s === 'warning') return { backgroundColor: '#f57c00', color: '#fff' };
+  if (s === 'info') return { backgroundColor: '#0288d1', color: '#fff' };
   return {};
 }
 
 // ─── Minimal SVG sparkline ────────────────────────────────────────────────────
 
-function Sparkline({series}: {series: number[]}) {
+function Sparkline({ series }: { series: number[] }) {
   if (series.length < 2) return null;
   const W = 280;
   const H = 50;
@@ -137,10 +137,15 @@ function Sparkline({series}: {series: number[]}) {
     PAD + (1 - (v - min) / range) * (H - 2 * PAD),
   ]);
   const d = pts
-    .map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`)
+    .map(
+      (p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`,
+    )
     .join(' ');
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{width: '100%', height: H, display: 'block'}}>
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      style={{ width: '100%', height: H, display: 'block' }}
+    >
       <path d={d} fill="none" stroke="#e64a19" strokeWidth="1.5" />
     </svg>
   );
@@ -189,13 +194,15 @@ function AlertsSection({
         return r.json();
       })
       .then((data: any) => {
-        const list: PrometheusAlert[] = (data?.data?.alerts ?? []).map((a: any) => ({
-          name: a.labels?.alertname ?? 'Unknown',
-          state: a.state ?? 'unknown',
-          labels: a.labels ?? {},
-          annotations: a.annotations ?? {},
-          activeAt: a.activeAt,
-        }));
+        const list: PrometheusAlert[] = (data?.data?.alerts ?? []).map(
+          (a: any) => ({
+            name: a.labels?.alertname ?? 'Unknown',
+            state: a.state ?? 'unknown',
+            labels: a.labels ?? {},
+            annotations: a.annotations ?? {},
+            activeAt: a.activeAt,
+          }),
+        );
         setAlerts(list);
         setLoading(false);
       })
@@ -203,7 +210,7 @@ function AlertsSection({
         setError(e.message ?? 'Failed to fetch alerts');
         setLoading(false);
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configId, proxyBase, refreshKey]);
 
   if (loading) return <Progress />;
@@ -211,7 +218,7 @@ function AlertsSection({
   return (
     <Box>
       <Box display="flex" alignItems="center" mb={1}>
-        <Typography variant="subtitle1" style={{fontWeight: 600}}>
+        <Typography variant="subtitle1" style={{ fontWeight: 600 }}>
           Active Alerts
         </Typography>
         <Box flex={1} />
@@ -253,7 +260,14 @@ function AlertsSection({
                   />
                 </TableCell>
                 <TableCell>{a.state}</TableCell>
-                <TableCell style={{maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                <TableCell
+                  style={{
+                    maxWidth: 300,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {a.annotations.summary ?? a.annotations.description ?? '—'}
                 </TableCell>
                 <TableCell>
@@ -314,18 +328,30 @@ function MetricsSection({
         .then((data: any) => {
           const result = data?.data?.result?.[0];
           if (!result) {
-            setResults(prev => ({...prev, [q.name]: {value: null, series: []}}));
+            setResults(prev => ({
+              ...prev,
+              [q.name]: { value: null, series: [] },
+            }));
             return;
           }
-          const series = (result.values ?? []).map((v: [number, string]) => parseFloat(v[1]));
+          const series = (result.values ?? []).map((v: [number, string]) =>
+            parseFloat(v[1]),
+          );
           const value = series.length > 0 ? series[series.length - 1] : null;
-          setResults(prev => ({...prev, [q.name]: {value, series}}));
+          setResults(prev => ({ ...prev, [q.name]: { value, series } }));
         })
         .catch((e: any) => {
-          setResults(prev => ({...prev, [q.name]: {value: null, series: [], error: e.message ?? 'Query failed'}}));
+          setResults(prev => ({
+            ...prev,
+            [q.name]: {
+              value: null,
+              series: [],
+              error: e.message ?? 'Query failed',
+            },
+          }));
         });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queries, configId, proxyBase, refreshKey]);
 
   if (!queries.length) {
@@ -339,7 +365,7 @@ function MetricsSection({
   return (
     <Box>
       <Box display="flex" alignItems="center" mb={1}>
-        <Typography variant="subtitle1" style={{fontWeight: 600}}>
+        <Typography variant="subtitle1" style={{ fontWeight: 600 }}>
           Metrics (last 1 hour)
         </Typography>
         <Box flex={1} />
@@ -354,30 +380,53 @@ function MetricsSection({
           const r = results[q.name];
           return (
             <Grid item xs={12} sm={6} md={4} key={q.name}>
-              <Card variant="outlined" style={{height: '100%'}}>
-                <CardContent style={{padding: '12px 16px 8px'}}>
+              <Card variant="outlined" style={{ height: '100%' }}>
+                <CardContent style={{ padding: '12px 16px 8px' }}>
                   <Typography
                     variant="caption"
                     color="textSecondary"
-                    style={{textTransform: 'uppercase', letterSpacing: 1, display: 'block'}}
+                    style={{
+                      textTransform: 'uppercase',
+                      letterSpacing: 1,
+                      display: 'block',
+                    }}
                   >
                     {q.name}
                   </Typography>
                   <Typography
                     variant="caption"
                     color="textSecondary"
-                    style={{fontFamily: 'monospace', fontSize: '0.65rem', display: 'block', marginBottom: 4}}
+                    style={{
+                      fontFamily: 'monospace',
+                      fontSize: '0.65rem',
+                      display: 'block',
+                      marginBottom: 4,
+                    }}
                   >
                     {q.expr}
                   </Typography>
                   {!r && (
-                    <Box height={60} display="flex" alignItems="center" justifyContent="center">
+                    <Box
+                      height={60}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
                       <Progress />
                     </Box>
                   )}
                   {r?.error && (
-                    <Box height={60} display="flex" alignItems="center" justifyContent="center">
-                      <Typography variant="caption" color="textSecondary" align="center">
+                    <Box
+                      height={60}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Typography
+                        variant="caption"
+                        color="textSecondary"
+                        align="center"
+                      >
                         No data
                       </Typography>
                     </Box>
@@ -387,13 +436,20 @@ function MetricsSection({
                       {r.series.length > 1 ? (
                         <Box pt={1}>
                           <Sparkline series={r.series} />
-                          <Typography variant="body2" align="right" style={{marginTop: 2, fontWeight: 600}}>
+                          <Typography
+                            variant="body2"
+                            align="right"
+                            style={{ marginTop: 2, fontWeight: 600 }}
+                          >
                             {formatValue(r.value)}
                           </Typography>
                         </Box>
                       ) : (
                         <Box py={1} textAlign="center">
-                          <Typography variant="h4" style={{fontWeight: 600, lineHeight: 1.2}}>
+                          <Typography
+                            variant="h4"
+                            style={{ fontWeight: 600, lineHeight: 1.2 }}
+                          >
                             {formatValue(r.value)}
                           </Typography>
                         </Box>
@@ -429,11 +485,15 @@ function ConfigForm({
 }) {
   const classes = useStyles();
   const [form, setForm] = useState<FormState>(initial);
-  const set = (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm(prev => ({...prev, [k]: e.target.value}));
+  const set =
+    (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) =>
+      setForm(prev => ({ ...prev, [k]: e.target.value }));
 
   const addQuery = () =>
-    setForm(prev => ({...prev, promqlQueries: [...prev.promqlQueries, {name: '', expr: ''}]}));
+    setForm(prev => ({
+      ...prev,
+      promqlQueries: [...prev.promqlQueries, { name: '', expr: '' }],
+    }));
 
   const removeQuery = (idx: number) =>
     setForm(prev => ({
@@ -444,16 +504,20 @@ function ConfigForm({
   const setQuery = (idx: number, field: keyof PromqlQuery, value: string) =>
     setForm(prev => ({
       ...prev,
-      promqlQueries: prev.promqlQueries.map((q, i) => (i === idx ? {...q, [field]: value} : q)),
+      promqlQueries: prev.promqlQueries.map((q, i) =>
+        i === idx ? { ...q, [field]: value } : q,
+      ),
     }));
 
-  const tokenLabel = isEdit && hasExistingToken
-    ? 'Replace Bearer Token (optional)'
-    : 'Bearer Token (optional)';
+  const tokenLabel =
+    isEdit && hasExistingToken
+      ? 'Replace Bearer Token (optional)'
+      : 'Bearer Token (optional)';
 
-  const tokenPlaceholder = isEdit && hasExistingToken
-    ? 'Leave blank to keep the existing token'
-    : 'Leave blank if Prometheus is unauthenticated';
+  const tokenPlaceholder =
+    isEdit && hasExistingToken
+      ? 'Leave blank to keep the existing token'
+      : 'Leave blank if Prometheus is unauthenticated';
 
   return (
     <Grid container spacing={2} direction="column">
@@ -492,7 +556,8 @@ function ConfigForm({
             <span className={classes.hintText}>
               {isEdit && hasExistingToken && (
                 <>
-                  A token is already saved. Leave blank to keep it, or enter a new one to replace it.
+                  A token is already saved. Leave blank to keep it, or enter a
+                  new one to replace it.
                   <br />
                 </>
               )}
@@ -516,7 +581,7 @@ function ConfigForm({
               onChange={e => setQuery(i, 'name', e.target.value)}
               variant="outlined"
               size="small"
-              style={{flex: '0 0 200px'}}
+              style={{ flex: '0 0 200px' }}
             />
             <TextField
               label="PromQL Expression"
@@ -525,7 +590,7 @@ function ConfigForm({
               onChange={e => setQuery(i, 'expr', e.target.value)}
               variant="outlined"
               size="small"
-              style={{flex: 1, fontFamily: 'monospace'}}
+              style={{ flex: 1, fontFamily: 'monospace' }}
             />
             <Tooltip title="Remove query">
               <IconButton size="small" onClick={() => removeQuery(i)}>
@@ -539,14 +604,14 @@ function ConfigForm({
           startIcon={<AddIcon />}
           onClick={addQuery}
           variant="outlined"
-          style={{marginTop: 4}}
+          style={{ marginTop: 4 }}
         >
           Add Query
         </Button>
       </Grid>
 
       <Grid item>
-        <Box display="flex" style={{gap: 8}}>
+        <Box display="flex" style={{ gap: 8 }}>
           <Button
             variant="contained"
             color="primary"
@@ -567,7 +632,7 @@ function ConfigForm({
 // ─── Main tab component ───────────────────────────────────────────────────────
 
 export function PrometheusEntityTab() {
-  const {entity} = useEntity();
+  const { entity } = useEntity();
   const entityRef = stringifyEntityRef(entity);
   const discoveryApi = useApi(discoveryApiRef);
   const fetchApi = useApi(fetchApiRef);
@@ -580,7 +645,7 @@ export function PrometheusEntityTab() {
   const [saving, setSaving] = useState(false);
   const [apiBase, setApiBase] = useState<string>('');
 
-  type UIMode = 'view' | 'add' | {mode: 'edit'; config: PrometheusConfig};
+  type UIMode = 'view' | 'add' | { mode: 'edit'; config: PrometheusConfig };
   const [uiMode, setUiMode] = useState<UIMode>('view');
 
   // ── Load ────────────────────────────────────────────────────────────────
@@ -618,7 +683,7 @@ export function PrometheusEntityTab() {
       const base = await discoveryApi.getBaseUrl('prometheus-settings');
       const resp = await fetchApi.fetch(base, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           entityRef,
           configName: form.configName || 'Default',
@@ -651,7 +716,7 @@ export function PrometheusEntityTab() {
       const base = await discoveryApi.getBaseUrl('prometheus-settings');
       const resp = await fetchApi.fetch(`${base}/${id}`, {
         method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           configName: form.configName || 'Default',
           prometheusUrl: form.prometheusUrl,
@@ -678,7 +743,7 @@ export function PrometheusEntityTab() {
   async function handleDelete(id: number) {
     try {
       const base = await discoveryApi.getBaseUrl('prometheus-settings');
-      await fetchApi.fetch(`${base}/${id}`, {method: 'DELETE'});
+      await fetchApi.fetch(`${base}/${id}`, { method: 'DELETE' });
       const next = configs.filter(c => c.id !== id);
       setConfigs(next);
       setSelectedIdx(Math.max(0, selectedIdx - 1));
@@ -775,7 +840,9 @@ export function PrometheusEntityTab() {
 
   // ── Config viewer ─────────────────────────────────────────────────────────
 
-  const queries = currentConfig ? parseQueries(currentConfig.promql_queries) : [];
+  const queries = currentConfig
+    ? parseQueries(currentConfig.promql_queries)
+    : [];
 
   return (
     <Box>
@@ -804,7 +871,11 @@ export function PrometheusEntityTab() {
                   {c.config_name}
                   {c.has_token && (
                     <Tooltip title="Auth token configured">
-                      <Chip label="auth" className={classes.tokenChip} size="small" />
+                      <Chip
+                        label="auth"
+                        className={classes.tokenChip}
+                        size="small"
+                      />
                     </Tooltip>
                   )}
                 </Box>
@@ -821,7 +892,9 @@ export function PrometheusEntityTab() {
               <Tooltip title="Open Prometheus UI">
                 <IconButton
                   size="small"
-                  onClick={() => window.open(currentConfig.prometheus_url, '_blank')}
+                  onClick={() =>
+                    window.open(currentConfig.prometheus_url, '_blank')
+                  }
                 >
                   <OpenInNewIcon fontSize="small" />
                 </IconButton>
@@ -829,7 +902,9 @@ export function PrometheusEntityTab() {
               <Tooltip title="Edit config">
                 <IconButton
                   size="small"
-                  onClick={() => setUiMode({mode: 'edit', config: currentConfig})}
+                  onClick={() =>
+                    setUiMode({ mode: 'edit', config: currentConfig })
+                  }
                 >
                   <EditIcon fontSize="small" />
                 </IconButton>
@@ -842,11 +917,19 @@ export function PrometheusEntityTab() {
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
-              <Divider orientation="vertical" flexItem style={{margin: '4px 4px'}} />
+              <Divider
+                orientation="vertical"
+                flexItem
+                style={{ margin: '4px 4px' }}
+              />
             </>
           )}
           <Tooltip title="Add another config">
-            <IconButton size="small" color="primary" onClick={() => setUiMode('add')}>
+            <IconButton
+              size="small"
+              color="primary"
+              onClick={() => setUiMode('add')}
+            >
               <AddIcon fontSize="small" />
             </IconButton>
           </Tooltip>

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -75,14 +75,21 @@ export const CustomLogoSettings = () => {
 
   return (
     <Card>
-      <CardHeader title="Custom Sidebar Logo" subheader="Upload an image to replace the default ARC logo in the sidebar" />
+      <CardHeader
+        title="Custom Sidebar Logo"
+        subheader="Upload an image to replace the default ARC logo in the sidebar"
+      />
       <Divider />
       <CardContent>
         <Typography variant="body2" gutterBottom>
           Preview
         </Typography>
         <Box className={classes.previewBox}>
-          <img src={preview} alt="Logo preview" className={classes.previewImg} />
+          <img
+            src={preview}
+            alt="Logo preview"
+            className={classes.previewImg}
+          />
         </Box>
 
         <input
@@ -122,7 +129,11 @@ export const CustomLogoSettings = () => {
         </Box>
 
         {selected && (
-          <Typography variant="caption" color="textSecondary" style={{ marginTop: 8, display: 'block' }}>
+          <Typography
+            variant="caption"
+            color="textSecondary"
+            style={{ marginTop: 8, display: 'block' }}
+          >
             Click Save to apply the new logo.
           </Typography>
         )}

@@ -74,7 +74,6 @@ const useSidebarLogoStyles = makeStyles(theme => ({
   },
 }));
 
-
 const LogoutButton = () => {
   const identityApi = useApi(identityApiRef);
   return (
@@ -161,7 +160,11 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
             />
           </SidebarSubmenu>
         </SidebarItem>
-        <SidebarItem icon={AnnouncementIcon} to="announcements" text="Announcements">
+        <SidebarItem
+          icon={AnnouncementIcon}
+          to="announcements"
+          text="Announcements"
+        >
           <SidebarSubmenu title="Announcements">
             <SidebarSubmenuItem
               title="All Announcements"

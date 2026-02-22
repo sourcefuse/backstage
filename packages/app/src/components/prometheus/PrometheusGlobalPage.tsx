@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Content,
   Header,
@@ -6,7 +6,7 @@ import {
   Progress,
   WarningPanel,
 } from '@backstage/core-components';
-import {configApiRef, fetchApiRef, useApi} from '@backstage/core-plugin-api';
+import { configApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import {
   Box,
   Chip,
@@ -20,7 +20,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import RefreshIcon from '@material-ui/icons/Refresh';
-import {makeStyles} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -49,9 +49,9 @@ const useStyles = makeStyles(theme => ({
 function severityStyle(severity?: string): React.CSSProperties {
   if (!severity) return {};
   const s = severity.toLowerCase();
-  if (s === 'critical') return {backgroundColor: '#d32f2f', color: '#fff'};
-  if (s === 'warning') return {backgroundColor: '#f57c00', color: '#fff'};
-  if (s === 'info') return {backgroundColor: '#0288d1', color: '#fff'};
+  if (s === 'critical') return { backgroundColor: '#d32f2f', color: '#fff' };
+  if (s === 'warning') return { backgroundColor: '#f57c00', color: '#fff' };
+  if (s === 'info') return { backgroundColor: '#0288d1', color: '#fff' };
   return {};
 }
 
@@ -84,15 +84,21 @@ export function PrometheusGlobalPage() {
       );
       if (!resp.ok) throw new Error(`Prometheus returned HTTP ${resp.status}`);
       const data = await resp.json();
-      const list: PrometheusAlert[] = (data?.data?.alerts ?? []).map((a: any) => ({
-        name: a.labels?.alertname ?? 'Unknown',
-        state: a.state ?? 'unknown',
-        labels: a.labels ?? {},
-        annotations: a.annotations ?? {},
-        activeAt: a.activeAt,
-      }));
+      const list: PrometheusAlert[] = (data?.data?.alerts ?? []).map(
+        (a: any) => ({
+          name: a.labels?.alertname ?? 'Unknown',
+          state: a.state ?? 'unknown',
+          labels: a.labels ?? {},
+          annotations: a.annotations ?? {},
+          activeAt: a.activeAt,
+        }),
+      );
       // Sort: firing first, then by severity (critical > warning > info > others)
-      const severityOrder: Record<string, number> = {critical: 0, warning: 1, info: 2};
+      const severityOrder: Record<string, number> = {
+        critical: 0,
+        warning: 1,
+        info: 2,
+      };
       list.sort((a, b) => {
         if (a.state === 'firing' && b.state !== 'firing') return -1;
         if (a.state !== 'firing' && b.state === 'firing') return 1;
@@ -114,9 +120,15 @@ export function PrometheusGlobalPage() {
 
   // ── Summary counts ────────────────────────────────────────────────────────
 
-  const critical = alerts.filter(a => a.labels.severity?.toLowerCase() === 'critical').length;
-  const warning = alerts.filter(a => a.labels.severity?.toLowerCase() === 'warning').length;
-  const info = alerts.filter(a => a.labels.severity?.toLowerCase() === 'info').length;
+  const critical = alerts.filter(
+    a => a.labels.severity?.toLowerCase() === 'critical',
+  ).length;
+  const warning = alerts.filter(
+    a => a.labels.severity?.toLowerCase() === 'warning',
+  ).length;
+  const info = alerts.filter(
+    a => a.labels.severity?.toLowerCase() === 'info',
+  ).length;
   const firing = alerts.filter(a => a.state === 'firing').length;
 
   return (
@@ -143,21 +155,21 @@ export function PrometheusGlobalPage() {
                 <Chip
                   label={`Critical: ${critical}`}
                   size="small"
-                  style={{backgroundColor: '#d32f2f', color: '#fff'}}
+                  style={{ backgroundColor: '#d32f2f', color: '#fff' }}
                 />
               )}
               {warning > 0 && (
                 <Chip
                   label={`Warning: ${warning}`}
                   size="small"
-                  style={{backgroundColor: '#f57c00', color: '#fff'}}
+                  style={{ backgroundColor: '#f57c00', color: '#fff' }}
                 />
               )}
               {info > 0 && (
                 <Chip
                   label={`Info: ${info}`}
                   size="small"
-                  style={{backgroundColor: '#0288d1', color: '#fff'}}
+                  style={{ backgroundColor: '#0288d1', color: '#fff' }}
                 />
               )}
               <Chip
@@ -172,7 +184,10 @@ export function PrometheusGlobalPage() {
               />
               <Box flex={1} />
               <Tooltip title="Refresh">
-                <IconButton size="small" onClick={() => setRefreshKey(k => k + 1)}>
+                <IconButton
+                  size="small"
+                  onClick={() => setRefreshKey(k => k + 1)}
+                >
                   <RefreshIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
@@ -203,7 +218,9 @@ export function PrometheusGlobalPage() {
                 <TableBody>
                   {alerts.map((a, i) => (
                     <TableRow key={i}>
-                      <TableCell style={{fontWeight: 600}}>{a.name}</TableCell>
+                      <TableCell style={{ fontWeight: 600 }}>
+                        {a.name}
+                      </TableCell>
                       <TableCell>
                         <Chip
                           label={a.labels.severity ?? '—'}
@@ -215,10 +232,12 @@ export function PrometheusGlobalPage() {
                         <Chip
                           label={a.state}
                           size="small"
-                          variant={a.state === 'firing' ? 'default' : 'outlined'}
+                          variant={
+                            a.state === 'firing' ? 'default' : 'outlined'
+                          }
                           style={
                             a.state === 'firing'
-                              ? {backgroundColor: '#d32f2f', color: '#fff'}
+                              ? { backgroundColor: '#d32f2f', color: '#fff' }
                               : {}
                           }
                         />
@@ -231,7 +250,9 @@ export function PrometheusGlobalPage() {
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        {a.annotations.summary ?? a.annotations.description ?? '—'}
+                        {a.annotations.summary ??
+                          a.annotations.description ??
+                          '—'}
                       </TableCell>
                       <TableCell
                         style={{
@@ -245,8 +266,10 @@ export function PrometheusGlobalPage() {
                       >
                         {labelsToString(a.labels) || '—'}
                       </TableCell>
-                      <TableCell style={{whiteSpace: 'nowrap'}}>
-                        {a.activeAt ? new Date(a.activeAt).toLocaleString() : '—'}
+                      <TableCell style={{ whiteSpace: 'nowrap' }}>
+                        {a.activeAt
+                          ? new Date(a.activeAt).toLocaleString()
+                          : '—'}
                       </TableCell>
                     </TableRow>
                   ))}

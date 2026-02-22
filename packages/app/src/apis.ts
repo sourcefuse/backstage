@@ -27,11 +27,14 @@ async function getGuestGithubToken(identityApi: any): Promise<string> {
   console.log('[GuestGithubToken] Fetching GitHub App token from backend...');
   const creds = await identityApi.getCredentials();
   const resp = await fetch('/api/access-validate/github-token', {
-    headers: {Authorization: `Bearer ${creds.token}`},
+    headers: { Authorization: `Bearer ${creds.token}` },
   });
   const data = await resp.json();
   // eslint-disable-next-line no-console
-  console.log('[GuestGithubToken] Got token prefix:', data.token?.substring(0, 10));
+  console.log(
+    '[GuestGithubToken] Got token prefix:',
+    data.token?.substring(0, 10),
+  );
   return data.token;
 }
 
@@ -43,14 +46,14 @@ export const apis: AnyApiFactory[] = [
   }),
   createApiFactory({
     api: scmIntegrationsApiRef,
-    deps: {configApi: configApiRef},
-    factory: ({configApi}) => ScmIntegrationsApi.fromConfig(configApi),
+    deps: { configApi: configApiRef },
+    factory: ({ configApi }) => ScmIntegrationsApi.fromConfig(configApi),
   }),
   createApiFactory({
     api: visitsApiRef,
-    deps: {identityApi: identityApiRef, errorApi: errorApiRef},
-    factory: ({identityApi, errorApi}) =>
-      VisitsWebStorageApi.create({identityApi, errorApi}),
+    deps: { identityApi: identityApiRef, errorApi: errorApiRef },
+    factory: ({ identityApi, errorApi }) =>
+      VisitsWebStorageApi.create({ identityApi, errorApi }),
   }),
   createApiFactory({
     api: githubAuthApiRef,
@@ -60,7 +63,7 @@ export const apis: AnyApiFactory[] = [
       configApi: configApiRef,
       identityApi: identityApiRef,
     },
-    factory: ({discoveryApi, oauthRequestApi, configApi, identityApi}) => {
+    factory: ({ discoveryApi, oauthRequestApi, configApi, identityApi }) => {
       const realGithubAuth = GithubAuth.create({
         configApi,
         discoveryApi,
@@ -81,7 +84,9 @@ export const apis: AnyApiFactory[] = [
       const guestSessionState$ = () => ({
         subscribe(observer: any) {
           const cb =
-            typeof observer === 'function' ? observer : observer.next?.bind(observer);
+            typeof observer === 'function'
+              ? observer
+              : observer.next?.bind(observer);
           if (cb) {
             if (guestSignedIn) cb(SessionState.SignedIn);
             sessionListeners.add(cb);
@@ -98,15 +103,26 @@ export const apis: AnyApiFactory[] = [
           if (prop === 'getAccessToken') {
             return async (scope: any, options: any) => {
               // eslint-disable-next-line no-console
-              console.log('[GithubAuthProxy] getAccessToken called, scope:', scope, 'optional:', options?.optional);
+              console.log(
+                '[GithubAuthProxy] getAccessToken called, scope:',
+                scope,
+                'optional:',
+                options?.optional,
+              );
               const identity = await identityApi.getBackstageIdentity();
               // eslint-disable-next-line no-console
-              console.log('[GithubAuthProxy] identity:', identity.userEntityRef);
+              console.log(
+                '[GithubAuthProxy] identity:',
+                identity.userEntityRef,
+              );
               if (identity.userEntityRef === 'user:development/guest') {
                 // Prefer the real GitHub OAuth token when available (supports author:@me queries).
                 // Fall back to App installation token for unauthenticated guests.
                 try {
-                  const realToken = await target.getAccessToken(scope, { ...options, optional: true });
+                  const realToken = await target.getAccessToken(scope, {
+                    ...options,
+                    optional: true,
+                  });
                   if (realToken) {
                     notifyGuestSignedIn();
                     return realToken;
@@ -160,7 +176,7 @@ export const apis: AnyApiFactory[] = [
       github: githubAuthApiRef,
       identityApi: identityApiRef,
     },
-    factory: ({github, identityApi}) => {
+    factory: ({ github, identityApi }) => {
       const defaultScmAuth = ScmAuth.forGithub(github);
 
       return {
@@ -172,7 +188,7 @@ export const apis: AnyApiFactory[] = [
             new URL(options.url).hostname.endsWith('github.com')
           ) {
             const token = await getGuestGithubToken(identityApi);
-            return {token, headers: {Authorization: `token ${token}`}};
+            return { token, headers: { Authorization: `token ${token}` } };
           }
           return defaultScmAuth.getCredentials(options);
         },

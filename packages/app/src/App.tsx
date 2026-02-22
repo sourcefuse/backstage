@@ -1,9 +1,15 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate, Route } from 'react-router-dom';
 import './App.css';
 import '@backstage/ui/css/styles.css';
 import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
-import { createTheme, lightTheme, BackstageTheme, themes, UnifiedThemeProvider } from '@backstage/theme';
+import {
+  createTheme,
+  lightTheme,
+  BackstageTheme,
+  themes,
+  UnifiedThemeProvider,
+} from '@backstage/theme';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import Brightness7Icon from '@material-ui/icons/Brightness7';
 import PaletteIcon from '@material-ui/icons/Palette';
@@ -20,10 +26,7 @@ import loginBg from './assets/images/login-bg.jpg';
 import sfLogoMinimal from './assets/images/sf-minimal-logo.png';
 import { PermissionWrapper } from './PermissionWrapper';
 
-import {
-  CatalogEntityPage,
-  catalogPlugin,
-} from '@backstage/plugin-catalog';
+import { CatalogEntityPage, catalogPlugin } from '@backstage/plugin-catalog';
 import { CustomCatalogPage } from './components/catalog/CustomCatalogIndexPage';
 import {
   CatalogImportPage,
@@ -56,11 +59,20 @@ import { Root } from './components/Root';
 
 import { createApp } from '@backstage/app-defaults';
 import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
-import { CatalogGraphPage, catalogGraphPlugin } from '@backstage/plugin-catalog-graph';
+import {
+  CatalogGraphPage,
+  catalogGraphPlugin,
+} from '@backstage/plugin-catalog-graph';
 import { NewRelicPage } from '@backstage-community/plugin-newrelic';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
-import { githubAuthApiRef, configApiRef, identityApiRef, oauthRequestApiRef, useApi } from '@backstage/core-plugin-api';
+import {
+  githubAuthApiRef,
+  configApiRef,
+  identityApiRef,
+  oauthRequestApiRef,
+  useApi,
+} from '@backstage/core-plugin-api';
 import { Box, Grid } from '@material-ui/core';
 import { AutoLogout } from './components/AutoLogout';
 import { TechRadarPage } from '@backstage-community/plugin-tech-radar';
@@ -124,7 +136,7 @@ const customTheme = createTheme({
 });
 
 export const createCustomThemeOverrides = (): // theme: BackstageTheme,
-  BackstageOverrides => {
+BackstageOverrides => {
   return {
     BackstageHeader: {
       header: {
@@ -321,22 +333,24 @@ const customfinalTheme: BackstageTheme = {
   },
 };
 
-
 // Auto-rejects OAuth popups for guest users so the dialog never appears
 function GuestAwareOAuthDialog() {
   const identityApi = useApi(identityApiRef);
   const oauthRequestApi = useApi(oauthRequestApiRef);
-  const [isGuest, setIsGuest] = React.useState<boolean>(false);
+  const [isGuest, setIsGuest] = useState<boolean>(false);
 
-  React.useEffect(() => {
-    identityApi.getBackstageIdentity().then(identity => {
-      if (identity.userEntityRef === 'user:development/guest') {
-        setIsGuest(true);
-      }
-    }).catch(() => {});
+  useEffect(() => {
+    identityApi
+      .getBackstageIdentity()
+      .then(identity => {
+        if (identity.userEntityRef === 'user:development/guest') {
+          setIsGuest(true);
+        }
+      })
+      .catch(() => {});
   }, [identityApi]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isGuest) return undefined;
     const subscription = oauthRequestApi.authRequest$().subscribe(requests => {
       requests.forEach(request => request.reject());
@@ -400,7 +414,7 @@ function CustomSignInPage(props: any) {
               src={sfLogoMinimal}
               width={60}
               alt="SourceFuse Backstage"
-              style={{margin: '0 auto'}}
+              style={{ margin: '0 auto' }}
             />
           </div>
           <h1>BackStage</h1>
@@ -492,8 +506,18 @@ const app = createApp({
 const routes = (
   <FlatRoutes>
     <Route path="/" element={<Navigate to="home" />} />
-    <Route path="/home" element={<HomepageCompositionRoot><HomePageContent /></HomepageCompositionRoot>} />
-    <Route path="/catalog" element={<CustomCatalogPage initiallySelectedFilter="all" />} />
+    <Route
+      path="/home"
+      element={
+        <HomepageCompositionRoot>
+          <HomePageContent />
+        </HomepageCompositionRoot>
+      }
+    />
+    <Route
+      path="/catalog"
+      element={<CustomCatalogPage initiallySelectedFilter="all" />}
+    />
     <Route
       path="/catalog/:namespace/:kind/:name"
       element={
@@ -538,42 +562,54 @@ const routes = (
     <Route path="/search" element={<SearchPage />}>
       {searchPage}
     </Route>
-    <Route path="/settings" element={
-      <SettingsLayout>
-        <SettingsLayout.Route path="general" title="General">
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <UserSettingsProfileCard />
+    <Route
+      path="/settings"
+      element={
+        <SettingsLayout>
+          <SettingsLayout.Route path="general" title="General">
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <UserSettingsProfileCard />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <UserSettingsAppearanceCard />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <UserSettingsIdentityCard />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <CustomLogoSettings />
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={6}>
-              <UserSettingsAppearanceCard />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <UserSettingsIdentityCard />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <CustomLogoSettings />
-            </Grid>
-          </Grid>
-        </SettingsLayout.Route>
-        <SettingsLayout.Route path="auth-providers" title="Authentication Providers">
-          <UserSettingsAuthProviders />
-        </SettingsLayout.Route>
-        <SettingsLayout.Route path="feature-flags" title="Feature Flags">
-          <UserSettingsFeatureFlags />
-        </SettingsLayout.Route>
-      </SettingsLayout>
-    } />
-    <Route path="/catalog-graph" element={
-      <CatalogGraphPage
-        initialState={{
-          rootEntityRefs: ['system:default/backstage'],
-        }}
-      />
-    } />
+          </SettingsLayout.Route>
+          <SettingsLayout.Route
+            path="auth-providers"
+            title="Authentication Providers"
+          >
+            <UserSettingsAuthProviders />
+          </SettingsLayout.Route>
+          <SettingsLayout.Route path="feature-flags" title="Feature Flags">
+            <UserSettingsFeatureFlags />
+          </SettingsLayout.Route>
+        </SettingsLayout>
+      }
+    />
+    <Route
+      path="/catalog-graph"
+      element={
+        <CatalogGraphPage
+          initialState={{
+            rootEntityRefs: ['system:default/backstage'],
+          }}
+        />
+      }
+    />
     <Route path="/tech-radar" element={<TechRadarPage />} />
     <Route path="/newrelic" element={<NewRelicPage />} />
-    <Route path="/github-pull-requests" element={<GithubPullRequestsRouter />} />
+    <Route
+      path="/github-pull-requests"
+      element={<GithubPullRequestsRouter />}
+    />
     <Route path="/github-actions" element={<GithubActionsRouter />} />
     <Route path="/announcements" element={<AnnouncementsPage />} />
     <Route path="/prometheus" element={<PrometheusGlobalPage />} />

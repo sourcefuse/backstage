@@ -1,13 +1,13 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {useEntity} from '@backstage/plugin-catalog-react';
-import {InfoCard, Progress, WarningPanel} from '@backstage/core-components';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEntity } from '@backstage/plugin-catalog-react';
+import { InfoCard, Progress, WarningPanel } from '@backstage/core-components';
 import {
   discoveryApiRef,
   fetchApiRef,
   useApi,
   type FetchApi,
 } from '@backstage/core-plugin-api';
-import {stringifyEntityRef} from '@backstage/catalog-model';
+import { stringifyEntityRef } from '@backstage/catalog-model';
 import {
   Box,
   Button,
@@ -32,7 +32,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import RefreshIcon from '@material-ui/icons/Refresh';
-import {makeStyles} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -182,7 +182,7 @@ function GrafanaIframeViewer({
           bgcolor="action.hover"
           borderRadius={4}
           textAlign="left"
-          style={{display: 'inline-block', minWidth: 280}}
+          style={{ display: 'inline-block', minWidth: 280 }}
         >
           {`[security]\nallow_embedding = true`}
         </Box>
@@ -211,7 +211,7 @@ function GrafanaIframeViewer({
           dashboard. Add a <strong>service account token</strong> in the
           dashboard settings so the embed URL authenticates automatically.
         </Typography>
-        <Box display="flex" justifyContent="center" style={{gap: 8}}>
+        <Box display="flex" justifyContent="center" style={{ gap: 8 }}>
           <Button
             variant="contained"
             color="primary"
@@ -244,7 +244,11 @@ function GrafanaIframeViewer({
           zIndex={1}
         >
           <Progress />
-          <Typography variant="caption" color="textSecondary" style={{marginTop: 8}}>
+          <Typography
+            variant="caption"
+            color="textSecondary"
+            style={{ marginTop: 8 }}
+          >
             Connecting to Grafana…
           </Typography>
         </Box>
@@ -283,28 +287,31 @@ function formatValue(v: number | null): string {
 }
 
 /** Extract the last value and full time-series array from a Grafana data-frames response */
-function extractSeriesFromResults(results: any): {value: number | null; series: number[]} {
+function extractSeriesFromResults(results: any): {
+  value: number | null;
+  series: number[];
+} {
   const frames: any[] = Object.values(results ?? {}).flatMap(
     (r: any) => r?.frames ?? [],
   );
-  if (!frames.length) return {value: null, series: []};
+  if (!frames.length) return { value: null, series: [] };
 
   const frame = frames[0];
   const fields: any[] = frame.schema?.fields ?? [];
   const dataValues: any[][] = frame.data?.values ?? [];
 
   const valueIdx = fields.findIndex(f => f.type === 'number');
-  if (valueIdx === -1) return {value: null, series: []};
+  if (valueIdx === -1) return { value: null, series: [] };
 
   const series = (dataValues[valueIdx] ?? []).filter(
     (x: any) => x !== null && x !== undefined,
   ) as number[];
   const value = series.length > 0 ? series[series.length - 1] : null;
-  return {value, series};
+  return { value, series };
 }
 
 /** Minimal SVG sparkline — no dependencies */
-function Sparkline({series}: {series: number[]}) {
+function Sparkline({ series }: { series: number[] }) {
   if (series.length < 2) return null;
   const W = 280;
   const H = 50;
@@ -317,12 +324,14 @@ function Sparkline({series}: {series: number[]}) {
     PAD + (1 - (v - min) / range) * (H - 2 * PAD),
   ]);
   const d = pts
-    .map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`)
+    .map(
+      (p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`,
+    )
     .join(' ');
   return (
     <svg
       viewBox={`0 0 ${W} ${H}`}
-      style={{width: '100%', height: H, display: 'block'}}
+      style={{ width: '100%', height: H, display: 'block' }}
     >
       <path d={d} fill="none" stroke="#1976d2" strokeWidth="1.5" />
     </svg>
@@ -330,12 +339,12 @@ function Sparkline({series}: {series: number[]}) {
 }
 
 const TIME_RANGES = [
-  {label: 'Last 1 hour', value: 'now-1h'},
-  {label: 'Last 3 hours', value: 'now-3h'},
-  {label: 'Last 6 hours', value: 'now-6h'},
-  {label: 'Last 12 hours', value: 'now-12h'},
-  {label: 'Last 24 hours', value: 'now-24h'},
-  {label: 'Last 7 days', value: 'now-7d'},
+  { label: 'Last 1 hour', value: 'now-1h' },
+  { label: 'Last 3 hours', value: 'now-3h' },
+  { label: 'Last 6 hours', value: 'now-6h' },
+  { label: 'Last 12 hours', value: 'now-12h' },
+  { label: 'Last 24 hours', value: 'now-24h' },
+  { label: 'Last 7 days', value: 'now-7d' },
 ];
 
 /** Extract the Grafana dashboard UID from a dashboard_path like "d/abc123/name?orgId=1" */
@@ -406,7 +415,9 @@ function GrafanaDashboardFetcher({
   const uid = extractUid(dashboard.dashboard_path);
   const [panels, setPanels] = useState<GrafanaPanel[]>([]);
   const [varDefaults, setVarDefaults] = useState<Record<string, string>>({});
-  const [panelResults, setPanelResults] = useState<Record<number, PanelResult>>({});
+  const [panelResults, setPanelResults] = useState<Record<number, PanelResult>>(
+    {},
+  );
   const [timeRange, setTimeRange] = useState('now-3h');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -458,7 +469,9 @@ function GrafanaDashboardFetcher({
             });
           }
         }
-        const defaults = buildVariableDefaults(data.dashboard?.templating?.list ?? []);
+        const defaults = buildVariableDefaults(
+          data.dashboard?.templating?.list ?? [],
+        );
 
         // If any variable resolved to "default" (Grafana special keyword), resolve
         // it to the actual default datasource UID by fetching /api/datasources.
@@ -480,7 +493,10 @@ function GrafanaDashboardFetcher({
                 resolved[k] = dsMap[v] ?? v;
               }
               // eslint-disable-next-line no-console
-              console.debug('[GrafanaTab] Resolved template variables:', resolved);
+              console.debug(
+                '[GrafanaTab] Resolved template variables:',
+                resolved,
+              );
               setVarDefaults(resolved);
               setPanels(allPanels);
               setLoading(false);
@@ -488,7 +504,10 @@ function GrafanaDashboardFetcher({
             .catch(() => {
               // If datasources fetch fails, proceed with what we have
               // eslint-disable-next-line no-console
-              console.debug('[GrafanaTab] Template variable defaults (unresolved):', defaults);
+              console.debug(
+                '[GrafanaTab] Template variable defaults (unresolved):',
+                defaults,
+              );
               setVarDefaults(defaults);
               setPanels(allPanels);
               setLoading(false);
@@ -505,7 +524,7 @@ function GrafanaDashboardFetcher({
         setError(e.message ?? 'Failed to fetch dashboard data');
         setLoading(false);
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, dashboard.id, proxyBase, refreshKey]);
 
   // ── Step 2: Query panel data via /api/ds/query for each panel ────────────
@@ -542,12 +561,15 @@ function GrafanaDashboardFetcher({
       });
 
       // eslint-disable-next-line no-console
-      console.debug(`[GrafanaTab] Querying panel "${panel.title}" (id=${panel.id}):`, queries);
+      console.debug(
+        `[GrafanaTab] Querying panel "${panel.title}" (id=${panel.id}):`,
+        queries,
+      );
       fetchApiInst
         .fetch(`${proxyBase}/proxy/${dashboard.id}/api/ds/query`, {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({queries, from: timeRange, to: 'now'}),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ queries, from: timeRange, to: 'now' }),
         })
         .then(async r => {
           if (!r.ok) {
@@ -557,20 +579,24 @@ function GrafanaDashboardFetcher({
           return r.json();
         })
         .then((resp: any) => {
-          const {value, series} = extractSeriesFromResults(resp.results);
+          const { value, series } = extractSeriesFromResults(resp.results);
           setPanelResults(prev => ({
             ...prev,
-            [panel.id]: {value, series},
+            [panel.id]: { value, series },
           }));
         })
         .catch((e: any) => {
           setPanelResults(prev => ({
             ...prev,
-            [panel.id]: {value: null, series: [], error: e.message ?? 'Query failed'},
+            [panel.id]: {
+              value: null,
+              series: [],
+              error: e.message ?? 'Query failed',
+            },
           }));
         });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [panels, varDefaults, timeRange, refreshKey]);
 
   const STAT_TYPES = new Set(['stat', 'gauge', 'singlestat', 'bargauge']);
@@ -598,8 +624,8 @@ function GrafanaDashboardFetcher({
   return (
     <Box>
       {/* Toolbar */}
-      <Box display="flex" alignItems="center" mb={2} style={{gap: 12}}>
-        <FormControl variant="outlined" size="small" style={{minWidth: 180}}>
+      <Box display="flex" alignItems="center" mb={2} style={{ gap: 12 }}>
+        <FormControl variant="outlined" size="small" style={{ minWidth: 180 }}>
           <InputLabel>Time range</InputLabel>
           <Select
             value={timeRange}
@@ -640,7 +666,9 @@ function GrafanaDashboardFetcher({
 
       {/* Panel grid */}
       {panels.length === 0 ? (
-        <Typography color="textSecondary">No panels found in this dashboard.</Typography>
+        <Typography color="textSecondary">
+          No panels found in this dashboard.
+        </Typography>
       ) : (
         <Grid container spacing={2}>
           {panels.map(panel => {
@@ -648,18 +676,23 @@ function GrafanaDashboardFetcher({
             const isStat = STAT_TYPES.has(panel.type);
             return (
               <Grid item xs={12} sm={6} md={4} key={panel.id}>
-                <Card variant="outlined" style={{height: '100%'}}>
-                  <CardContent style={{padding: '12px 16px 8px'}}>
+                <Card variant="outlined" style={{ height: '100%' }}>
+                  <CardContent style={{ padding: '12px 16px 8px' }}>
                     <Typography
                       variant="caption"
                       color="textSecondary"
-                      style={{textTransform: 'uppercase', letterSpacing: 1}}
+                      style={{ textTransform: 'uppercase', letterSpacing: 1 }}
                     >
                       {panel.title}
                     </Typography>
 
                     {!result && (
-                      <Box height={80} display="flex" alignItems="center" justifyContent="center">
+                      <Box
+                        height={80}
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
                         <Progress />
                       </Box>
                     )}
@@ -672,14 +705,18 @@ function GrafanaDashboardFetcher({
                         alignItems="center"
                         justifyContent="center"
                       >
-                        <Typography variant="caption" color="textSecondary" align="center">
+                        <Typography
+                          variant="caption"
+                          color="textSecondary"
+                          align="center"
+                        >
                           No data
                         </Typography>
                         <Typography
                           variant="caption"
                           color="textSecondary"
                           align="center"
-                          style={{opacity: 0.6, fontSize: 10}}
+                          style={{ opacity: 0.6, fontSize: 10 }}
                         >
                           {result.error}
                         </Typography>
@@ -693,7 +730,7 @@ function GrafanaDashboardFetcher({
                           <Box py={1} textAlign="center">
                             <Typography
                               variant="h4"
-                              style={{fontWeight: 600, lineHeight: 1.2}}
+                              style={{ fontWeight: 600, lineHeight: 1.2 }}
                             >
                               {formatValue(result.value)}
                             </Typography>
@@ -705,7 +742,7 @@ function GrafanaDashboardFetcher({
                             <Typography
                               variant="body2"
                               align="right"
-                              style={{marginTop: 2, fontWeight: 600}}
+                              style={{ marginTop: 2, fontWeight: 600 }}
                             >
                               {formatValue(result.value)}
                             </Typography>
@@ -745,17 +782,19 @@ function DashboardForm({
 }) {
   const classes = useStyles();
   const [form, setForm] = useState<FormState>(initial);
-  const set = (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm(prev => ({...prev, [k]: e.target.value}));
+  const set =
+    (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) =>
+      setForm(prev => ({ ...prev, [k]: e.target.value }));
 
   let tokenLabel = 'Grafana Service Account Token (optional)';
   if (isEdit && hasExistingToken) {
     tokenLabel = 'Replace Service Account Token (optional)';
   }
 
-  const tokenPlaceholder = isEdit && hasExistingToken
-    ? 'Leave blank to keep the existing token'
-    : 'glsa_xxxxxxxxxxxx';
+  const tokenPlaceholder =
+    isEdit && hasExistingToken
+      ? 'Leave blank to keep the existing token'
+      : 'glsa_xxxxxxxxxxxx';
 
   return (
     <Grid container spacing={2} direction="column">
@@ -812,9 +851,10 @@ function DashboardForm({
               )}
               {!isEdit && (
                 <>
-                  If Grafana requires login it redirects to its auth page inside the
-                  frame, loading the app again. A service account token fixes this —
-                  it is passed as <code>auth_token</code> in the embed URL.
+                  If Grafana requires login it redirects to its auth page inside
+                  the frame, loading the app again. A service account token
+                  fixes this — it is passed as <code>auth_token</code> in the
+                  embed URL.
                   <br />
                 </>
               )}
@@ -825,7 +865,7 @@ function DashboardForm({
         />
       </Grid>
       <Grid item>
-        <Box display="flex" style={{gap: 8}}>
+        <Box display="flex" style={{ gap: 8 }}>
           <Button
             variant="contained"
             color="primary"
@@ -846,7 +886,7 @@ function DashboardForm({
 // ─── Main tab component ───────────────────────────────────────────────────────
 
 export function GrafanaEntityTab() {
-  const {entity} = useEntity();
+  const { entity } = useEntity();
   const entityRef = stringifyEntityRef(entity);
   const discoveryApi = useApi(discoveryApiRef);
   const fetchApi = useApi(fetchApiRef);
@@ -860,7 +900,7 @@ export function GrafanaEntityTab() {
   const [apiBase, setApiBase] = useState<string>('');
 
   // 'view' | 'add' | { mode: 'edit', dashboard: Dashboard }
-  type UIMode = 'view' | 'add' | {mode: 'edit'; dashboard: Dashboard};
+  type UIMode = 'view' | 'add' | { mode: 'edit'; dashboard: Dashboard };
   const [uiMode, setUiMode] = useState<UIMode>('view');
 
   // ── Load ────────────────────────────────────────────────────────────────
@@ -898,7 +938,7 @@ export function GrafanaEntityTab() {
       const base = await discoveryApi.getBaseUrl('grafana-settings');
       const resp = await fetchApi.fetch(base, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           entityRef,
           dashboardName: form.dashboardName || 'Default',
@@ -931,7 +971,7 @@ export function GrafanaEntityTab() {
       const base = await discoveryApi.getBaseUrl('grafana-settings');
       const resp = await fetchApi.fetch(`${base}/${id}`, {
         method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           dashboardName: form.dashboardName || 'Default',
           grafanaUrl: form.grafanaUrl,
@@ -958,7 +998,7 @@ export function GrafanaEntityTab() {
   async function handleDelete(id: number) {
     try {
       const base = await discoveryApi.getBaseUrl('grafana-settings');
-      await fetchApi.fetch(`${base}/${id}`, {method: 'DELETE'});
+      await fetchApi.fetch(`${base}/${id}`, { method: 'DELETE' });
       const next = dashboards.filter(d => d.id !== id);
       setDashboards(next);
       setSelectedIdx(Math.max(0, selectedIdx - 1));
@@ -1085,7 +1125,11 @@ export function GrafanaEntityTab() {
                   {d.dashboard_name}
                   {d.grafana_token && (
                     <Tooltip title="Auth token configured">
-                      <Chip label="auth" className={classes.tokenChip} size="small" />
+                      <Chip
+                        label="auth"
+                        className={classes.tokenChip}
+                        size="small"
+                      />
                     </Tooltip>
                   )}
                 </Box>
@@ -1111,7 +1155,7 @@ export function GrafanaEntityTab() {
                 <IconButton
                   size="small"
                   onClick={() =>
-                    setUiMode({mode: 'edit', dashboard: currentDashboard})
+                    setUiMode({ mode: 'edit', dashboard: currentDashboard })
                   }
                 >
                   <EditIcon fontSize="small" />
@@ -1125,7 +1169,11 @@ export function GrafanaEntityTab() {
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
-              <Divider orientation="vertical" flexItem style={{margin: '4px 4px'}} />
+              <Divider
+                orientation="vertical"
+                flexItem
+                style={{ margin: '4px 4px' }}
+              />
             </>
           )}
           <Tooltip title="Add another dashboard">
@@ -1155,14 +1203,17 @@ export function GrafanaEntityTab() {
           openUrl={openUrl ?? currentDashboard.grafana_url}
         />
       )}
-      {currentDashboard?.dashboard_path && !currentDashboard.grafana_token && embedUrl && openUrl && (
-        <GrafanaIframeViewer
-          key={embedUrl}
-          embedUrl={embedUrl}
-          openUrl={openUrl}
-          title={currentDashboard.dashboard_name}
-        />
-      )}
+      {currentDashboard?.dashboard_path &&
+        !currentDashboard.grafana_token &&
+        embedUrl &&
+        openUrl && (
+          <GrafanaIframeViewer
+            key={embedUrl}
+            embedUrl={embedUrl}
+            openUrl={openUrl}
+            title={currentDashboard.dashboard_name}
+          />
+        )}
     </Box>
   );
 }

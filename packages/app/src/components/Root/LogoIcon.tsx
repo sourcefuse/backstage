@@ -13,8 +13,8 @@ const useStyles = makeStyles({
 
 const LogoIcon = () => {
   const classes = useStyles();
-  const [customLogo, setCustomLogo] = useState<string | null>(
-    () => localStorage.getItem(CUSTOM_LOGO_KEY),
+  const [customLogo, setCustomLogo] = useState<string | null>(() =>
+    localStorage.getItem(CUSTOM_LOGO_KEY),
   );
 
   useEffect(() => {
@@ -33,7 +33,13 @@ const LogoIcon = () => {
         <img
           src={customLogo}
           alt="Logo"
-          style={{ width: 42, height: 28, objectFit: 'contain', display: 'block', margin: '0 auto' }}
+          style={{
+            width: 42,
+            height: 28,
+            objectFit: 'contain',
+            display: 'block',
+            margin: '0 auto',
+          }}
         />
       </div>
     );
@@ -44,7 +50,14 @@ const LogoIcon = () => {
       <img
         src="https://avatars.githubusercontent.com/u/411345?s=200&v=4"
         alt="Logo"
-        style={{ width: 42, height: 42, objectFit: 'contain', display: 'block', margin: '0 auto', borderRadius: 4 }}
+        style={{
+          width: 42,
+          height: 42,
+          objectFit: 'contain',
+          display: 'block',
+          margin: '0 auto',
+          borderRadius: 4,
+        }}
       />
     </div>
   );

@@ -1,12 +1,21 @@
-import { DefaultEntityFilters, EntityFilter, useEntityList } from '@backstage/plugin-catalog-react';
-import { FormControl, Typography, FormGroup, FormControlLabel, Checkbox } from '@material-ui/core';
+import {
+  DefaultEntityFilters,
+  EntityFilter,
+  useEntityList,
+} from '@backstage/plugin-catalog-react';
+import {
+  FormControl,
+  Typography,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+} from '@material-ui/core';
 
 class EntityLanguageFilter implements EntityFilter {
   constructor(readonly values: string[]) {}
   getCatalogFilters(): Record<string, string | symbol | (string | symbol)[]> {
-    return { 'spec.language': this.values }
-  } ;
-
+    return { 'spec.language': this.values };
+  }
 }
 
 export type CustomFilters = DefaultEntityFilters & {

@@ -86,9 +86,10 @@ const useStyles = makeStyles(theme => ({
     '& .MuiTableSortLabel-root.MuiTableSortLabel-active': {
       color: 'inherit',
     },
-    '& .MuiTableSortLabel-root.MuiTableSortLabel-active .MuiTableSortLabel-icon': {
-      color: 'inherit',
-    },
+    '& .MuiTableSortLabel-root.MuiTableSortLabel-active .MuiTableSortLabel-icon':
+      {
+        color: 'inherit',
+      },
   },
 }));
 
@@ -111,11 +112,15 @@ type AppRow = {
   throughput: number | null;
 };
 
-const ENV_GROUPS: { key: 'dev' | 'qa' | 'production' | 'other'; label: string; color: string }[] = [
+const ENV_GROUPS: {
+  key: 'dev' | 'qa' | 'production' | 'other';
+  label: string;
+  color: string;
+}[] = [
   { key: 'production', label: 'Production', color: '#c62828' },
-  { key: 'qa',         label: 'QA / Staging', color: '#7b1fa2' },
-  { key: 'dev',        label: 'Dev',        color: '#1976d2' },
-  { key: 'other',      label: 'Other',      color: '#555' },
+  { key: 'qa', label: 'QA / Staging', color: '#7b1fa2' },
+  { key: 'dev', label: 'Dev', color: '#1976d2' },
+  { key: 'other', label: 'Other', color: '#555' },
 ];
 
 export const NewRelicFacadesTab = () => {
@@ -291,7 +296,9 @@ export const NewRelicFacadesTab = () => {
             color={alertChipColor(row.alertSeverity)}
           />
         ) : (
-          <Typography variant="body2" color="textSecondary">—</Typography>
+          <Typography variant="body2" color="textSecondary">
+            —
+          </Typography>
         ),
     },
     {
@@ -308,7 +315,9 @@ export const NewRelicFacadesTab = () => {
       field: 'responseTime',
       render: row => (
         <Typography variant="body2" style={{ fontWeight: 600 }}>
-          {row.responseTime !== null ? `${row.responseTime.toFixed(0)} ms` : '—'}
+          {row.responseTime !== null
+            ? `${row.responseTime.toFixed(0)} ms`
+            : '—'}
         </Typography>
       ),
     },
@@ -353,7 +362,9 @@ export const NewRelicFacadesTab = () => {
     grouped.get(bucket)!.push(row);
   }
 
-  const visibleGroups = ENV_GROUPS.filter(g => (grouped.get(g.key)?.length ?? 0) > 0);
+  const visibleGroups = ENV_GROUPS.filter(
+    g => (grouped.get(g.key)?.length ?? 0) > 0,
+  );
 
   return (
     <Box>
@@ -406,7 +417,9 @@ export const NewRelicFacadesTab = () => {
 
       {rows.length === 0 && (
         <Box p={4} textAlign="center">
-          <Typography color="textSecondary">No APM data found for prefix "{prefix}"</Typography>
+          <Typography color="textSecondary">
+            No APM data found for prefix "{prefix}"
+          </Typography>
         </Box>
       )}
     </Box>

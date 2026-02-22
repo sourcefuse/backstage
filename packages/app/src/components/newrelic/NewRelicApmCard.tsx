@@ -28,7 +28,15 @@ export const NEWRELIC_APM_APP_NAME_ANNOTATION = 'newrelic.com/apm-app-name';
 export const isNewRelicApmAvailable = (entity: Entity) =>
   Boolean(entity.metadata.annotations?.[NEWRELIC_APM_APP_NAME_ANNOTATION]);
 
-const KNOWN_ENVS = ['dev', 'qa', 'uat', 'staging', 'stage', 'production', 'prod'];
+const KNOWN_ENVS = [
+  'dev',
+  'qa',
+  'uat',
+  'staging',
+  'stage',
+  'production',
+  'prod',
+];
 
 const parseEnv = (fullName: string, baseName: string): string => {
   const suffix = fullName
@@ -36,7 +44,8 @@ const parseEnv = (fullName: string, baseName: string): string => {
     .replace(baseName.toLowerCase(), '')
     .replace(/^_/, '');
   if (!suffix) return 'default';
-  if (KNOWN_ENVS.includes(suffix)) return suffix === 'production' ? 'prod' : suffix;
+  if (KNOWN_ENVS.includes(suffix))
+    return suffix === 'production' ? 'prod' : suffix;
   return suffix;
 };
 
@@ -78,7 +87,16 @@ type EnvRow = {
   throughput: number | null;
 };
 
-const ENV_ORDER = ['dev', 'qa', 'uat', 'staging', 'stage', 'prod', 'production', 'default'];
+const ENV_ORDER = [
+  'dev',
+  'qa',
+  'uat',
+  'staging',
+  'stage',
+  'prod',
+  'production',
+  'default',
+];
 
 const sortByEnv = (rows: EnvRow[]) =>
   [...rows].sort(
@@ -296,10 +314,7 @@ export const NewRelicApmCard = () => {
                   className={classes.envChip}
                 />
               </TableCell>
-              <TableCell
-                align="center"
-                className={apdexClass(row.apdexScore)}
-              >
+              <TableCell align="center" className={apdexClass(row.apdexScore)}>
                 {row.apdexScore !== null ? row.apdexScore.toFixed(2) : '-'}
               </TableCell>
               <TableCell align="center">
@@ -307,10 +322,7 @@ export const NewRelicApmCard = () => {
                   ? row.responseTimeAverage.toFixed(0)
                   : '-'}
               </TableCell>
-              <TableCell
-                align="center"
-                className={errClass(row.errorRate)}
-              >
+              <TableCell align="center" className={errClass(row.errorRate)}>
                 {row.errorRate !== null
                   ? `${(row.errorRate * 100).toFixed(2)}%`
                   : '-'}

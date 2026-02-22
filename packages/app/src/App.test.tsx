@@ -20,11 +20,9 @@ describe('App', () => {
       ] as any,
     };
 
-
     const rendered = render(<App />);
     await waitFor(() => {
       expect(rendered.baseElement).toBeInTheDocument();
     });
-
   });
 });

@@ -1,16 +1,25 @@
 import { Button, Grid } from '@material-ui/core';
-import { NewRelicApmCard, isNewRelicApmAvailable } from '../newrelic/NewRelicApmCard';
-import { NewRelicFacadesTab, isNewRelicFacadesTabAvailable } from '../newrelic/NewRelicFacadesTab';
-import { EntityJiraOverviewCard, isJiraAvailable } from '@roadiehq/backstage-plugin-jira';
+import {
+  NewRelicApmCard,
+  isNewRelicApmAvailable,
+} from '../newrelic/NewRelicApmCard';
+import {
+  NewRelicFacadesTab,
+  isNewRelicFacadesTabAvailable,
+} from '../newrelic/NewRelicFacadesTab';
+import {
+  EntityJiraOverviewCard,
+  isJiraAvailable,
+} from '@roadiehq/backstage-plugin-jira';
 import {
   EntityGrafanaAlertsCard,
   EntityGrafanaDashboardsCard,
   isAlertSelectorAvailable,
   isDashboardSelectorAvailable,
 } from '@backstage-community/plugin-grafana';
-import {GrafanaEntityTab} from '../grafana/GrafanaEntityTab';
-import {PrometheusEntityTab} from '../prometheus/PrometheusEntityTab';
-import {AwsCostEntityTab} from '../aws/AwsCostEntityTab';
+import { GrafanaEntityTab } from '../grafana/GrafanaEntityTab';
+import { PrometheusEntityTab } from '../prometheus/PrometheusEntityTab';
+import { AwsCostEntityTab } from '../aws/AwsCostEntityTab';
 import {
   isNewRelicDashboardAvailable,
   EntityNewRelicDashboardContent,
@@ -121,7 +130,6 @@ const cicdContent = (
     </EntitySwitch.Case>
   </EntitySwitch>
 );
-
 
 const OverviewContent = () => {
   return (
@@ -331,8 +339,14 @@ const defaultEntityPage = (
 
 const componentPage = (
   <EntitySwitch>
-    <EntitySwitch.Case if={isComponentType('service')} children={serviceEntityPage} />
-    <EntitySwitch.Case if={isComponentType('website')} children={websiteEntityPage} />
+    <EntitySwitch.Case
+      if={isComponentType('service')}
+      children={serviceEntityPage}
+    />
+    <EntitySwitch.Case
+      if={isComponentType('website')}
+      children={websiteEntityPage}
+    />
     <EntitySwitch.Case>{defaultEntityPage}</EntitySwitch.Case>
   </EntitySwitch>
 );
@@ -341,7 +355,7 @@ const apiPage = (
   <EntityLayout>
     <EntityLayout.Route path="/" title="Overview">
       <Grid container spacing={3}>
-            <Grid item md={6}>
+        <Grid item md={6}>
           <EntityAboutCard />
         </Grid>
         <Grid item md={6} xs={12}>
@@ -375,7 +389,7 @@ const userPage = (
   <EntityLayout>
     <EntityLayout.Route path="/" title="Overview">
       <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={6}>
           <EntityUserProfileCard variant="gridItem" />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -390,7 +404,7 @@ const groupPage = (
   <EntityLayout>
     <EntityLayout.Route path="/" title="Overview">
       <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={6}>
           <EntityGroupProfileCard variant="gridItem" />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -414,7 +428,7 @@ const systemPage = (
   <EntityLayout>
     <EntityLayout.Route path="/" title="Overview">
       <Grid container spacing={3} alignItems="stretch">
-            <Grid item md={6}>
+        <Grid item md={6}>
           <EntityAboutCard variant="gridItem" />
         </Grid>
         <Grid item md={6} xs={12}>
@@ -460,7 +474,7 @@ const domainPage = (
   <EntityLayout>
     <EntityLayout.Route path="/" title="Overview">
       <Grid container spacing={3} alignItems="stretch">
-            <Grid item md={6}>
+        <Grid item md={6}>
           <EntityAboutCard variant="gridItem" />
         </Grid>
         <Grid item md={6} xs={12}>

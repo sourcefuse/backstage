@@ -41,7 +41,12 @@ import {
   EntityNamespacePicker,
 } from '@backstage/plugin-catalog-react';
 import { ReactNode, useEffect, useState } from 'react';
-import { CatalogTable, CatalogTableRow, CatalogTableColumnsFunc, catalogPlugin } from '@backstage/plugin-catalog';
+import {
+  CatalogTable,
+  CatalogTableRow,
+  CatalogTableColumnsFunc,
+  catalogPlugin,
+} from '@backstage/plugin-catalog';
 import { EntityLanguagePicker } from '../../filters/language.filter';
 import Grid from '@material-ui/core/Grid';
 import FilterListIcon from '@material-ui/icons/FilterList';
@@ -107,7 +112,7 @@ export const CustomCatalogPage = ({
           <SupportButton>All your software catalog entities</SupportButton>
         </ContentHeader>
         <EntityListProvider>
-          <Grid container style={{position: 'relative'}}>
+          <Grid container style={{ position: 'relative' }}>
             {showFilters && (
               <Grid item lg={2} xs={12}>
                 <EntityKindPicker initialFilter={initialKind} />

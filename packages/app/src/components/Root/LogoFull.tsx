@@ -3,8 +3,8 @@ import arcLogo from './logo/arc.png';
 import { CUSTOM_LOGO_KEY } from '../settings/CustomLogoSettings';
 
 const LogoFull = () => {
-  const [customLogo, setCustomLogo] = useState<string | null>(
-    () => localStorage.getItem(CUSTOM_LOGO_KEY),
+  const [customLogo, setCustomLogo] = useState<string | null>(() =>
+    localStorage.getItem(CUSTOM_LOGO_KEY),
   );
 
   useEffect(() => {
@@ -17,7 +17,13 @@ const LogoFull = () => {
     return () => window.removeEventListener('storage', handler);
   }, []);
 
-  return <img src={customLogo ?? arcLogo} alt="Logo" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />;
+  return (
+    <img
+      src={customLogo ?? arcLogo}
+      alt="Logo"
+      style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+    />
+  );
 };
 
 export default LogoFull;

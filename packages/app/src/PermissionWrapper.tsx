@@ -2,7 +2,8 @@
 
 import { usePermissionCheck } from './usePermissionCheck';
 
-export const PermissionWrapper = ({ children, permission }: any) => { // NOSONAR
+export const PermissionWrapper = ({ children, permission }: any) => {
+  // NOSONAR
   const hasPermission = usePermissionCheck(permission as string); // NOSONAR
 
   if (hasPermission === null) {

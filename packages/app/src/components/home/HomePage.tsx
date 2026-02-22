@@ -253,7 +253,6 @@ export const HomePageContent = () => {
   return (
     <SearchContextProvider>
       <div className={classes.root}>
-
         {/* ── Hero ── */}
         <div className={classes.hero}>
           <div className={classes.heroDeco1} />
@@ -269,8 +268,8 @@ export const HomePageContent = () => {
             </Typography>
 
             <Typography className={classes.heroSubtitle}>
-              Discover, manage and build software with SourceFuse&apos;s
-              unified developer platform.
+              Discover, manage and build software with SourceFuse&apos;s unified
+              developer platform.
             </Typography>
 
             <div className={classes.searchWrapper}>
@@ -316,7 +315,6 @@ export const HomePageContent = () => {
             </Grid>
           </Grid>
         </div>
-
       </div>
     </SearchContextProvider>
   );

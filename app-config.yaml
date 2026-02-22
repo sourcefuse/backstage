@@ -150,7 +150,7 @@ newrelic:
 # We use our own backend proxy for actual Grafana queries, so this domain
 # is only used for the annotation-based dashboard/alert cards (not the tab).
 grafana:
-  domain: ${GRAFANA_URL}
+  domain: http://localhost:3001  # Dummy value - using custom grafana-settings plugin
   unifiedAlerting: false
 
 sonarqube:

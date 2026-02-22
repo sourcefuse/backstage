@@ -36,18 +36,11 @@ COPY ./patches ./patches
 
 RUN yarn run postinstall
 
-# Build plugins inside Docker to create dist/ folders
-# This ensures plugins have compiled JavaScript before backend references them
-RUN for plugin in plugins/*; do \
-      if [ -d "$plugin" ] && [ -f "$plugin/package.json" ]; then \
-        echo "Building $plugin..."; \
-        yarn workspace $(cat $plugin/package.json | grep '"name"' | head -1 | cut -d'"' -f4) build || true; \
-      fi; \
-    done
-
-# Re-run yarn install to ensure all dependencies are present after building plugins
-# Building plugins may have changed the workspace dependency tree
-RUN yarn install --ignore-engines --network-timeout 600000 && rm -rf "$(yarn cache dir)"
+# Copy pre-built plugin dist folders (plugins were built locally/in CI)
+COPY plugins/access-validate-backend/dist ./plugins/access-validate-backend/dist
+COPY plugins/jenkins-with-reporting/dist ./plugins/jenkins-with-reporting/dist
+COPY plugins/jenkins-with-reporting-backend-backend/dist ./plugins/jenkins-with-reporting-backend-backend/dist
+COPY plugins/validate-access-backend/dist ./plugins/validate-access-backend/dist
 
 # CRITICAL FIX: Force yarn to verify and reinstall missing AWS SDK packages
 # Use --check-files to detect missing packages without triggering unnecessary rebuilds
@@ -68,7 +61,6 @@ RUN echo "=== Checking AWS SDK packages ===" && \
     done
 
 # Clean up TypeScript source files from plugins to prevent runtime import errors
-# This must happen AFTER building plugins
 RUN find plugins -type d -name "src" -exec rm -rf {} + 2>/dev/null || true && \
     find node_modules/@internal -type d -name "src" -exec rm -rf {} + 2>/dev/null || true
 
