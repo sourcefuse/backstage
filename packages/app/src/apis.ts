@@ -16,7 +16,6 @@ import {
 } from '@backstage/core-plugin-api';
 import { GithubAuth } from '@backstage/core-app-api';
 import { discoveryApiRef } from '@backstage/core-plugin-api';
-import { visitsApiRef, VisitsWebStorageApi } from '@backstage/plugin-home';
 import {
   githubPullRequestsApiRef,
   GithubPullRequestsClient,
@@ -48,12 +47,6 @@ export const apis: AnyApiFactory[] = [
     api: scmIntegrationsApiRef,
     deps: { configApi: configApiRef },
     factory: ({ configApi }) => ScmIntegrationsApi.fromConfig(configApi),
-  }),
-  createApiFactory({
-    api: visitsApiRef,
-    deps: { identityApi: identityApiRef, errorApi: errorApiRef },
-    factory: ({ identityApi, errorApi }) =>
-      VisitsWebStorageApi.create({ identityApi, errorApi }),
   }),
   createApiFactory({
     api: githubAuthApiRef,

@@ -1,5 +1,6 @@
 // PermissionWrapper.js
 
+import React from 'react';
 import { usePermissionCheck } from './usePermissionCheck';
 
 export const PermissionWrapper = ({ children, permission }: any) => {

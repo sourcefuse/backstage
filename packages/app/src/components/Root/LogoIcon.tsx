@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core';
 import { CUSTOM_LOGO_KEY } from '../settings/CustomLogoSettings';
 

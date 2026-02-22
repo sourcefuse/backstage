@@ -1,3 +1,4 @@
+import React from 'react';
 import { SvgIcon, SvgIconProps } from '@material-ui/core';
 
 export const Homeicon = (props: SvgIconProps) => (
