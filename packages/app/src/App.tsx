@@ -25,11 +25,8 @@ import loginBg from './assets/images/login-bg.jpg';
 import sfLogoMinimal from './assets/images/sf-minimal-logo.png';
 import { PermissionWrapper } from './PermissionWrapper';
 
-import {
-  CatalogEntityPage,
-  CatalogIndexPage,
-  catalogPlugin,
-} from '@backstage/plugin-catalog';
+import { CatalogEntityPage, catalogPlugin } from '@backstage/plugin-catalog';
+import { CustomCatalogPage } from './components/catalog/CustomCatalogIndexPage';
 import {
   CatalogImportPage,
   catalogImportPlugin,
@@ -444,9 +441,10 @@ const app = createApp({
 const routes = (
   <FlatRoutes>
     <Route path="/" element={<Navigate to="catalog" />} />
-    <Route path="/catalog" element={<CatalogIndexPage />} />
-    {/* <CustomCatalogPage />
-    </Route> */}
+    <Route
+      path="/catalog"
+      element={<CustomCatalogPage initiallySelectedFilter="all" />}
+    />
     <Route
       path="/catalog/:namespace/:kind/:name"
       element={

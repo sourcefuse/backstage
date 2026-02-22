@@ -14,77 +14,107 @@
  * limitations under the License.
  */
 
+import React, { ReactNode, useEffect, useState } from 'react';
 import {
-    Content,
-    ContentHeader,
-    CreateButton,
-    PageWithHeader,
-    SupportButton,
-    TableColumn,
-    TableProps,
-  } from '@backstage/core-components';
-  import {
-    configApiRef,
-    useApi,
-  } from '@backstage/core-plugin-api';
-  import {
-    CatalogFilterLayout,
-    EntityLifecyclePicker,
-    EntityListProvider,
-    EntityProcessingStatusPicker,
-    EntityOwnerPicker,
-    EntityTagPicker,
-    EntityTypePicker,
-    UserListFilterKind,
-    UserListPicker,
-    EntityKindPicker,
-    EntityNamespacePicker,
-  } from '@backstage/plugin-catalog-react';
-  import React, { ReactNode } from 'react';
-  import { CatalogTable, CatalogTableRow } from '@backstage/plugin-catalog';
+  Content,
+  ContentHeader,
+  CreateButton,
+  PageWithHeader,
+  SupportButton,
+  TableColumn,
+  TableProps,
+} from '@backstage/core-components';
+import {
+  attachComponentData,
+  configApiRef,
+  useApi,
+} from '@backstage/core-plugin-api';
+import {
+  EntityLifecyclePicker,
+  EntityListProvider,
+  EntityProcessingStatusPicker,
+  EntityOwnerPicker,
+  EntityTagPicker,
+  EntityTypePicker,
+  UserListFilterKind,
+  UserListPicker,
+  EntityKindPicker,
+  EntityNamespacePicker,
+} from '@backstage/plugin-catalog-react';
+import {
+  CatalogTable,
+  CatalogTableRow,
+  CatalogTableColumnsFunc,
+  catalogPlugin,
+} from '@backstage/plugin-catalog';
 import { EntityLanguagePicker } from '../../filters/language.filter';
+import Grid from '@material-ui/core/Grid';
+import FilterListIcon from '@material-ui/icons/FilterList';
+import ToggleButton from '@material-ui/lab/ToggleButton';
 
-  /**
-   * Props for root catalog pages.
-   *
-   * @public
-   */
-  export interface CatalogPageProps {
-    initiallySelectedFilter?: UserListFilterKind;
-    columns?: TableColumn<CatalogTableRow>[];
-    actions?: TableProps<CatalogTableRow>['actions'];
-    initialKind?: string;
-    tableOptions?: TableProps<CatalogTableRow>['options'];
-    emptyContent?: ReactNode;
-  }
-  export type CatalogPluginOptions = {
-    createButtonTitle: string;
-  };
+/**
+ * Props for root catalog pages.
+ *
+ * @public
+ */
+export interface CatalogPageProps {
+  initiallySelectedFilter?: UserListFilterKind;
+  columns?: TableColumn<CatalogTableRow>[] | CatalogTableColumnsFunc;
+  actions?: TableProps<CatalogTableRow>['actions'];
+  initialKind?: string;
+  tableOptions?: TableProps<CatalogTableRow>['options'];
+  emptyContent?: ReactNode;
+}
 
-  export const CustomCatalogPage = ({
-      columns,
-      actions,
-      initiallySelectedFilter = 'owned',
-      initialKind = 'component',
-      tableOptions = {},
-      emptyContent,
-    }: CatalogPageProps) => {
-    const orgName =
-      useApi(configApiRef).getOptionalString('organization.name') ?? 'Backstage';
+export type CatalogPluginOptions = {
+  createButtonTitle: string;
+};
 
-    return (
-      <PageWithHeader title={`${orgName} Catalog`} themeId="home">
-        <Content>
-          <ContentHeader title="Create Component">
-            <CreateButton
-              title='Create Component'
-              to='/create'
-            />
-            <SupportButton>All your software catalog entities</SupportButton>
-          </ContentHeader>
-          <EntityListProvider>
-            <CatalogFilterLayout>
-              <CatalogFilterLayout.Filters>
+const columnsWithoutSystem: CatalogTableColumnsFunc = ctx => {
+  return CatalogTable.defaultColumnsFunc(ctx).filter(
+    col => col.title !== 'System',
+  );
+};
+
+export const CustomCatalogPage = ({
+  columns = columnsWithoutSystem,
+  actions,
+  initiallySelectedFilter = 'owned',
+  initialKind = 'component',
+  tableOptions = {},
+  emptyContent,
+}: CatalogPageProps) => {
+  const orgName =
+    useApi(configApiRef).getOptionalString('organization.name') ?? 'Backstage';
+  const [showFilters, setShowFilters] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowFilters(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <PageWithHeader title={`${orgName} Catalog`} themeId="home">
+      <Content>
+        <ContentHeader
+          titleComponent={
+            <ToggleButton
+              value="show filters"
+              selected={showFilters}
+              onChange={() => setShowFilters(!showFilters)}
+            >
+              <FilterListIcon />
+              &nbsp;Filters
+            </ToggleButton>
+          }
+        >
+          <CreateButton title="Create Component" to="/create" />
+          <SupportButton>All your software catalog entities</SupportButton>
+        </ContentHeader>
+        <EntityListProvider>
+          <Grid container style={{ position: 'relative' }}>
+            {showFilters && (
+              <Grid item lg={2} xs={12}>
                 <EntityKindPicker initialFilter={initialKind} />
                 <EntityTypePicker />
                 <UserListPicker initialFilter={initiallySelectedFilter} />
@@ -94,18 +124,28 @@ import { EntityLanguagePicker } from '../../filters/language.filter';
                 <EntityProcessingStatusPicker />
                 <EntityNamespacePicker />
                 <EntityLanguagePicker />
-              </CatalogFilterLayout.Filters>
-              <CatalogFilterLayout.Content>
-                <CatalogTable
-                  columns={columns}
-                  actions={actions}
-                  tableOptions={tableOptions}
-                  emptyContent={emptyContent}
-                />
-              </CatalogFilterLayout.Content>
-            </CatalogFilterLayout>
-          </EntityListProvider>
-        </Content>
-      </PageWithHeader>
-    );
-  }
+              </Grid>
+            )}
+            <Grid item xs={12} lg={showFilters ? 10 : 12}>
+              <CatalogTable
+                columns={columns}
+                actions={actions}
+                tableOptions={tableOptions}
+                emptyContent={emptyContent}
+              />
+            </Grid>
+          </Grid>
+        </EntityListProvider>
+      </Content>
+    </PageWithHeader>
+  );
+};
+
+// Bind the catalog plugin's rootRouteRef to this component so that
+// Backstage's FlatRoutes can resolve `routeRef{id=catalog}` when
+// EntityLayout calls useRouteRef internally (required in plugin-catalog ≥1.22)
+attachComponentData(
+  CustomCatalogPage,
+  'core.mountPoint',
+  catalogPlugin.routes.catalogIndex,
+);
