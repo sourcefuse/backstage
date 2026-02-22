@@ -311,6 +311,17 @@ catalog:
       rules:
         - allow: [Template]
 
+    # Local catalog entities
+    - type: file
+      target: ../../catalog-info.yaml
+      rules:
+        - allow: [Component, System, API, Group, User, Resource, Location]
+
+    - type: file
+      target: ../../examples/entities.yaml
+      rules:
+        - allow: [Component, System, API, Group, User, Resource]
+
 # kubernetes:
 # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
 # see https://backstage.io/docs/permissions/getting-started for more on the permission framework
