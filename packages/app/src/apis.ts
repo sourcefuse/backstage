@@ -8,7 +8,6 @@ import {
   AnyApiFactory,
   configApiRef,
   createApiFactory,
-  errorApiRef,
   githubAuthApiRef,
   identityApiRef,
   oauthRequestApiRef,
