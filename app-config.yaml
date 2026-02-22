@@ -44,8 +44,13 @@ backend:
 integrations:
   github:
     - host: github.com
+      apiBaseUrl: https://api.github.com
       token: ${GITHUB_TOKEN}
       orgs: [sourcefuse]
+      # Rate limit protection - wait when approaching limit
+      rateLimit:
+        window: 1h
+        max: 4500 # Leave buffer below 5000/hour limit
       apps:
         - appId: ${INTEGRATION_GITHUB_APP_ID}
           webhookUrl: ${INTEGRATION_GITHUB_WEBHOOK_URL}
@@ -143,7 +148,7 @@ catalog:
         orgs: ['sourcefuse']
         schedule:
           initialDelay: { seconds: 30 }
-          frequency: { hours: 1 }
+          frequency: { hours: 3 } # Reduced from 1 hour to 3 hours to save API calls
           timeout: { minutes: 15 }
     github:
       # the provider ID can be any camelCase string
@@ -152,11 +157,11 @@ catalog:
         catalogPath: '/catalog-info.yaml' # string
         filters:
           branch: 'main' # string
-          repository: '.*' # Regex
+          repository: '^(?!biz-book-api$).*' # Exclude biz-book-api (404 repo)
         schedule: # optional; same options as in TaskScheduleDefinition
           # supports cron, ISO duration, "human duration" as used in code
           initialDelay: { seconds: 30 }
-          frequency: { hours: 1 }
+          frequency: { hours: 3 } # Reduced to save API rate limit
           # supports ISO duration, "human duration" as used in code
           timeout: { minutes: 15 }
 
