@@ -24,7 +24,7 @@ jobs:
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.67.0
         env:
-          GITHUB_TOKEN: ${{ secrets.BACKSTAGE_TAGGING_API_TOKEN_GITHUB }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
           REPO_OWNER: sourcefuse
           WITH_V: false
