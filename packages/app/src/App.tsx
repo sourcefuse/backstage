@@ -1,7 +1,6 @@
 import React from 'react';
 import { Navigate, Route } from 'react-router-dom';
 import './App.css';
-import '@backstage/ui/css/styles.css';
 import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
 import {
   createTheme,
