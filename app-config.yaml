@@ -67,6 +67,10 @@ techdocs:
     runIn: 'local' # Alternatives - 'local'
   publisher:
     type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+  # Cache docs to reduce GitHub API errors for inaccessible repositories
+  cache:
+    ttl: 3600000 # Cache for 1 hour (in milliseconds)
+    readTimeout: 5000 # Timeout after 5 seconds
 
 # auth:
 #   # see https://backstage.io/docs/auth/ to learn about auth providers
