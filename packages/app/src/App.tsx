@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, Route } from 'react-router-dom';
 import './App.css';
 import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
@@ -24,6 +24,12 @@ import {
 import loginBg from './assets/images/login-bg.jpg';
 import sfLogoMinimal from './assets/images/sf-minimal-logo.png';
 import { PermissionWrapper } from './PermissionWrapper';
+import { HomePageContent } from './components/home/HomePage';
+import {
+  HomepageCompositionRoot,
+  VisitListener,
+} from '@backstage/plugin-home';
+import { useApi, identityApiRef, oauthRequestApiRef } from '@backstage/core-plugin-api';
 
 import { CatalogEntityPage, catalogPlugin } from '@backstage/plugin-catalog';
 import { CustomCatalogPage } from './components/catalog/CustomCatalogIndexPage';
@@ -64,6 +70,7 @@ import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/
 import { githubAuthApiRef } from '@backstage/core-plugin-api';
 import { Box, Grid } from '@material-ui/core';
 import { AutoLogout } from './components/AutoLogout';
+import { TechRadarPage } from '@backstage-community/plugin-tech-radar';
 
 /* My Custom Theme */
 const customTheme = createTheme({
@@ -337,6 +344,34 @@ body{
 
 `;
 
+function GuestAwareOAuthDialog() {
+  const identityApi = useApi(identityApiRef);
+  const oauthRequestApi = useApi(oauthRequestApiRef);
+  const [isGuest, setIsGuest] = useState<boolean>(false);
+
+  useEffect(() => {
+    identityApi
+      .getBackstageIdentity()
+      .then(identity => {
+        if (identity.userEntityRef === 'user:development/guest') {
+          setIsGuest(true);
+        }
+      })
+      .catch(() => {});
+  }, [identityApi]);
+
+  useEffect(() => {
+    if (!isGuest) return undefined;
+    const subscription = oauthRequestApi.authRequest$().subscribe(requests => {
+      requests.forEach(request => request.reject());
+    });
+    return () => subscription.unsubscribe();
+  }, [isGuest, oauthRequestApi]);
+
+  if (isGuest) return null;
+  return <OAuthRequestDialog />;
+}
+
 const app = createApp({
   apis,
   components: {
@@ -440,7 +475,15 @@ const app = createApp({
 
 const routes = (
   <FlatRoutes>
-    <Route path="/" element={<Navigate to="catalog" />} />
+    <Route path="/" element={<Navigate to="home" />} />
+    <Route
+      path="/home"
+      element={
+        <HomepageCompositionRoot>
+          <HomePageContent />
+        </HomepageCompositionRoot>
+      }
+    />
     <Route
       path="/catalog"
       element={<CustomCatalogPage initiallySelectedFilter="all" />}
@@ -474,10 +517,7 @@ const routes = (
       }
     />
     <Route path="/api-docs" element={<ApiExplorerPage />} />
-    {/* <Route
-      path="/tech-radar"
-      element={<TechRadarPage width={1500} height={800} />}
-    /> */}
+    <Route path="/tech-radar" element={<TechRadarPage width={1500} height={800} />} />
     <Route
       path="/catalog-import"
       element={
@@ -525,7 +565,7 @@ const routes = (
 export default app.createRoot(
   <>
     <AlertDisplay />
-    <OAuthRequestDialog />
+    <GuestAwareOAuthDialog />
     <AutoLogout
       idleTimeoutMinutes={30}
       promptBeforeIdleSeconds={30}
@@ -533,6 +573,7 @@ export default app.createRoot(
       logoutIfDisconnected={false}
     />
     <AppRouter>
+      <VisitListener />
       <Root>{routes}</Root>
     </AppRouter>
   </>,

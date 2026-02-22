@@ -114,43 +114,43 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
       </SidebarGroup>
       {/* <SidebarDivider /> */}
       <SidebarGroup label="Menu" icon={<MenuIcon />}>
-        <SidebarItem icon={Homeicon} to="home" text="Home" />
+        <SidebarItem icon={Homeicon} to="/home" text="Home" />
         <SidebarItem icon={ExtensionIcon} to="api-docs" text="APIs" />
         <SidebarItem icon={CategoryIcon} to="catalog" text="Catalog">
           <SidebarSubmenu title="Catalog">
             <SidebarSubmenuItem
               title="Components"
-              to="catalog?filters[kind]=component"
+              to="catalog?filters[kind]=component&filters[user]=all"
               icon={CategoryIcon}
             />
             <SidebarSubmenuItem
               title="Groups"
-              to="catalog?filters[kind]=group"
+              to="catalog?filters[kind]=group&filters[user]=all"
               icon={GroupIcon}
             />
             <SidebarSubmenuItem
               title="Locations"
-              to="catalog?filters[kind]=location"
+              to="catalog?filters[kind]=location&filters[user]=all"
               icon={RoomIcon}
             />
             <SidebarSubmenuItem
               title="Resources"
-              to="catalog?filters[kind]=resource"
+              to="catalog?filters[kind]=resource&filters[user]=all"
               icon={StorageIcon}
             />
             <SidebarSubmenuItem
               title="Systems"
-              to="catalog?filters[kind]=system"
+              to="catalog?filters[kind]=system&filters[user]=all"
               icon={DevicesIcon}
             />
             <SidebarSubmenuItem
               title="Templates"
-              to="catalog?filters[kind]=template"
+              to="catalog?filters[kind]=template&filters[user]=all"
               icon={AssignmentIcon}
             />
             <SidebarSubmenuItem
               title="Users"
-              to="catalog?filters[kind]=user"
+              to="catalog?filters[kind]=user&filters[user]=all"
               icon={PersonIcon}
             />
           </SidebarSubmenu>
