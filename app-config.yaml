@@ -105,13 +105,6 @@ scaffolder:
 
 proxy:
   endpoints:
-    '/snyk':
-      target: https://api.snyk.io
-      headers:
-        User-Agent: tech-services/backstage-plugin/1.0
-        Authorization: token ${SNYK_TOKEN}
-      credentials: require
-
     '/sonarqube':
       target: https://sonarcloud.io/api
       allowedMethods: ['GET']
@@ -132,26 +125,24 @@ catalog:
       - id: production
         githubUrl: 'https://github.com'
         orgs: ['sourcefuse']
+        schedule:
+          initialDelay: { seconds: 30 }
+          frequency: { hours: 1 }
+          timeout: { minutes: 15 }
     github:
       # the provider ID can be any camelCase string
       providerId:
         organization: 'sourcefuse' # string
-  #        catalogPath: '/catalog-info.yaml' # string
-  #        filters:
-  #          branch: 'main' # string
-  #          repository: '.*' # Regex
-  #        schedule: # optional; same options as in TaskScheduleDefinition
-  #          # supports cron, ISO duration, "human duration" as used in code
-  #          frequency: { minutes: 1440 }
-  #          # supports ISO duration, "human duration" as used in code
-  #          timeout: { minutes: 3 }
-  #      validateLocationsExist:
-  #        organization: 'sourcefuse' # string
-  #        catalogPath: '/catalog-info.yaml' # string
-  #        #        filters:
-  #        #          branch: 'main' # string
-  #        #          repository: '.*' # Regex
-  #        validateLocationsExist: true # optional boolean
+        catalogPath: '/catalog-info.yaml' # string
+        filters:
+          branch: 'main' # string
+          repository: '.*' # Regex
+        schedule: # optional; same options as in TaskScheduleDefinition
+          # supports cron, ISO duration, "human duration" as used in code
+          initialDelay: { seconds: 30 }
+          frequency: { hours: 1 }
+          # supports ISO duration, "human duration" as used in code
+          timeout: { minutes: 15 }
 
   rules:
     - allow: [Component, System, API, Group, User, Resource, Location]

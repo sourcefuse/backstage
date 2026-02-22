@@ -6,7 +6,12 @@ import {
   createTheme,
   lightTheme,
   BackstageTheme,
+  themes,
+  UnifiedThemeProvider,
 } from '@backstage/theme';
+import Brightness4Icon from '@material-ui/icons/Brightness4';
+import Brightness7Icon from '@material-ui/icons/Brightness7';
+import PaletteIcon from '@material-ui/icons/Palette';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/core/styles';
 import {
@@ -40,7 +45,15 @@ import {
 } from '@backstage/plugin-techdocs';
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
 import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
-import { UserSettingsPage } from '@backstage/plugin-user-settings';
+import {
+  SettingsLayout,
+  UserSettingsAppearanceCard,
+  UserSettingsAuthProviders,
+  UserSettingsFeatureFlags,
+  UserSettingsIdentityCard,
+  UserSettingsProfileCard,
+} from '@backstage/plugin-user-settings';
+import { CustomLogoSettings } from './components/settings/CustomLogoSettings';
 import { apis } from './apis';
 import { entityPage } from './components/catalog/EntityPage';
 import { searchPage } from './components/search/SearchPage';
@@ -52,8 +65,7 @@ import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
 import { githubAuthApiRef } from '@backstage/core-plugin-api';
-import { Box } from '@material-ui/core';
-import { EntitySnykContent } from 'backstage-plugin-snyk';
+import { Box, Grid } from '@material-ui/core';
 import { AutoLogout } from './components/AutoLogout';
 
 /* My Custom Theme */
@@ -256,6 +268,38 @@ export const createCustomThemeOverrides = (): // theme: BackstageTheme,
         },
       },
     },
+    BackstageInfoCard: {
+      headerTitle: {
+        color: '#212D38',
+        fontWeight: 700,
+        fontFamily: 'Gotham, sans-serif',
+      },
+      header: {
+        color: '#525252',
+      },
+    },
+    MuiCard: {
+      root: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: '10px',
+      },
+    },
+    MuiCardContent: {
+      root: {
+        backgroundColor: '#FFFFFF',
+      },
+    },
+    MuiCardHeader: {
+      root: {
+        backgroundColor: '#FFFFFF',
+        backgroundImage: 'none',
+      },
+      title: {
+        color: '#212D38',
+        fontWeight: 700,
+        fontSize: '1rem',
+      },
+    },
   };
 };
 
@@ -365,9 +409,28 @@ const app = createApp({
 
   themes: [
     {
+      id: 'light',
+      title: 'Light',
+      variant: 'light',
+      icon: <Brightness7Icon />,
+      Provider: ({ children }) => (
+        <UnifiedThemeProvider theme={themes.light} children={children} />
+      ),
+    },
+    {
+      id: 'dark',
+      title: 'Dark',
+      variant: 'dark',
+      icon: <Brightness4Icon />,
+      Provider: ({ children }) => (
+        <UnifiedThemeProvider theme={themes.dark} children={children} />
+      ),
+    },
+    {
       id: 'custom-theme',
       title: 'My Custom Theme',
       variant: 'light',
+      icon: <PaletteIcon />,
       Provider: ({ children }) => (
         <ThemeProvider theme={customfinalTheme}>
           <CssBaseline />
@@ -417,7 +480,6 @@ const routes = (
       path="/tech-radar"
       element={<TechRadarPage width={1500} height={800} />}
     /> */}
-    <Route path="/snyk" element={<EntitySnykContent />} />
     <Route
       path="/catalog-import"
       element={
@@ -429,7 +491,35 @@ const routes = (
     <Route path="/search" element={<SearchPage />}>
       {searchPage}
     </Route>
-    <Route path="/settings" element={<UserSettingsPage />} />
+    <Route
+      path="/settings"
+      element={
+        <SettingsLayout>
+          <SettingsLayout.Route path="general" title="General">
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <UserSettingsProfileCard />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <UserSettingsAppearanceCard />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <UserSettingsIdentityCard />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <CustomLogoSettings />
+              </Grid>
+            </Grid>
+          </SettingsLayout.Route>
+          <SettingsLayout.Route path="auth-providers" title="Authentication">
+            <UserSettingsAuthProviders />
+          </SettingsLayout.Route>
+          <SettingsLayout.Route path="feature-flags" title="Feature Flags">
+            <UserSettingsFeatureFlags />
+          </SettingsLayout.Route>
+        </SettingsLayout>
+      }
+    />
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
   </FlatRoutes>
 );
