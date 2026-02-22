@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core';
+import wlogo from './logo/wlogo.png';
 import { CUSTOM_LOGO_KEY } from '../settings/CustomLogoSettings';
 
 const useStyles = makeStyles({
@@ -48,7 +49,7 @@ const LogoIcon = () => {
   return (
     <div className={classes.backstagelogoHolder}>
       <img
-        src="https://avatars.githubusercontent.com/u/411345?s=200&v=4"
+        src={wlogo}
         alt="Logo"
         style={{
           width: 42,

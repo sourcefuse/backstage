@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import arcLogo from './logo/arc.png';
+import wlogo from './logo/wlogo.png';
 import { CUSTOM_LOGO_KEY } from '../settings/CustomLogoSettings';
 
 const LogoFull = () => {
@@ -19,7 +19,7 @@ const LogoFull = () => {
 
   return (
     <img
-      src={customLogo ?? arcLogo}
+      src={customLogo ?? wlogo}
       alt="Logo"
       style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
     />
