@@ -1,8 +1,18 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate, Route } from 'react-router-dom';
 import './App.css';
+import '@backstage/ui/css/styles.css';
 import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
-import { createTheme, lightTheme, BackstageTheme } from '@backstage/theme';
+import {
+  createTheme,
+  lightTheme,
+  BackstageTheme,
+  themes,
+  UnifiedThemeProvider,
+} from '@backstage/theme';
+import Brightness4Icon from '@material-ui/icons/Brightness4';
+import Brightness7Icon from '@material-ui/icons/Brightness7';
+import PaletteIcon from '@material-ui/icons/Palette';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/core/styles';
 import {

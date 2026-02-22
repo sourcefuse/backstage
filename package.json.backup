@@ -1,0 +1,96 @@
+{
+  "name": "root",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "18 || 20"
+  },
+  "scripts": {
+    "dev": "sh -c 'set -a; [ -f .env.local ] && . .env.local; set +a; concurrently \"yarn start\" \"yarn workspace backend start\"'",
+    "start": "yarn workspace app start",
+    "start-backend": "sh -c 'set -a; [ -f .env.local ] && . .env.local; set +a; yarn workspace backend start'",
+    "build:backend": "yarn workspace backend build",
+    "build:all": "backstage-cli repo build --all",
+    "build-image": "yarn workspace backend build-image",
+    "tsc": "tsc",
+    "tsc:full": "tsc --skipLibCheck false --incremental false",
+    "clean": "backstage-cli repo clean",
+    "test": "backstage-cli repo test",
+    "test:all": "backstage-cli repo test --coverage",
+    "lint": "backstage-cli repo lint --since origin/main",
+    "lint:all": "backstage-cli repo lint",
+    "prettier:check": "prettier --check .",
+    "create-plugin": "backstage-cli create-plugin --scope internal",
+    "remove-plugin": "backstage-cli remove-plugin",
+    "setup-hooks": "husky install",
+    "new": "backstage-cli new --scope internal",
+    "infra:init": "cd terraform && terraform init",
+    "infra:plan": "cd terraform && terraform plan",
+    "infra:apply": "cd terraform && terraform apply",
+    "infra:destroy": "cd terraform && terraform destroy",
+    "prepare": "husky install",
+    "postinstall": "patch-package",
+    "test:e2e": "playwright test",
+    "fix": "backstage-cli repo fix"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "plugins/*"
+    ]
+  },
+  "devDependencies": {
+    "@backstage/cli": "^0.27.1",
+    "@backstage/e2e-test-utils": "^0.1.1",
+    "@commitlint/cli": "^17.0.0",
+    "@commitlint/config-conventional": "^17.0.0",
+    "@commitlint/config-lerna-scopes": "^17.0.0",
+    "@playwright/test": "^1.32.3",
+    "@spotify/prettier-config": "^12.0.0",
+    "concurrently": "^8.0.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "cz-format-extension": "^1.5.0",
+    "husky": "^8.0.1",
+    "lerna": "^7.3.0",
+    "node-gyp": "^10.0.0",
+    "patch-package": "^8.0.0",
+    "postinstall-postinstall": "^2.1.0",
+    "prettier": "^2.3.2",
+    "typescript": "~5.4.0"
+  },
+  "prettier": "@spotify/prettier-config",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-format-extension"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint:all && npm run test:all",
+      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "dependencies": {},
+  "resolutions": {
+    "react": "^18",
+    "react-dom": "^18",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@backstage/core-plugin-api": "1.9.4",
+    "@backstage/backend-plugin-api": "1.6.2",
+    "@backstage/backend-app-api": "1.4.1",
+    "@backstage/backend-defaults": "0.5.3",
+    "randexp": "0.5.3"
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+}
