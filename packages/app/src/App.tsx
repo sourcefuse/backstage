@@ -65,6 +65,7 @@ import { Root } from './components/Root';
 import { createApp } from '@backstage/app-defaults';
 import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
+import { NewRelicPage } from '@backstage-community/plugin-newrelic';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
 import { githubAuthApiRef } from '@backstage/core-plugin-api';
@@ -559,6 +560,7 @@ const routes = (
       }
     />
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
+    <Route path="/newrelic" element={<NewRelicPage />} />
   </FlatRoutes>
 );
 
