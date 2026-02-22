@@ -132,6 +132,15 @@ proxy:
       headers:
         X-Api-Key: ${NEW_RELIC_USER_KEY}
 
+    '/grafana/api':
+      target: ${GRAFANA_URL}
+      headers:
+        Authorization: 'Bearer ${GRAFANA_TOKEN}'
+
+grafana:
+  domain: ${GRAFANA_URL}
+  unifiedAlerting: true
+
 jenkins:
   instances:
     - name: default

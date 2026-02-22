@@ -72,6 +72,11 @@ import {
   isJenkinsAvailable,
 } from '@internal/backstage-plugin-jenkins-with-reporting';
 
+import {
+  EntityGrafanaDashboardsCard,
+  EntityGrafanaAlertsCard,
+} from '@k-phoen/backstage-plugin-grafana';
+
 const techdocsContent = (
   <EntityTechdocsContent>
     <TechDocsAddons>
@@ -135,6 +140,12 @@ const overviewContent = (
         </Grid>
       </EntitySwitch.Case>
     </EntitySwitch>
+    <Grid item md={6} xs={12}>
+      <EntityGrafanaDashboardsCard />
+    </Grid>
+    <Grid item md={6} xs={12}>
+      <EntityGrafanaAlertsCard />
+    </Grid>
   </Grid>
 );
 
