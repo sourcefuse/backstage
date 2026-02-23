@@ -17,12 +17,14 @@ import {
 import {
   LambdaClient,
   GetFunctionConfigurationCommand,
+  type FunctionConfiguration,
 } from '@aws-sdk/client-lambda';
 import {
   CloudWatchClient,
   GetMetricStatisticsCommand,
   type Statistic,
   type StandardUnit,
+  type Datapoint,
 } from '@aws-sdk/client-cloudwatch';
 
 const TABLE = 'plugin_aws_cost_entity_settings';
@@ -436,7 +438,7 @@ export const awsCostSettingsPlugin = createBackendPlugin({
 
             // 2. Calculate summary stats
             const totalFunctions = functions.length;
-            const totalCodeSize = functions.reduce((sum, f) => sum + (f.CodeSize ?? 0), 0);
+            const totalCodeSize = functions.reduce((sum: number, f: FunctionConfiguration) => sum + (f.CodeSize ?? 0), 0);
 
             // 3. Get account settings for concurrency
             const accountSettings = await lambda.send(new GetAccountSettingsCommand({}));
@@ -452,7 +454,7 @@ export const awsCostSettingsPlugin = createBackendPlugin({
             // Get metrics for each function (limit to first 50 for performance)
             const functionsToCheck = functions.slice(0, 50);
             const functionMetrics = await Promise.all(
-              functionsToCheck.map(async func => {
+              functionsToCheck.map(async (func: FunctionConfiguration) => {
                 try {
                   const [invocations, errors, concurrentExecs] = await Promise.all([
                     cloudwatch.send(
@@ -491,15 +493,15 @@ export const awsCostSettingsPlugin = createBackendPlugin({
                   ]);
 
                   const totalInvocations = (invocations.Datapoints ?? []).reduce(
-                    (sum, dp) => sum + (dp.Sum ?? 0),
+                    (sum: number, dp: Datapoint) => sum + (dp.Sum ?? 0),
                     0,
                   );
                   const totalErrors = (errors.Datapoints ?? []).reduce(
-                    (sum, dp) => sum + (dp.Sum ?? 0),
+                    (sum: number, dp: Datapoint) => sum + (dp.Sum ?? 0),
                     0,
                   );
                   const maxConcurrent = Math.max(
-                    ...(concurrentExecs.Datapoints ?? []).map(dp => dp.Maximum ?? 0),
+                    ...(concurrentExecs.Datapoints ?? []).map((dp: Datapoint) => dp.Maximum ?? 0),
                     0,
                   );
 

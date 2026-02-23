@@ -40,21 +40,21 @@
     ]
   },
   "devDependencies": {
+    "@backstage/cli": "^0.27.1",
+    "@backstage/e2e-test-utils": "^0.1.1",
     "@commitlint/cli": "^17.0.0",
     "@commitlint/config-conventional": "^17.0.0",
     "@commitlint/config-lerna-scopes": "^17.0.0",
-    "cz-conventional-changelog": "^3.3.0",
-    "cz-format-extension": "^1.5.0",
-    "husky": "^8.0.1",
-    "patch-package": "^8.0.0",
-    "postinstall-postinstall": "^2.1.0",
-    "@backstage/cli": "^0.27.1",
-    "@backstage/e2e-test-utils": "^0.1.1",
     "@playwright/test": "^1.32.3",
     "@spotify/prettier-config": "^12.0.0",
     "concurrently": "^8.0.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "cz-format-extension": "^1.5.0",
+    "husky": "^8.0.1",
     "lerna": "^7.3.0",
     "node-gyp": "^10.0.0",
+    "patch-package": "^8.0.0",
+    "postinstall-postinstall": "^2.1.0",
     "prettier": "^2.3.2",
     "typescript": "~5.4.0"
   },
@@ -80,7 +80,12 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
-  "dependencies": {},
+  "dependencies": {
+    "@aws-sdk/client-cloudwatch": "3.995.0",
+    "@aws-sdk/client-cost-explorer": "3.995.0",
+    "@aws-sdk/client-ecs": "3.995.0",
+    "@aws-sdk/client-lambda": "3.995.0"
+  },
   "resolutions": {
     "react": "^18",
     "react-dom": "^18",
