@@ -150,29 +150,30 @@ jenkins:
       apiKey: ${JENKINS_API_TOKEN1}
 
 catalog:
-  providers:
-    githubOrg:
-      - id: production
-        githubUrl: 'https://github.com'
-        orgs: ['sourcefuse']
-        schedule:
-          initialDelay: { seconds: 30 }
-          frequency: { hours: 3 } # Reduced from 1 hour to 3 hours to save API calls
-          timeout: { minutes: 15 }
-    github:
-      # the provider ID can be any camelCase string
-      providerId:
-        organization: 'sourcefuse' # string
-        catalogPath: '/catalog-info.yaml' # string
-        filters:
-          branch: 'main' # string
-          repository: '^(?!biz-book-api$).*' # Exclude biz-book-api (404 repo)
-        schedule: # optional; same options as in TaskScheduleDefinition
-          # supports cron, ISO duration, "human duration" as used in code
-          initialDelay: { seconds: 30 }
-          frequency: { hours: 3 } # Reduced to save API rate limit
-          # supports ISO duration, "human duration" as used in code
-          timeout: { minutes: 15 }
+  # Auto-discovery providers disabled to prevent GitHub API rate limit issues
+  # providers:
+  #   githubOrg:
+  #     - id: production
+  #       githubUrl: 'https://github.com'
+  #       orgs: ['sourcefuse']
+  #       schedule:
+  #         initialDelay: { seconds: 30 }
+  #         frequency: { hours: 3 } # Reduced from 1 hour to 3 hours to save API calls
+  #         timeout: { minutes: 15 }
+  #   github:
+  #     # the provider ID can be any camelCase string
+  #     providerId:
+  #       organization: 'sourcefuse' # string
+  #       catalogPath: '/catalog-info.yaml' # string
+  #       filters:
+  #         branch: 'main' # string
+  #         repository: '^(?!biz-book-api$).*' # Exclude biz-book-api (404 repo)
+  #       schedule: # optional; same options as in TaskScheduleDefinition
+  #         # supports cron, ISO duration, "human duration" as used in code
+  #         initialDelay: { seconds: 30 }
+  #         frequency: { hours: 3 } # Reduced to save API rate limit
+  #         # supports ISO duration, "human duration" as used in code
+  #         timeout: { minutes: 15 }
 
   rules:
     - allow: [Component, System, API, Group, User, Resource, Location]
