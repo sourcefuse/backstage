@@ -7,4 +7,4 @@ export NVM_DIR="$HOME/.nvm"
 nvm use 18 > /dev/null 2>&1
 
 # Run TypeScript type checking instead of lint (eslint-plugin-jest is broken)
-yarn tsc && lerna run test:ci
+yarn tsc && yarn lerna run test:ci

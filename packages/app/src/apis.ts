@@ -23,17 +23,26 @@ import {
 async function getGuestGithubToken(identityApi: any): Promise<string> {
   // eslint-disable-next-line no-console
   console.log('[GuestGithubToken] Fetching GitHub App token from backend...');
-  const creds = await identityApi.getCredentials();
-  const resp = await fetch('/api/access-validate/github-token', {
-    headers: { Authorization: `Bearer ${creds.token}` },
-  });
-  const data = await resp.json();
-  // eslint-disable-next-line no-console
-  console.log(
-    '[GuestGithubToken] Got token prefix:',
-    data.token?.substring(0, 10),
-  );
-  return data.token;
+  try {
+    const creds = await identityApi.getCredentials();
+    console.log('[GuestGithubToken] Got credentials');
+    const resp = await fetch('/api/access-validate/github-token', {
+      headers: { Authorization: `Bearer ${creds.token}` },
+    });
+    console.log('[GuestGithubToken] Response status:', resp.status);
+    const data = await resp.json();
+    console.log(
+      '[GuestGithubToken] Got token prefix:',
+      data.token?.substring(0, 10),
+    );
+    if (!data.token) {
+      console.error('[GuestGithubToken] No token in response:', data);
+    }
+    return data.token;
+  } catch (error) {
+    console.error('[GuestGithubToken] Error:', error);
+    throw error;
+  }
 }
 
 export const apis: AnyApiFactory[] = [
@@ -101,32 +110,43 @@ export const apis: AnyApiFactory[] = [
                 'optional:',
                 options?.optional,
               );
-              const identity = await identityApi.getBackstageIdentity();
-              // eslint-disable-next-line no-console
-              console.log(
-                '[GithubAuthProxy] identity:',
-                identity.userEntityRef,
-              );
-              if (identity.userEntityRef === 'user:development/guest') {
-                // Prefer the real GitHub OAuth token when available (supports author:@me queries).
-                // Fall back to App installation token for unauthenticated guests.
-                try {
-                  const realToken = await target.getAccessToken(scope, {
-                    ...options,
-                    optional: true,
-                  });
-                  if (realToken) {
-                    notifyGuestSignedIn();
-                    return realToken;
+              try {
+                const identity = await identityApi.getBackstageIdentity();
+                // eslint-disable-next-line no-console
+                console.log(
+                  '[GithubAuthProxy] identity:',
+                  identity.userEntityRef,
+                );
+                if (identity.userEntityRef === 'user:development/guest') {
+                  console.log('[GithubAuthProxy] Guest user detected');
+                  // Prefer the real GitHub OAuth token when available (supports author:@me queries).
+                  // Fall back to App installation token for unauthenticated guests.
+                  try {
+                    console.log('[GithubAuthProxy] Trying real OAuth token...');
+                    const realToken = await target.getAccessToken(scope, {
+                      ...options,
+                      optional: true,
+                    });
+                    if (realToken) {
+                      console.log('[GithubAuthProxy] Got real OAuth token');
+                      notifyGuestSignedIn();
+                      return realToken;
+                    }
+                  } catch (error) {
+                    // no real OAuth session — fall through to App token
+                    console.log('[GithubAuthProxy] Real OAuth failed, trying app token:', error);
                   }
-                } catch (_) {
-                  // no real OAuth session — fall through to App token
+                  console.log('[GithubAuthProxy] Fetching app token...');
+                  const token = await getGuestGithubToken(identityApi);
+                  notifyGuestSignedIn();
+                  return token;
                 }
-                const token = await getGuestGithubToken(identityApi);
-                notifyGuestSignedIn();
-                return token;
+                console.log('[GithubAuthProxy] Authenticated user, using real auth');
+                return target.getAccessToken(scope, options);
+              } catch (error) {
+                console.error('[GithubAuthProxy] getAccessToken error:', error);
+                throw error;
               }
-              return target.getAccessToken(scope, options);
             };
           }
           if (prop === 'sessionState$') {

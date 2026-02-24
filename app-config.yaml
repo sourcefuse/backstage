@@ -23,7 +23,7 @@ backend:
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
-    origin: ${FRONTEND_BASE_URL}
+    origin: /^http:\/\/(localhost|127\.0\.0\.1|sf-portal\.sourcef\.us)(:\d+)?$/
     methods: [GET, POST, PUT, DELETE]
     credentials: true
   database:
@@ -59,7 +59,8 @@ integrations:
           clientId: ${INTEGRATION_GITHUB_CLIENT_ID}
           clientSecret: ${INTEGRATION_GITHUB_CLIENT_SECRET}
           webhookSecret: ${INTEGRATION_GITHUB_WEBHOOK_SECRET}
-          privateKey: ${INTEGRATION_GITHUB_PRIVATE_KEY}
+          privateKey:
+            $file: ./github_private_key.pem
           # signIn:
           #   resolvers:
           #     - resolver: usernameMatchingUserEntityName
@@ -105,11 +106,7 @@ auth:
         # enterpriseInstanceUrl: ${AUTH_GITHUB_ENTERPRISE_INSTANCE_URL}
         signIn:
           resolvers:
-            # Matches the GitHub username with the Backstage user entity name.
-            # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers.
             - resolver: usernameMatchingUserEntityName
-            # - resolver: emailMatchingUserEntityProfileEmail
-            # - resolver: emailLocalPartMatchingUserEntityName
 
 scaffolder:
 # see https://backstage.io/docs/features/software-templates/configuration for software template options
@@ -150,29 +147,27 @@ jenkins:
       apiKey: ${JENKINS_API_TOKEN1}
 
 catalog:
-  # Auto-discovery providers disabled to prevent GitHub API rate limit issues
+  providers:
+    githubOrg:
+      - id: production
+        githubUrl: 'https://github.com'
+        orgs: ['sourcefuse']
+        schedule:
+          initialDelay: { seconds: 30 }
+          frequency: { hours: 24 }
+          timeout: { minutes: 15 }
+  # github catalog auto-discovery disabled to prevent GitHub API rate limit issues
   # providers:
-  #   githubOrg:
-  #     - id: production
-  #       githubUrl: 'https://github.com'
-  #       orgs: ['sourcefuse']
+  #   github:
+  #     providerId:
+  #       organization: 'sourcefuse'
+  #       catalogPath: '/catalog-info.yaml'
+  #       filters:
+  #         branch: 'main'
+  #         repository: '^(?!biz-book-api$).*'
   #       schedule:
   #         initialDelay: { seconds: 30 }
-  #         frequency: { hours: 3 } # Reduced from 1 hour to 3 hours to save API calls
-  #         timeout: { minutes: 15 }
-  #   github:
-  #     # the provider ID can be any camelCase string
-  #     providerId:
-  #       organization: 'sourcefuse' # string
-  #       catalogPath: '/catalog-info.yaml' # string
-  #       filters:
-  #         branch: 'main' # string
-  #         repository: '^(?!biz-book-api$).*' # Exclude biz-book-api (404 repo)
-  #       schedule: # optional; same options as in TaskScheduleDefinition
-  #         # supports cron, ISO duration, "human duration" as used in code
-  #         initialDelay: { seconds: 30 }
-  #         frequency: { hours: 3 } # Reduced to save API rate limit
-  #         # supports ISO duration, "human duration" as used in code
+  #         frequency: { hours: 3 }
   #         timeout: { minutes: 15 }
 
   rules:

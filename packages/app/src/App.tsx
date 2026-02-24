@@ -57,6 +57,7 @@ import {
   UserSettingsProfileCard,
 } from '@backstage/plugin-user-settings';
 import { CustomLogoSettings } from './components/settings/CustomLogoSettings';
+import { PortalBadgeSettings } from './components/settings/PortalBadgeSettings';
 import { apis } from './apis';
 import { entityPage } from './components/catalog/EntityPage';
 import { searchPage } from './components/search/SearchPage';
@@ -72,6 +73,7 @@ import { githubAuthApiRef } from '@backstage/core-plugin-api';
 import { Box, Grid } from '@material-ui/core';
 import { AutoLogout } from './components/AutoLogout';
 import { TechRadarPage } from '@backstage-community/plugin-tech-radar';
+import { PrometheusGlobalPage } from './components/prometheus/PrometheusGlobalPage';
 
 /* My Custom Theme */
 const customTheme = createTheme({
@@ -351,22 +353,38 @@ function GuestAwareOAuthDialog() {
   const [isGuest, setIsGuest] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log('[GuestAwareOAuthDialog] Checking identity...');
     identityApi
       .getBackstageIdentity()
       .then(identity => {
+        console.log('[GuestAwareOAuthDialog] Identity:', identity.userEntityRef);
         if (identity.userEntityRef === 'user:development/guest') {
+          console.log('[GuestAwareOAuthDialog] Setting guest mode');
           setIsGuest(true);
         }
       })
-      .catch(() => {});
+      .catch(error => {
+        console.error('[GuestAwareOAuthDialog] Identity check error:', error);
+      });
   }, [identityApi]);
 
   useEffect(() => {
-    if (!isGuest) return undefined;
+    if (!isGuest) {
+      console.log('[GuestAwareOAuthDialog] Not guest, skipping OAuth rejection');
+      return undefined;
+    }
+    console.log('[GuestAwareOAuthDialog] Setting up OAuth request subscription');
     const subscription = oauthRequestApi.authRequest$().subscribe(requests => {
-      requests.forEach(request => request.reject());
+      console.log('[GuestAwareOAuthDialog] OAuth requests received:', requests.length);
+      requests.forEach(request => {
+        console.log('[GuestAwareOAuthDialog] Rejecting request for:', request.provider.id);
+        request.reject();
+      });
     });
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log('[GuestAwareOAuthDialog] Unsubscribing from OAuth requests');
+      subscription.unsubscribe();
+    };
   }, [isGuest, oauthRequestApi]);
 
   if (isGuest) return null;
@@ -376,51 +394,58 @@ function GuestAwareOAuthDialog() {
 const app = createApp({
   apis,
   components: {
-    SignInPage: props => (
-      <Box
-        style={{
-          display: 'grid',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-        className="sign-in-page"
-      >
-        <style>{css}</style>
+    SignInPage: props => {
+      React.useEffect(() => {
+        console.log('[SignInPageWrapper] SignInPage component mounted');
+        console.log('[SignInPageWrapper] Provider:', githubProvider);
+      }, []);
+
+      return (
         <Box
           style={{
             display: 'grid',
-            alignSelf: 'center',
-            padding: '3rem',
-            boxShadow:
-              'rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px',
-            background: 'rgba(255,255,255,0.5)',
-            borderRadius: '15px',
             justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
           }}
-          className="sign-in-box"
+          className="sign-in-page"
         >
+          <style>{css}</style>
           <Box
             style={{
-              display: 'flex',
-              alignItems: 'center',
+              display: 'grid',
+              alignSelf: 'center',
+              padding: '3rem',
+              boxShadow:
+                'rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px',
+              background: 'rgba(255,255,255,0.5)',
+              borderRadius: '15px',
               justifyContent: 'center',
             }}
+            className="sign-in-box"
           >
-            <div>
-              <img
-                src={sfLogoMinimal}
-                width={60}
-                alt="SourceFuse Backstage"
-                style={{ margin: '0 auto' }}
-              />
-            </div>
-            <h1>BackStage</h1>
+            <Box
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <div>
+                <img
+                  src={sfLogoMinimal}
+                  width={60}
+                  alt="SourceFuse Backstage"
+                  style={{ margin: '0 auto' }}
+                />
+              </div>
+              <h1>BackStage</h1>
+            </Box>
+            <SignInPage {...props} provider={githubProvider} />
           </Box>
-          <SignInPage {...props} provider={githubProvider} />
         </Box>
-      </Box>
-    ),
+      );
+    },
   },
   bindRoutes({ bind }) {
     bind(catalogPlugin.externalRoutes, {
@@ -548,6 +573,9 @@ const routes = (
               <Grid item xs={12} md={6}>
                 <CustomLogoSettings />
               </Grid>
+              <Grid item xs={12} md={6}>
+                <PortalBadgeSettings />
+              </Grid>
             </Grid>
           </SettingsLayout.Route>
           <SettingsLayout.Route path="auth-providers" title="Authentication">
@@ -561,6 +589,7 @@ const routes = (
     />
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
     <Route path="/newrelic" element={<NewRelicPage />} />
+    <Route path="/prometheus" element={<PrometheusGlobalPage />} />
   </FlatRoutes>
 );
 

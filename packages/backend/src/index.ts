@@ -9,6 +9,9 @@ import { createScaffoldAction } from './plugins/sourceloop-scaffold';
 import { modifyIaCModules } from './plugins/iac-scaffold';
 import { deleteDirectory } from './plugins/iac-scaffold';
 import { grafanaSettingsPlugin } from './plugins/grafana-settings';
+import { prometheusSettingsPlugin } from './plugins/prometheus-settings';
+import { portalSettingsPlugin } from './plugins/portal-settings';
+import { awsCostSettingsPlugin } from './plugins/aws-cost-settings';
 
 const scaffolderModuleCustomExtensions = createBackendModule({
   pluginId: 'scaffolder', // name of the plugin that the module is targeting
@@ -46,6 +49,7 @@ backend.add(import('@backstage/plugin-catalog-backend/alpha'));
 backend.add(
   import('@backstage/plugin-catalog-backend-module-scaffolder-entity-model'),
 );
+backend.add(import('@backstage/plugin-catalog-backend-module-github-org'));
 backend.add(import('./extensions/catalogPermissionRules'));
 
 // See https://backstage.io/docs/features/software-catalog/configuration#subscribing-to-catalog-errors
@@ -74,5 +78,14 @@ backend.add(
 
 // Grafana per-entity settings (stores dashboard URL + path in PostgreSQL)
 backend.add(grafanaSettingsPlugin);
+
+// Prometheus per-entity settings (stores Prometheus URL + PromQL queries in PostgreSQL)
+backend.add(prometheusSettingsPlugin);
+
+// Portal settings (key-value store for configurable UI text)
+backend.add(portalSettingsPlugin);
+
+// AWS Cost/ECS/Lambda per-entity settings
+backend.add(awsCostSettingsPlugin);
 
 backend.start();

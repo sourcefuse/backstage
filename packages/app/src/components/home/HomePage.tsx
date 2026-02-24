@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   HomePageTopVisited,
   HomePageRecentlyVisited,
@@ -11,6 +11,8 @@ import { Grid, makeStyles, Typography } from '@material-ui/core';
 import GitHubIcon from '@material-ui/icons/GitHub';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import LanguageIcon from '@material-ui/icons/Language';
+import { discoveryApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { PORTAL_BADGE_EVENT } from '../settings/PortalBadgeSettings';
 
 /* ── SourceFuse brand tokens ─────────────────────────────────────────── */
 const SF = {
@@ -249,6 +251,23 @@ const toolkitTools = [
 /* ── Component ───────────────────────────────────────────────────────── */
 export const HomePageContent = () => {
   const classes = useStyles();
+  const discoveryApi = useApi(discoveryApiRef);
+  const fetchApi = useApi(fetchApiRef);
+  const [badgeText, setBadgeText] = useState('ARC · Developer Portal');
+
+  useEffect(() => {
+    discoveryApi.getBaseUrl('portal-settings').then(baseUrl => {
+      fetchApi
+        .fetch(`${baseUrl}?key=hero_badge_text`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => { if (data?.value) setBadgeText(data.value); })
+        .catch(() => {});
+    });
+
+    const handler = (e: Event) => setBadgeText((e as CustomEvent).detail);
+    window.addEventListener(PORTAL_BADGE_EVENT, handler);
+    return () => window.removeEventListener(PORTAL_BADGE_EVENT, handler);
+  }, [discoveryApi, fetchApi]);
 
   return (
     <SearchContextProvider>
@@ -259,7 +278,7 @@ export const HomePageContent = () => {
           <div className={classes.heroDeco2} />
 
           <div className={classes.heroInner}>
-            <div className={classes.heroBadge}>ARC · Developer Portal</div>
+            <div className={classes.heroBadge}>{badgeText}</div>
 
             <Typography component="h1" className={classes.heroTitle}>
               Welcome to&nbsp;
@@ -307,6 +326,7 @@ export const HomePageContent = () => {
                 <HomePageToolkit tools={toolkitTools} />
               </div>
             </Grid>
+
           </Grid>
         </div>
       </div>
