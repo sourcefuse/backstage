@@ -6,7 +6,7 @@ import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
 import { writeFile } from 'fs';
 
 export const createNewFileAction = () => {
-  return createTemplateAction<{ contents: string; filename: string }>({
+  return createTemplateAction({
     id: 'acme:file:create',
     async handler(ctx) {
       const { signal } = ctx;

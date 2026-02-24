@@ -6,28 +6,23 @@ import fs from 'fs';
 //  Use 'simple-git' for cloning repo
 
 export const modifyIaCModules = () => {
-  return createTemplateAction<{ workingDir: string, modules: object, envList: string[] }>({
+  return createTemplateAction({
     id: 'acme:iac:modify',
     description: 'Prepare IaC modules',
     schema: {
-      input: {
-        required: ['workingDir', 'modules'],
-        type: 'object',
-        properties: {
-          workingDir: {
-            type: 'string',
-            title: 'workingDir',
-            description: 'List of modules selected',
-          }
-        },
-      },
+      input: z => z.object({
+        workingDir: z.string().describe('List of modules selected'),
+        modules: z.record(z.any()).optional(),
+        envList: z.array(z.string()).optional(),
+      }),
     },
     async handler(ctx) {
-      ctx.logger.info('ctx.input.workingDir ', ctx.input.workingDir);
-      ctx.logger.info('ctx.input.modules ', ctx.input.modules);
-      ctx.logger.info('ctx.input.envList ', ctx.input.envList);
+      const input = ctx.input as { workingDir: string; modules?: Record<string, unknown>; envList?: string[] };
+      ctx.logger.info(`ctx.input.workingDir: ${input.workingDir}`);
+      ctx.logger.info(`ctx.input.modules: ${JSON.stringify(input.modules)}`);
+      ctx.logger.info(`ctx.input.envList: ${JSON.stringify(input.envList)}`);
       const originalCwd = process.cwd();
-      ctx.logger.info("originalCwd -------", originalCwd);
+      ctx.logger.info(`originalCwd: ${originalCwd}`);
 
       const workspacePath = ctx.workspacePath;
       console.info("workspacePath -------", workspacePath);
@@ -41,13 +36,13 @@ export const modifyIaCModules = () => {
 
 
       try {
-        for (const [key, value] of Object.entries(ctx.input.modules)) {
+        for (const [key, value] of Object.entries(input.modules ?? {})) {
           ctx.logger.info(`${key}: ${value}`);
           modulePath = `${workspacePath}/terraform/${key}`
           if (value === false) {
             deleteDir(modulePath)
           } else {
-            processDirectories(modulePath, ctx.input.envList)
+            processDirectories(modulePath, input.envList ?? [])
           }
         }
       } catch (error) {
@@ -65,30 +60,21 @@ export const modifyIaCModules = () => {
 export function deleteDirectory() {
   // For more information on how to define custom actions, see
   //   https://backstage.io/docs/features/software-templates/writing-custom-actions
-  return createTemplateAction<{
-    directory: string;
-  }>({
+  return createTemplateAction({
     id: 'acme:file:delete',
     description: 'Deletes provided directory',
     schema: {
-      input: {
-        type: 'object',
-        required: ['directory'],
-        properties: {
-          deleteDirectory: {
-            title: 'directory to be deleted',
-            description: "Directory to be deleted",
-            type: 'string',
-          },
-        },
-      },
+      input: z => z.object({
+        directory: z.string().describe('Directory to be deleted'),
+      }),
     },
     async handler(ctx) {
+      const input = ctx.input as { directory: string };
       ctx.logger.info(
-        `Running example template with parameters: ${ctx.input.directory}`,
+        `Running example template with parameters: ${input.directory}`,
       );
 
-      deleteDir(ctx.input.directory)
+      deleteDir(input.directory)
     },
   });
 }

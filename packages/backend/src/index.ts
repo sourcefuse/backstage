@@ -2,7 +2,7 @@ import { createBackend } from '@backstage/backend-defaults';
 
 import { createBackendModule } from '@backstage/backend-plugin-api';
 
-import { scaffolderActionsExtensionPoint } from '@backstage/plugin-scaffolder-node/alpha';
+import { scaffolderActionsExtensionPoint } from '@backstage/plugin-scaffolder-node';
 import { createMicroserviceAction } from './plugins/sourceloop-ms';
 import { createExtensionAction } from './plugins/sourceloop-extension';
 import { createScaffoldAction } from './plugins/sourceloop-scaffold';
@@ -38,14 +38,14 @@ const scaffolderModuleCustomExtensions = createBackendModule({
 
 const backend = createBackend();
 
-backend.add(import('@backstage/plugin-app-backend/alpha'));
+backend.add(import('@backstage/plugin-app-backend'));
 backend.add(import('@backstage/plugin-techdocs-backend/alpha'));
 // auth plugin
 backend.add(import('@backstage/plugin-auth-backend'));
 backend.add(import('@backstage/plugin-auth-backend-module-github-provider'));
-backend.add(import('@backstage/plugin-proxy-backend/alpha'));
+backend.add(import('@backstage/plugin-proxy-backend'));
 // catalog plugin
-backend.add(import('@backstage/plugin-catalog-backend/alpha'));
+backend.add(import('@backstage/plugin-catalog-backend'));
 backend.add(
   import('@backstage/plugin-catalog-backend-module-scaffolder-entity-model'),
 );
@@ -61,16 +61,17 @@ backend.add(import('@backstage/plugin-search-backend/alpha'));
 // See https://backstage.io/docs/features/search/search-engines
 backend.add(import('@backstage/plugin-search-backend-module-pg/alpha'));
 // search collators
-backend.add(import('@backstage/plugin-search-backend-module-catalog/alpha'));
+backend.add(import('@backstage/plugin-search-backend-module-catalog'));
 backend.add(import('@backstage/plugin-search-backend-module-techdocs/alpha'));
 
 backend.add(import('@internal/backstage-plugin-access-validate-backend'));
 backend.add(import('@backstage/plugin-scaffolder-backend-module-github'));
 
-backend.add(import('@backstage/plugin-scaffolder-backend/alpha'));
+backend.add(import('@backstage/plugin-scaffolder-backend'));
 backend.add(scaffolderModuleCustomExtensions);
 
 backend.add(import('@backstage-community/plugin-jenkins-backend'));
+backend.add(import('@backstage-community/plugin-announcements-backend'));
 
 backend.add(
   import('@internal/backstage-plugin-jenkins-with-reporting-backend-backend'),

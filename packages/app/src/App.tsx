@@ -74,6 +74,10 @@ import { Box, Grid } from '@material-ui/core';
 import { AutoLogout } from './components/AutoLogout';
 import { TechRadarPage } from '@backstage-community/plugin-tech-radar';
 import { PrometheusGlobalPage } from './components/prometheus/PrometheusGlobalPage';
+import {
+  AnnouncementsPage,
+  NewAnnouncementBanner,
+} from '@backstage-community/plugin-announcements';
 
 /* My Custom Theme */
 const customTheme = createTheme({
@@ -590,12 +594,14 @@ const routes = (
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
     <Route path="/newrelic" element={<NewRelicPage />} />
     <Route path="/prometheus" element={<PrometheusGlobalPage />} />
+    <Route path="/announcements" element={<AnnouncementsPage />} />
   </FlatRoutes>
 );
 
 export default app.createRoot(
   <>
     <AlertDisplay />
+    <NewAnnouncementBanner max={1} />
     <GuestAwareOAuthDialog />
     <AutoLogout
       idleTimeoutMinutes={30}

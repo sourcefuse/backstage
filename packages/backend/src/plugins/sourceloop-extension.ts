@@ -4,24 +4,14 @@ import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
 import * as utils from '../utility';
 
 export function createExtensionAction() {
- 
-  return createTemplateAction<{
-    command: string;
-  }>({
+
+  return createTemplateAction({
         id: 'run:extension',
         description: 'Create all the provided extension',
         schema: {
-          input: {
-            type: 'object',
-            required: ['extensions'],
-            properties: {
-              extensions: {
-                title: 'Extension List',
-                description: 'List of the extensions to generate',
-                type: 'array',
-              },
-            },
-          },
+          input: z => z.object({
+            extensions: z.array(z.any()).describe('List of the extensions to generate'),
+          }),
     },
     async handler(ctx: any) { // NOSONAR
       ctx.logger.info('Running extension command', ctx.input, ctx.input.command);

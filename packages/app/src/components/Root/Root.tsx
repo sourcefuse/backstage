@@ -28,6 +28,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import { MyGroupsSidebarItem } from '@backstage/plugin-org';
 import GroupIcon from '@material-ui/icons/People';
+import CampaignIcon from '@material-ui/icons/Announcement';
 import StorageIcon from '@material-ui/icons/Storage';
 import CategoryIcon from '@material-ui/icons/Category';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
@@ -158,6 +159,7 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
         <SidebarItem icon={MapIcon} to="tech-radar" text="Tech Radar" />
         <SidebarItem icon={CreateComponentIcon} to="create" text="Create..." />
+        <SidebarItem icon={CampaignIcon} to="announcements" text="Announcements" />
       </SidebarGroup>
       <SidebarSpace />
       {/* <SidebarDivider /> */}

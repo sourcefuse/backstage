@@ -7,43 +7,13 @@ export function createMicroserviceAction() {
     id: 'run:microservice',
     description: 'Create all the selected microservices',
     schema: {
-      input: {
-        type: 'object',
-        required: [
-          'services',
-          'project',
-          'datasourceType',
-          'sourceloop',
-          'facade',
-        ],
-        properties: {
-          sourceloop: {
-            title: 'Sourceloop-based',
-            description: 'Is this ms based on sourceloop?',
-            type: 'boolean',
-          },
-          facade: {
-            title: 'isFacade',
-            description: 'Is this a facade',
-            type: 'boolean',
-          },
-          services: {
-            title: 'Services List',
-            description: 'List of the services to generate',
-            type: 'array',
-          },
-          project: {
-            title: 'Project Name',
-            description: 'Name of the repo this service would be part of',
-            type: 'string',
-          },
-          datasourceType: {
-            title: 'Datasource Type',
-            description: 'Datasource Type to initialize',
-            type: ['postgres', 'mysql'],
-          },
-        },
-      },
+      input: z => z.object({
+        sourceloop: z.boolean().optional().describe('Is this ms based on sourceloop?'),
+        facade: z.boolean().optional().describe('Is this a facade'),
+        services: z.array(z.any()).describe('List of the services to generate'),
+        project: z.string().describe('Name of the repo this service would be part of'),
+        datasourceType: z.string().describe('Datasource Type to initialize'),
+      }),
     },
     async handler(ctx: any) {
       const services = ctx.input.services;
@@ -95,7 +65,7 @@ export function createMicroserviceAction() {
                   ...utils.buildOptions,
                 }),
               });
-            } catch (e) { 
+            } catch (e) {
               ctx.logger.error(`Error generating facade: ${service}`, e);
               ctx.logger.error(`Error: ${e}`);
               process.chdir(originalCwd);

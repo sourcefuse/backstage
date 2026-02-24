@@ -13,6 +13,7 @@ import MenuBookIcon from '@material-ui/icons/MenuBook';
 import LanguageIcon from '@material-ui/icons/Language';
 import { discoveryApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { PORTAL_BADGE_EVENT } from '../settings/PortalBadgeSettings';
+import { AnnouncementsCard } from '@backstage-community/plugin-announcements';
 
 /* ── SourceFuse brand tokens ─────────────────────────────────────────── */
 const SF = {
@@ -324,6 +325,12 @@ export const HomePageContent = () => {
             <Grid item xs={12} md={6}>
               <div className={classes.cardWrapper}>
                 <HomePageToolkit tools={toolkitTools} />
+              </div>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <div className={classes.cardWrapper}>
+                <AnnouncementsCard max={3} />
               </div>
             </Grid>
 

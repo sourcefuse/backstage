@@ -9,34 +9,15 @@ export function createScaffoldAction() {
     id: 'run:scaffold',
     description: 'Create a monorepo scaffold',
     schema: {
-      input: {
-        type: 'object',
-        required: ['name', 'issuePrefix'],
-        properties: {
-          name: {
-            title: 'Scaffold Name',
-            description: 'Name of the project and repo',
-            type: 'string',
-          },
-          issuePrefix: {
-            title: 'Issue prefix for this project',
-            description: 'Github prefix to be used for this project',
-            type: 'string',
-          },
-          description: {
-            title: 'Description',
-            description: 'Description for the project',
-            type: 'string',
-          },
-          repoUrl: {
-            title: 'Owner',
-            description: 'Owner of the project',
-          },
-        },
-      },
+      input: z => z.object({
+        name: z.string().describe('Name of the project and repo'),
+        issuePrefix: z.string().describe('Github prefix to be used for this project'),
+        description: z.string().optional().describe('Description for the project'),
+        repoUrl: z.any().optional().describe('Owner of the project'),
+      }),
     },
     async handler(ctx: any) { // NOSONAR
-       
+
       const { signal } = ctx;
       ctx.logger.info(`Templating using Yeoman generator: ${ctx.input.name}`);
 
@@ -60,10 +41,10 @@ export function createScaffoldAction() {
         description,
         integrateWithBackstage: true,
       });
-     
+
     } catch (e) {
       console.log("error in scaffold action -------",e);
-      ctx.logger.error(`Error: ${e}`);  
+      ctx.logger.error(`Error: ${e}`);
       process.chdir(originalCwd);
     }
       process.chdir(originalCwd);
@@ -75,9 +56,9 @@ export function createScaffoldAction() {
         { signal },
         _ => {},
       );
-    
+
 
     },
-    
+
   });
 }
