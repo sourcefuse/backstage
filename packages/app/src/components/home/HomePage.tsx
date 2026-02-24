@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ReactNode } from 'react';
 import {
   HomePageTopVisited,
   HomePageRecentlyVisited,
@@ -14,6 +14,32 @@ import LanguageIcon from '@material-ui/icons/Language';
 import { discoveryApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { PORTAL_BADGE_EVENT } from '../settings/PortalBadgeSettings';
 import { AnnouncementsCard } from '@backstage-community/plugin-announcements';
+
+/* ── Error Boundary for Announcements Card ──────────────────────────── */
+class AnnouncementErrorBoundary extends React.Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any) {
+    console.error('AnnouncementsCard error:', error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return null;
+    }
+    return this.props.children;
+  }
+}
 
 /* ── SourceFuse brand tokens ─────────────────────────────────────────── */
 const SF = {
@@ -330,7 +356,9 @@ export const HomePageContent = () => {
 
             <Grid item xs={12} md={6}>
               <div className={classes.cardWrapper}>
-                <AnnouncementsCard max={3} />
+                <AnnouncementErrorBoundary>
+                  <AnnouncementsCard max={3} />
+                </AnnouncementErrorBoundary>
               </div>
             </Grid>
 
