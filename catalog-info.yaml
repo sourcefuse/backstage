@@ -1,13 +1,38 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: sourcefuse-backstage
-  namespace: arc
-  description: SourceFuse boilerplate BackStage implementation
+  name: backstage
+  namespace: default
+  description: SourceFuse ARC Backstage platform with GitHub integration, scaffolding templates, and catalog management
   annotations:
-    github.com/project-slug: sourcefuse/sourcefuse-backstage
+    github.com/project-slug: sourcefuse/backstage
     backstage.io/techdocs-ref: dir:.
+    sonarqube.org/project-key: sourcefuse-cloud/sourcefuse_backstage
+  tags:
+    - typescript
+    - nodejs
+    - backstage
+    - platform
+  links:
+    - url: https://github.com/sourcefuse/backstage
+      title: GitHub Repository
+      icon: github
 spec:
   type: website
-  owner: sourcefuse
   lifecycle: production
+  owner: group:default/sf_refarch_admins
+  dependsOn:
+    - resource:default/backstage-postgres
+    - resource:default/github-integration
+    - resource:default/aws-deployment
+    - resource:default/snyk-security
+---
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: backstage-resources
+  namespace: default
+  description: Infrastructure and external service resources for backstage
+spec:
+  targets:
+    - ./catalog-resources.yaml

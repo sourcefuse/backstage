@@ -1,0 +1,64 @@
+# Infrastructure and external service resources for backstage
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: backstage-postgres
+  namespace: default
+  description: PostgreSQL database for Backstage catalog and metadata storage
+  tags:
+    - postgresql
+    - database
+spec:
+  type: database
+  lifecycle: production
+  owner: group:default/sf_refarch_admins
+  system: backstage
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: github-integration
+  namespace: default
+  description: GitHub integration for authentication, authorization, and catalog sync
+  tags:
+    - github
+    - authentication
+    - integration
+spec:
+  type: external-service
+  lifecycle: production
+  owner: group:default/sf_refarch_admins
+  system: backstage
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: aws-deployment
+  namespace: default
+  description: AWS cloud platform for container deployment and infrastructure
+  tags:
+    - aws
+    - cloud
+    - deployment
+spec:
+  type: external-service
+  lifecycle: production
+  owner: group:default/sf_refarch_admins
+  system: backstage
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: snyk-security
+  namespace: default
+  description: Snyk security scanning service for vulnerability detection
+  tags:
+    - snyk
+    - security
+    - scanning
+spec:
+  type: external-service
+  lifecycle: production
+  owner: group:default/sf_refarch_admins
+  system: backstage
