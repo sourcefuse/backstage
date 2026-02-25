@@ -22,3 +22,121 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #000000;
   }
+
+/* =============================================================
+ * @backstage/ui Component Fixes
+ * The announcements plugin v2.3.0 uses @backstage/ui components
+ * (CSS-layer based new design system) within an old Backstage
+ * MUI v4 app. These unlayered rules win over @layer components
+ * to fix broken borders, invisible overlays, and plain tables.
+ * bui-* class names are stable (non-hashed) identifiers applied
+ * by every @backstage/ui component alongside the hashed classes.
+ * ============================================================= */
+
+/* --- Dialog Overlay ---
+   Default: color-mix(rgba(0,0,0,0.06) 80%, transparent) ≈ 5% opacity
+   Fix: proper semi-transparent dark backdrop, raised z-index above
+   Backstage sidebar (MUI Drawer z-index: 1200) */
+.bui-DialogOverlay {
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1400;
+}
+
+/* --- Dialog Box --- */
+.bui-Dialog {
+  border: 1px solid #d0d0d0;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.16);
+  background: #ffffff;
+}
+
+/* --- Dialog Header/Footer separators --- */
+.bui-DialogHeader {
+  border-bottom: 1px solid #e0e0e0;
+  background: #ffffff;
+}
+
+.bui-DialogFooter {
+  border-top: 1px solid #e0e0e0;
+  background: #ffffff;
+}
+
+.bui-DialogBody {
+  background: #ffffff;
+}
+
+/* --- TextField input border ---
+   Input uses var(--bui-border-2) which can be invisible if
+   CSS variable resolution fails in layered context */
+.bui-Input {
+  border: 1px solid #bababa;
+  background-color: #ffffff;
+}
+
+.bui-Input:hover,
+.bui-Input:focus {
+  border-color: #666666;
+}
+
+/* --- Card ---
+   @backstage/ui Card has NO border by design — add one
+   to match the MUI Paper style used throughout the app */
+.bui-Card {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.1);
+}
+
+.bui-CardHeader {
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
+/* --- Table ---
+   Row/header borders use CSS variables inside @layer components.
+   Provide explicit values so the table never looks unstyled. */
+.bui-TableHeader {
+  border-bottom: 2px solid #d5d5d5;
+  background-color: #fafafa;
+}
+
+.bui-TableHead {
+  font-weight: 600;
+  color: #212d38;
+  font-size: 0.875rem;
+}
+
+.bui-TableRow {
+  border-bottom: 1px solid #eeeeee;
+}
+
+.bui-TableRow:hover {
+  background-color: #f6f6f6;
+}
+
+.bui-TableCell {
+  font-size: 0.875rem;
+  color: #212d38;
+}
+
+/* --- HeaderPage (admin page title bar) ---
+   Rendered inside Backstage's content area (not as a full-page
+   header). Give it a light background + bottom border to visually
+   separate it from content, similar to Backstage's Header style. */
+.bui-HeaderPage {
+  background: #f8f8f8;
+  border-bottom: 1px solid #e0e0e0;
+  border-radius: 6px 6px 0 0;
+  padding: 0 16px;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+/* --- NewAnnouncementBanner ---
+   The plugin's blockPositioning style applies marginTop: theme.spacing(3)
+   (24px) which creates a gap above the banner. Remove it so the banner
+   sits flush at the top of the content area. */
+.announcement-banner-wrapper .MuiSnackbar-root {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}

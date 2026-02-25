@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Grid } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import { NewRelicApmCard, isNewRelicApmAvailable } from '../newrelic/NewRelicApmCard';
 import { NewRelicFacadesTab, isNewRelicFacadesTabAvailable } from '../newrelic/NewRelicFacadesTab';
 import {
@@ -37,7 +37,6 @@ import {
   EntityOwnershipCard,
 } from '@backstage/plugin-org';
 import { EntityTechdocsContent } from '@backstage/plugin-techdocs';
-import { EmptyState } from '@backstage/core-components';
 import {
   Direction,
   EntityCatalogGraphCard,
@@ -68,11 +67,6 @@ import {
 } from '@backstage/plugin-kubernetes';
 
 import {
-  EntityJenkinsContent,
-  isJenkinsAvailable,
-} from '@internal/backstage-plugin-jenkins-with-reporting';
-
-import {
   EntityGithubActionsContent,
   isGithubActionsAvailable,
 } from '@backstage-community/plugin-github-actions';
@@ -86,6 +80,7 @@ import {
 import {GrafanaEntityTab} from '../grafana/GrafanaEntityTab';
 import {PrometheusEntityTab} from '../prometheus/PrometheusEntityTab';
 import {AwsCostEntityTab} from '../aws/AwsCostEntityTab';
+import {JenkinsEntityTab} from '../jenkins/JenkinsEntityTab';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -101,25 +96,8 @@ const cicdContent = (
       <EntityGithubActionsContent />
     </EntitySwitch.Case>
 
-    <EntitySwitch.Case if={isJenkinsAvailable}>
-      <EntityJenkinsContent />
-    </EntitySwitch.Case>
-
     <EntitySwitch.Case>
-      <EmptyState
-        title="No CI/CD available for this entity"
-        missing="info"
-        description="You need to add an annotation to your component if you want to enable CI/CD for it. You can read more information about annotations in Backstage by clicking the button below."
-        action={
-          <Button
-            variant="contained"
-            color="primary"
-            href="https://backstage.io/docs/features/software-catalog/well-known-annotations"
-          >
-            Read more
-          </Button>
-        }
-      />
+      <JenkinsEntityTab />
     </EntitySwitch.Case>
   </EntitySwitch>
 );
@@ -190,12 +168,8 @@ const serviceEntityPage = (
       {cicdContent}
     </EntityLayout.Route>
 
-    <EntityLayout.Route path="/jenkins" title="jenkins">
-      <EntitySwitch>
-        <EntitySwitch.Case if={isJenkinsAvailable}>
-          <EntityJenkinsContent />
-        </EntitySwitch.Case>
-      </EntitySwitch>
+    <EntityLayout.Route path="/jenkins" title="Jenkins">
+      <JenkinsEntityTab />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/api" title="API">
@@ -278,12 +252,8 @@ const websiteEntityPage = (
       {cicdContent}
     </EntityLayout.Route>
 
-    <EntityLayout.Route path="/jenkins" title="jenkins">
-      <EntitySwitch>
-        <EntitySwitch.Case if={isJenkinsAvailable}>
-          <EntityJenkinsContent />
-        </EntitySwitch.Case>
-      </EntitySwitch>
+    <EntityLayout.Route path="/jenkins" title="Jenkins">
+      <JenkinsEntityTab />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/dependencies" title="Dependencies">

@@ -601,7 +601,6 @@ const routes = (
 export default app.createRoot(
   <>
     <AlertDisplay />
-    <NewAnnouncementBanner max={1} />
     <GuestAwareOAuthDialog />
     <AutoLogout
       idleTimeoutMinutes={30}
@@ -611,7 +610,12 @@ export default app.createRoot(
     />
     <AppRouter>
       <VisitListener />
-      <Root>{routes}</Root>
+      <Root>
+        <div className="announcement-banner-wrapper">
+          <NewAnnouncementBanner max={1} />
+        </div>
+        {routes}
+      </Root>
     </AppRouter>
   </>,
 );

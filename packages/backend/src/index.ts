@@ -12,6 +12,7 @@ import { grafanaSettingsPlugin } from './plugins/grafana-settings';
 import { prometheusSettingsPlugin } from './plugins/prometheus-settings';
 import { portalSettingsPlugin } from './plugins/portal-settings';
 import { awsCostSettingsPlugin } from './plugins/aws-cost-settings';
+import { jenkinsSettingsPlugin } from './plugins/jenkins-settings';
 
 const scaffolderModuleCustomExtensions = createBackendModule({
   pluginId: 'scaffolder', // name of the plugin that the module is targeting
@@ -88,5 +89,8 @@ backend.add(portalSettingsPlugin);
 
 // AWS Cost/ECS/Lambda per-entity settings
 backend.add(awsCostSettingsPlugin);
+
+// Jenkins per-entity settings (stores job paths in PostgreSQL, proxies to Jenkins API)
+backend.add(jenkinsSettingsPlugin);
 
 backend.start();
