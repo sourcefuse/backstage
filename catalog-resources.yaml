@@ -1,5 +1,3 @@
-# Infrastructure and external service resources for backstage
----
 apiVersion: backstage.io/v1alpha1
 kind: Resource
 metadata:
