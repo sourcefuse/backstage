@@ -23,6 +23,7 @@
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "3.993.0",
     "@aws-sdk/client-cost-explorer": "3.993.0",
+    "@aws-sdk/client-ec2": "3.993.0",
     "@aws-sdk/client-ecs": "3.993.0",
     "@aws-sdk/client-lambda": "3.993.0",
     "@backstage-community/plugin-announcements-backend": "0.21.1",

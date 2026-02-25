@@ -24,6 +24,10 @@ import {
   type Statistic,
   type StandardUnit,
 } from '@aws-sdk/client-cloudwatch';
+import {
+  EC2Client,
+  DescribeInstancesCommand,
+} from '@aws-sdk/client-ec2';
 
 const TABLE = 'plugin_aws_cost_entity_settings';
 
@@ -76,6 +80,24 @@ function makeCloudWatchClient(row: any) {
     credentials.sessionToken = row.aws_session_token.trim();
   }
   return new CloudWatchClient({
+    region: row.aws_region || 'us-east-1',
+    credentials,
+  });
+}
+
+function makeEc2Client(row: any) {
+  const credentials: {
+    accessKeyId: string;
+    secretAccessKey: string;
+    sessionToken?: string;
+  } = {
+    accessKeyId: row.aws_access_key_id,
+    secretAccessKey: row.aws_secret_access_key,
+  };
+  if (row.aws_session_token?.trim()) {
+    credentials.sessionToken = row.aws_session_token.trim();
+  }
+  return new EC2Client({
     region: row.aws_region || 'us-east-1',
     credentials,
   });
@@ -675,6 +697,69 @@ export const awsCostSettingsPlugin = createBackendPlugin({
           } catch (err: any) {
             logger.error('AWS Lambda error:', err);
             return res.status(500).json({error: err.message ?? 'AWS Lambda API error'});
+          }
+        });
+
+        // ── EC2 ────────────────────────────────────────────────────────────────
+
+        // GET /ec2/:id — List all EC2 instances for a config
+        router.get('/ec2/:id', async (req, res) => {
+          const row = await db(TABLE).where({id: req.params.id}).first();
+          if (!row) return res.status(404).json({error: 'Config not found'});
+
+          const ec2 = makeEc2Client(row);
+
+          try {
+            const result = await ec2.send(new DescribeInstancesCommand({}));
+            const instances: any[] = [];
+
+            for (const reservation of result.Reservations ?? []) {
+              for (const inst of reservation.Instances ?? []) {
+                const nameTag = (inst.Tags ?? []).find(t => t.Key === 'Name');
+                instances.push({
+                  instanceId: inst.InstanceId,
+                  instanceType: inst.InstanceType,
+                  state: inst.State?.Name,
+                  stateCode: inst.State?.Code,
+                  name: nameTag?.Value ?? '',
+                  publicIp: inst.PublicIpAddress ?? null,
+                  privateIp: inst.PrivateIpAddress ?? null,
+                  launchTime: inst.LaunchTime,
+                  vpcId: inst.VpcId ?? null,
+                  subnetId: inst.SubnetId ?? null,
+                  platform: inst.PlatformDetails ?? inst.Platform ?? 'Linux/UNIX',
+                  architecture: inst.Architecture ?? null,
+                  monitoring: inst.Monitoring?.State ?? null,
+                  availabilityZone: inst.Placement?.AvailabilityZone ?? null,
+                  keyName: inst.KeyName ?? null,
+                  securityGroups: (inst.SecurityGroups ?? []).map(sg => ({
+                    groupId: sg.GroupId,
+                    groupName: sg.GroupName,
+                  })),
+                  tags: (inst.Tags ?? []).reduce((acc: Record<string, string>, tag) => {
+                    if (tag.Key && tag.Value) acc[tag.Key] = tag.Value;
+                    return acc;
+                  }, {}),
+                });
+              }
+            }
+
+            // Sort: running first, then by name
+            instances.sort((a, b) => {
+              if (a.state === 'running' && b.state !== 'running') return -1;
+              if (a.state !== 'running' && b.state === 'running') return 1;
+              return (a.name || a.instanceId).localeCompare(b.name || b.instanceId);
+            });
+
+            return res.json({
+              totalInstances: instances.length,
+              runningCount: instances.filter(i => i.state === 'running').length,
+              stoppedCount: instances.filter(i => i.state === 'stopped').length,
+              instances,
+            });
+          } catch (err: any) {
+            logger.error('AWS EC2 error:', err);
+            return res.status(500).json({error: err.message ?? 'AWS EC2 API error'});
           }
         });
 

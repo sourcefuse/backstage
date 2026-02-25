@@ -172,13 +172,64 @@ interface LambdaSummaryData {
   };
 }
 
+// ── EC2 Types ────────────────────────────────────────────────────────────────
+
+interface Ec2SecurityGroup {
+  groupId: string;
+  groupName: string;
+}
+
+interface Ec2Instance {
+  instanceId: string;
+  instanceType: string;
+  state: string;
+  stateCode: number;
+  name: string;
+  publicIp: string | null;
+  privateIp: string | null;
+  launchTime: string | null;
+  vpcId: string | null;
+  subnetId: string | null;
+  platform: string;
+  architecture: string | null;
+  monitoring: string | null;
+  availabilityZone: string | null;
+  keyName: string | null;
+  securityGroups: Ec2SecurityGroup[];
+  tags: Record<string, string>;
+}
+
+interface Ec2Data {
+  totalInstances: number;
+  runningCount: number;
+  stoppedCount: number;
+  instances: Ec2Instance[];
+}
+
 // ── Status Chip ───────────────────────────────────────────────────────────────
 
 function statusColor(status?: string): 'default' | 'primary' {
   if (!status) return 'default';
-  const s = status.toUpperCase();
-  if (['ACTIVE', 'RUNNING', 'HEALTHY', 'PRIMARY'].includes(s)) return 'primary';
+  const s = status.toLowerCase();
+  if (['active', 'running', 'healthy', 'primary'].includes(s)) return 'primary';
   return 'default';
+}
+
+function ec2StateStyle(state: string): { color: string; bg: string } {
+  switch (state) {
+    case 'running':
+      return { color: '#2e7d32', bg: '#e8f5e9' };
+    case 'stopped':
+      return { color: '#c62828', bg: '#ffebee' };
+    case 'pending':
+    case 'stopping':
+    case 'shutting-down':
+      return { color: '#f57c00', bg: '#fff3e0' };
+    case 'terminated':
+      return { color: '#616161', bg: '#f5f5f5' };
+    default:
+      return { color: '#616161', bg: '#f5f5f5' };
+  }
 }
 
 function StatusChip({ label }: { label?: string }) {
@@ -798,6 +849,11 @@ export function AwsCostEntityTab() {
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryError, setSummaryError] = useState('');
 
+  // EC2 state
+  const [ec2Data, setEc2Data] = useState<Ec2Data | null>(null);
+  const [ec2Loading, setEc2Loading] = useState(false);
+  const [ec2Error, setEc2Error] = useState('');
+
   // Form state
   const [formOpen, setFormOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<AwsConfig | undefined>(
@@ -947,33 +1003,77 @@ export function AwsCostEntityTab() {
     [getBase, fetchApi],
   );
 
+  const loadEc2 = useCallback(
+    async (configId: number) => {
+      setEc2Loading(true);
+      setEc2Error('');
+      setEc2Data(null);
+      try {
+        const base = await getBase();
+        const resp = await fetchApi.fetch(`${base}/ec2/${configId}`);
+        if (!resp.ok) {
+          const err = await resp
+            .json()
+            .catch(() => ({ error: resp.statusText }));
+          setEc2Error(err.error ?? 'Failed to fetch EC2 data');
+          return;
+        }
+        const data: Ec2Data = await resp.json();
+        setEc2Data(data);
+      } catch (e: any) {
+        setEc2Error(e.message ?? 'Unexpected error');
+      } finally {
+        setEc2Loading(false);
+      }
+    },
+    [getBase, fetchApi],
+  );
+
   const activeConfig = configs[activeTab];
+
+  // Build list of available section keys based on config
+  const sectionKeys: string[] = React.useMemo(() => {
+    const keys = ['cost'];
+    if (activeConfig?.ecs_cluster_name) keys.push('ecs');
+    keys.push('lambda', 'ec2');
+    return keys;
+  }, [activeConfig]);
+
+  const activeSection = sectionKeys[sectionTab] ?? 'cost';
 
   // Reset section tab when switching configs
   useEffect(() => {
     setSectionTab(0);
     setCostData(null);
     setEcsData(null);
+    setEc2Data(null);
   }, [activeTab]);
 
   // Load cost when on cost section
   useEffect(() => {
-    if (activeConfig && sectionTab === 0) loadCost(activeConfig.id);
-  }, [activeConfig, sectionTab, loadCost]);
+    if (activeConfig && activeSection === 'cost') loadCost(activeConfig.id);
+  }, [activeConfig, activeSection, loadCost]);
 
   // Load ECS when on ECS section and cluster is configured
   useEffect(() => {
-    if (activeConfig?.ecs_cluster_name && sectionTab === 1) {
+    if (activeConfig?.ecs_cluster_name && activeSection === 'ecs') {
       loadEcs(activeConfig.id);
     }
-  }, [activeConfig, sectionTab, loadEcs]);
+  }, [activeConfig, activeSection, loadEcs]);
 
-  // Load Lambda summary when on Lambda section (aggregated view of all functions)
+  // Load Lambda summary when on Lambda section
   useEffect(() => {
-    if (activeConfig && sectionTab === 2) {
+    if (activeConfig && activeSection === 'lambda') {
       loadLambdaSummary(activeConfig.id);
     }
-  }, [activeConfig, sectionTab, loadLambdaSummary]);
+  }, [activeConfig, activeSection, loadLambdaSummary]);
+
+  // Load EC2 when on EC2 section
+  useEffect(() => {
+    if (activeConfig && activeSection === 'ec2') {
+      loadEc2(activeConfig.id);
+    }
+  }, [activeConfig, activeSection, loadEc2]);
 
   const handleSave = async (formData: {
     configName: string;
@@ -1141,7 +1241,7 @@ export function AwsCostEntityTab() {
                 )}
               </Box>
 
-              {/* Section tabs: Cost | ECS */}
+              {/* Section tabs: Cost | ECS | Lambda | EC2 */}
               <Box mb={2}>
                 <Tabs
                   value={sectionTab}
@@ -1150,17 +1250,19 @@ export function AwsCostEntityTab() {
                   textColor="primary"
                   style={{ minHeight: 36 }}
                 >
-                  <Tab label="Cost" style={{ minHeight: 36, minWidth: 80 }} />
-                  {activeConfig.ecs_cluster_name && (
-                    <Tab label="ECS" style={{ minHeight: 36, minWidth: 80 }} />
-                  )}
-                  <Tab label="Lambda" style={{ minHeight: 36, minWidth: 80 }} />
+                  {sectionKeys.map(key => (
+                    <Tab
+                      key={key}
+                      label={key.toUpperCase()}
+                      style={{ minHeight: 36, minWidth: 80 }}
+                    />
+                  ))}
                 </Tabs>
                 <Divider />
               </Box>
 
               {/* ── Cost section ── */}
-              {sectionTab === 0 && (
+              {activeSection === 'cost' && (
                 <>
                   <Box
                     display="flex"
@@ -1260,7 +1362,7 @@ export function AwsCostEntityTab() {
               )}
 
               {/* ── ECS section ── */}
-              {sectionTab === 1 && activeConfig.ecs_cluster_name && (
+              {activeSection === 'ecs' && activeConfig.ecs_cluster_name && (
                 <>
                   <Box
                     display="flex"
@@ -1334,7 +1436,7 @@ export function AwsCostEntityTab() {
               )}
 
               {/* ── Lambda section ── */}
-              {sectionTab === 2 && (
+              {activeSection === 'lambda' && (
                 <>
                   <Box
                     display="flex"
@@ -1775,6 +1877,287 @@ export function AwsCostEntityTab() {
                           </Paper>
                         </Grid>
                       </Grid>
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* ── EC2 section ── */}
+              {activeSection === 'ec2' && (
+                <>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    mb={2}
+                  >
+                    <Typography variant="h6" style={{ fontWeight: 600 }}>
+                      EC2 Instances ({activeConfig.aws_region})
+                    </Typography>
+                    <Tooltip title="Refresh EC2">
+                      <IconButton
+                        size="small"
+                        onClick={() => loadEc2(activeConfig.id)}
+                      >
+                        <RefreshIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+
+                  {ec2Loading && (
+                    <Box display="flex" justifyContent="center" p={4}>
+                      <CircularProgress size={32} />
+                    </Box>
+                  )}
+
+                  {ec2Error && (
+                    <Paper
+                      elevation={0}
+                      style={{
+                        padding: 16,
+                        background: '#fff3f3',
+                        border: '1px solid #f5c6cb',
+                        marginBottom: 16,
+                      }}
+                    >
+                      <Typography color="error" variant="body2">
+                        {ec2Error}
+                      </Typography>
+                    </Paper>
+                  )}
+
+                  {ec2Data && (
+                    <>
+                      {/* Summary row */}
+                      <Paper
+                        variant="outlined"
+                        style={{ padding: 16, marginBottom: 16 }}
+                      >
+                        <Grid container spacing={2}>
+                          <Grid item xs={4} md={2}>
+                            <Box textAlign="center">
+                              <Typography
+                                variant="h4"
+                                style={{ fontWeight: 700, color: '#1976d2' }}
+                              >
+                                {ec2Data.totalInstances}
+                              </Typography>
+                              <Typography variant="caption" color="textSecondary">
+                                Total Instances
+                              </Typography>
+                            </Box>
+                          </Grid>
+                          <Grid item xs={4} md={2}>
+                            <Box textAlign="center">
+                              <Typography
+                                variant="h4"
+                                style={{ fontWeight: 700, color: '#2e7d32' }}
+                              >
+                                {ec2Data.runningCount}
+                              </Typography>
+                              <Typography variant="caption" color="textSecondary">
+                                Running
+                              </Typography>
+                            </Box>
+                          </Grid>
+                          <Grid item xs={4} md={2}>
+                            <Box textAlign="center">
+                              <Typography
+                                variant="h4"
+                                style={{ fontWeight: 700, color: '#c62828' }}
+                              >
+                                {ec2Data.stoppedCount}
+                              </Typography>
+                              <Typography variant="caption" color="textSecondary">
+                                Stopped
+                              </Typography>
+                            </Box>
+                          </Grid>
+                        </Grid>
+                      </Paper>
+
+                      {/* Instance list */}
+                      {ec2Data.instances.length === 0 ? (
+                        <Typography color="textSecondary" variant="body2">
+                          No EC2 instances found in this region.
+                        </Typography>
+                      ) : (
+                        ec2Data.instances.map(inst => {
+                          const stateStyle = ec2StateStyle(inst.state);
+                          return (
+                            <Paper
+                              key={inst.instanceId}
+                              elevation={1}
+                              style={{ padding: 16, marginBottom: 12 }}
+                            >
+                              {/* Instance header */}
+                              <Box
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="space-between"
+                                mb={1}
+                              >
+                                <Box display="flex" alignItems="center" style={{ gap: 8 }}>
+                                  <Typography
+                                    variant="subtitle2"
+                                    style={{ fontWeight: 600 }}
+                                  >
+                                    {inst.name || inst.instanceId}
+                                  </Typography>
+                                  <Chip
+                                    label={inst.state}
+                                    size="small"
+                                    style={{
+                                      fontSize: 10,
+                                      height: 20,
+                                      color: stateStyle.color,
+                                      backgroundColor: stateStyle.bg,
+                                      fontWeight: 600,
+                                    }}
+                                  />
+                                  <Chip
+                                    label={inst.instanceType}
+                                    size="small"
+                                    variant="outlined"
+                                    style={{ fontSize: 10, height: 20 }}
+                                  />
+                                  {inst.architecture && (
+                                    <Chip
+                                      label={inst.architecture}
+                                      size="small"
+                                      variant="outlined"
+                                      style={{ fontSize: 10, height: 20 }}
+                                    />
+                                  )}
+                                </Box>
+                                {inst.name && (
+                                  <Typography variant="caption" color="textSecondary">
+                                    {inst.instanceId}
+                                  </Typography>
+                                )}
+                              </Box>
+
+                              {/* Details grid */}
+                              <Box
+                                display="flex"
+                                flexWrap="wrap"
+                                style={{ gap: 24 }}
+                              >
+                                {inst.privateIp && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">
+                                      Private IP
+                                    </Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500 }}>
+                                      {inst.privateIp}
+                                    </Typography>
+                                  </Box>
+                                )}
+                                {inst.publicIp && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">
+                                      Public IP
+                                    </Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500 }}>
+                                      {inst.publicIp}
+                                    </Typography>
+                                  </Box>
+                                )}
+                                {inst.availabilityZone && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">
+                                      AZ
+                                    </Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500 }}>
+                                      {inst.availabilityZone}
+                                    </Typography>
+                                  </Box>
+                                )}
+                                {inst.vpcId && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">
+                                      VPC
+                                    </Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500 }}>
+                                      {inst.vpcId}
+                                    </Typography>
+                                  </Box>
+                                )}
+                                {inst.subnetId && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">
+                                      Subnet
+                                    </Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500 }}>
+                                      {inst.subnetId}
+                                    </Typography>
+                                  </Box>
+                                )}
+                                <Box>
+                                  <Typography variant="caption" color="textSecondary">
+                                    Platform
+                                  </Typography>
+                                  <Typography variant="body2" style={{ fontWeight: 500 }}>
+                                    {inst.platform}
+                                  </Typography>
+                                </Box>
+                                {inst.keyName && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">
+                                      Key Pair
+                                    </Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500 }}>
+                                      {inst.keyName}
+                                    </Typography>
+                                  </Box>
+                                )}
+                                {inst.monitoring && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">
+                                      Monitoring
+                                    </Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500 }}>
+                                      {inst.monitoring}
+                                    </Typography>
+                                  </Box>
+                                )}
+                                {inst.launchTime && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">
+                                      Launched
+                                    </Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500 }}>
+                                      {new Date(inst.launchTime).toLocaleString()}
+                                    </Typography>
+                                  </Box>
+                                )}
+                              </Box>
+
+                              {/* Security groups */}
+                              {inst.securityGroups.length > 0 && (
+                                <Box mt={1} display="flex" alignItems="center" style={{ gap: 4 }}>
+                                  <Typography
+                                    variant="caption"
+                                    color="textSecondary"
+                                    style={{ marginRight: 4 }}
+                                  >
+                                    SGs:
+                                  </Typography>
+                                  {inst.securityGroups.map(sg => (
+                                    <Chip
+                                      key={sg.groupId}
+                                      label={sg.groupName || sg.groupId}
+                                      size="small"
+                                      variant="outlined"
+                                      style={{ fontSize: 10, height: 18 }}
+                                    />
+                                  ))}
+                                </Box>
+                              )}
+                            </Paper>
+                          );
+                        })
+                      )}
                     </>
                   )}
                 </>

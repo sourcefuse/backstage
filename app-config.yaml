@@ -325,9 +325,9 @@ catalog:
       rules:
         - allow: [Template]
 
-    # Local catalog entities
-    - type: file
-      target: ../../catalog-info.yaml
+    # Backstage self-registration via GitHub
+    - type: url
+      target: https://github.com/sourcefuse/backstage/blob/main/catalog-info.yaml
       rules:
         - allow: [Component, System, API, Group, User, Resource, Location]
 
