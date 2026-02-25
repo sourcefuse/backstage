@@ -6,7 +6,6 @@ metadata:
   description: SourceFuse ARC Backstage platform with GitHub integration, scaffolding templates, and catalog management
   annotations:
     github.com/project-slug: sourcefuse/backstage
-    backstage.io/techdocs-ref: dir:.
     sonarqube.org/project-key: sourcefuse-cloud/sourcefuse_backstage
   tags:
     - typescript
