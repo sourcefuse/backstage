@@ -19,6 +19,8 @@ import {
   githubPullRequestsApiRef,
   GithubPullRequestsClient,
 } from '@roadiehq/backstage-plugin-github-pull-requests';
+import { techRadarApiRef } from '@backstage-community/plugin-tech-radar';
+import { SourceFuseTechRadarApi } from './techRadarData';
 
 async function getGuestGithubToken(identityApi: any): Promise<string> {
   // eslint-disable-next-line no-console
@@ -46,6 +48,11 @@ async function getGuestGithubToken(identityApi: any): Promise<string> {
 }
 
 export const apis: AnyApiFactory[] = [
+  createApiFactory({
+    api: techRadarApiRef,
+    deps: {},
+    factory: () => new SourceFuseTechRadarApi(),
+  }),
   createApiFactory({
     api: githubPullRequestsApiRef,
     deps: {},

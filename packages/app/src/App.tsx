@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, Route } from 'react-router-dom';
 import './App.css';
-import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
+import { apiDocsPlugin } from '@backstage/plugin-api-docs';
+import { CustomApiExplorerPage } from './components/catalog/CustomApiExplorerPage';
 import {
   createTheme,
   lightTheme,
@@ -23,7 +24,6 @@ import {
 } from '@backstage/core-components'; // NOSONAR
 import loginBg from './assets/images/login-bg.jpg';
 import sfLogoMinimal from './assets/images/sf-minimal-logo.png';
-import { PermissionWrapper } from './PermissionWrapper';
 import { HomePageContent } from './components/home/HomePage';
 import {
   HomepageCompositionRoot,
@@ -37,7 +37,7 @@ import {
   CatalogImportPage,
   catalogImportPlugin,
 } from '@backstage/plugin-catalog-import';
-import { ScaffolderPage, scaffolderPlugin } from '@backstage/plugin-scaffolder';
+import { scaffolderPlugin, ScaffolderPage } from '@backstage/plugin-scaffolder';
 import { orgPlugin } from '@backstage/plugin-org';
 import { SearchPage } from '@backstage/plugin-search';
 
@@ -58,6 +58,14 @@ import {
 } from '@backstage/plugin-user-settings';
 import { CustomLogoSettings } from './components/settings/CustomLogoSettings';
 import { PortalBadgeSettings } from './components/settings/PortalBadgeSettings';
+import { ThemeGuideCard } from './components/settings/ThemeGuideCard';
+import {
+  PortalPreferencesCard,
+  PORTAL_HIDE_ANNOUNCEMENTS_KEY,
+  PORTAL_LANDING_PAGE_KEY,
+  PORTAL_PREFERENCES_EVENT,
+} from './components/settings/PortalPreferencesCard';
+import { FeatureFlagsInfoBanner } from './components/settings/FeatureFlagsInfoBanner';
 import { apis } from './apis';
 import { entityPage } from './components/catalog/EntityPage';
 import { searchPage } from './components/search/SearchPage';
@@ -70,7 +78,8 @@ import { NewRelicPage } from '@backstage-community/plugin-newrelic';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
 import { githubAuthApiRef } from '@backstage/core-plugin-api';
-import { Box, Grid } from '@material-ui/core';
+import { Box, Grid, Typography } from '@material-ui/core';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import { AutoLogout } from './components/AutoLogout';
 import { TechRadarPage } from '@backstage-community/plugin-tech-radar';
 import { PrometheusGlobalPage } from './components/prometheus/PrometheusGlobalPage';
@@ -78,6 +87,7 @@ import {
   AnnouncementsPage,
   NewAnnouncementBanner,
 } from '@backstage-community/plugin-announcements';
+import { AnnouncementsEnhancer } from './components/announcements/AnnouncementsEnhancer';
 
 /* My Custom Theme */
 const customTheme = createTheme({
@@ -395,6 +405,33 @@ function GuestAwareOAuthDialog() {
   return <OAuthRequestDialog />;
 }
 
+function AnnouncementBannerWrapper() {
+  const [hidden, setHidden] = useState(
+    () => localStorage.getItem(PORTAL_HIDE_ANNOUNCEMENTS_KEY) === 'true',
+  );
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.key === PORTAL_HIDE_ANNOUNCEMENTS_KEY) {
+        setHidden(detail.value === 'true');
+      }
+    };
+    window.addEventListener(PORTAL_PREFERENCES_EVENT, handler);
+    return () => window.removeEventListener(PORTAL_PREFERENCES_EVENT, handler);
+  }, []);
+  if (hidden) return null;
+  return (
+    <div className="announcement-banner-wrapper">
+      <NewAnnouncementBanner max={1} />
+    </div>
+  );
+}
+
+function LandingRedirect() {
+  const target = localStorage.getItem(PORTAL_LANDING_PAGE_KEY) || '/home';
+  return <Navigate to={target.replace(/^\//, '')} />;
+}
+
 const app = createApp({
   apis,
   components: {
@@ -505,7 +542,7 @@ const app = createApp({
 
 const routes = (
   <FlatRoutes>
-    <Route path="/" element={<Navigate to="home" />} />
+    <Route path="/" element={<LandingRedirect />} />
     <Route
       path="/home"
       element={
@@ -528,7 +565,57 @@ const routes = (
     >
       {entityPage}
     </Route>
-    <Route path="/docs" element={<TechDocsIndexPage />} />
+    <Route path="/docs" element={
+      <>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          px={3}
+          py={2}
+          mx={3}
+          mt={2}
+          borderRadius={10}
+          style={{
+            background: 'linear-gradient(135deg, #212D38 0%, #060C3A 100%)',
+            color: '#FFFFFF',
+          }}
+        >
+          <Box display="flex" alignItems="center">
+            <InfoOutlinedIcon style={{ color: '#FF6B78', marginRight: 14, fontSize: 28 }} />
+            <Box>
+              <Typography variant="subtitle1" style={{ color: '#FFFFFF', fontWeight: 700, fontFamily: 'Gotham, sans-serif' }}>
+                Add docs for your service
+              </Typography>
+              <Typography variant="body2" style={{ color: 'rgba(255,255,255,0.72)', marginTop: 2 }}>
+                Add a <code style={{ background: 'rgba(255,255,255,0.15)', padding: '1px 6px', borderRadius: 4 }}>mkdocs.yml</code> and{' '}
+                <code style={{ background: 'rgba(255,255,255,0.15)', padding: '1px 6px', borderRadius: 4 }}>docs/</code> folder to your repo, then register it in the catalog.
+              </Typography>
+            </Box>
+          </Box>
+          <a
+            href="https://backstage.io/docs/features/techdocs/creating-and-publishing"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-block',
+              backgroundColor: '#E81823',
+              color: '#FFFFFF',
+              padding: '8px 20px',
+              borderRadius: 6,
+              fontWeight: 600,
+              fontSize: 13,
+              textDecoration: 'none',
+              whiteSpace: 'nowrap',
+              fontFamily: 'Gotham, sans-serif',
+            }}
+          >
+            TechDocs Guide &rarr;
+          </a>
+        </Box>
+        <TechDocsIndexPage initialFilter="all" />
+      </>
+    } />
     <Route
       path="/docs/:namespace/:kind/:name/*"
       element={<TechDocsReaderPage />}
@@ -537,16 +624,16 @@ const routes = (
         <ReportIssue />
       </TechDocsAddons>
     </Route>
-    <Route path="/create" element={<ScaffolderPage />} />
-    <Route
-      path="/create/templates/default"
-      element={
-        <PermissionWrapper permission="scaffoldPermission">
-          <ScaffolderPage />
-        </PermissionWrapper>
-      }
-    />
-    <Route path="/api-docs" element={<ApiExplorerPage />} />
+    <Route path="/create" element={
+      <ScaffolderPage
+        headerOptions={{
+          title: 'Create a New Component',
+          subtitle: 'Scaffolder',
+        }}
+        groups={[{ title: 'All Templates', filter: () => true }]}
+      />
+    } />
+    <Route path="/api-docs" element={<CustomApiExplorerPage />} />
     <Route path="/tech-radar" element={<TechRadarPage width={1500} height={800} />} />
     <Route
       path="/catalog-import"
@@ -572,7 +659,7 @@ const routes = (
                 <UserSettingsAppearanceCard />
               </Grid>
               <Grid item xs={12} md={6}>
-                <UserSettingsIdentityCard />
+                <ThemeGuideCard />
               </Grid>
               <Grid item xs={12} md={6}>
                 <CustomLogoSettings />
@@ -580,13 +667,22 @@ const routes = (
               <Grid item xs={12} md={6}>
                 <PortalBadgeSettings />
               </Grid>
+              <Grid item xs={12} md={6}>
+                <PortalPreferencesCard />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <UserSettingsIdentityCard />
+              </Grid>
             </Grid>
           </SettingsLayout.Route>
           <SettingsLayout.Route path="auth-providers" title="Authentication">
             <UserSettingsAuthProviders />
           </SettingsLayout.Route>
           <SettingsLayout.Route path="feature-flags" title="Feature Flags">
-            <UserSettingsFeatureFlags />
+            <>
+              <FeatureFlagsInfoBanner />
+              <UserSettingsFeatureFlags />
+            </>
           </SettingsLayout.Route>
         </SettingsLayout>
       }
@@ -609,11 +705,32 @@ export default app.createRoot(
       logoutIfDisconnected={false}
     />
     <AppRouter>
-      <VisitListener />
+      <VisitListener
+        toEntityRef={({ pathname }: { pathname: string }) => {
+          // Map known non-entity pages to pseudo entity refs so the
+          // Recently Visited / Top Visited widgets show a proper kind
+          // chip instead of "other".
+          const knownPages: Record<string, string> = {
+            '/announcements': 'resource:default/announcements',
+            '/tech-radar': 'resource:default/tech-radar',
+            '/api-docs': 'api:default/api-docs',
+            '/create': 'template:default/scaffolding',
+            '/docs': 'resource:default/docs',
+          };
+          // Check exact match first
+          if (knownPages[pathname]) return knownPages[pathname];
+          // Then check prefix matches for sub-pages
+          const prefix = Object.keys(knownPages).find(p => p !== '/' && pathname.startsWith(p + '/'));
+          if (prefix) return knownPages[prefix];
+          // Fall back to default catalog entity ref parsing
+          const match = pathname.match(/^\/catalog\/([^/]+)\/([^/]+)\/([^/]+)/);
+          if (match) return `${match[2]}:${match[1]}/${match[3]}`;
+          return undefined;
+        }}
+      />
       <Root>
-        <div className="announcement-banner-wrapper">
-          <NewAnnouncementBanner max={1} />
-        </div>
+        <AnnouncementBannerWrapper />
+        <AnnouncementsEnhancer />
         {routes}
       </Root>
     </AppRouter>

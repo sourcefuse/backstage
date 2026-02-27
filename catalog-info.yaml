@@ -1,4 +1,16 @@
 apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: backstage
+  namespace: default
+  description: SourceFuse ARC Backstage developer portal platform
+  tags:
+    - backstage
+    - platform
+spec:
+  owner: group:default/sf_refarch_admins
+---
+apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: backstage
@@ -21,11 +33,38 @@ spec:
   type: website
   lifecycle: production
   owner: group:default/sf_refarch_admins
+  system: backstage
   dependsOn:
     - resource:default/backstage-postgres
     - resource:default/github-integration
     - resource:default/aws-deployment
     - resource:default/snyk-security
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: arc-iac
+  namespace: default
+  description: SourceFuse ARC Infrastructure-as-Code Terraform modules for AWS
+  tags:
+    - terraform
+    - aws
+    - infrastructure
+spec:
+  owner: group:default/sf_refarch_admins
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: loopback4-extensions
+  namespace: default
+  description: SourceFuse LoopBack 4 extension libraries for enterprise microservices
+  tags:
+    - loopback4
+    - nodejs
+    - typescript
+spec:
+  owner: group:default/sf_refarch_admins
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Location

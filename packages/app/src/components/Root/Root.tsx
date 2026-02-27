@@ -14,7 +14,7 @@ import { SidebarSearchModal } from '@backstage/plugin-search';
 import {
   Sidebar,
   sidebarConfig,
-  // SidebarDivider,
+  SidebarDivider,
   SidebarGroup,
   SidebarItem,
   SidebarPage,
@@ -113,10 +113,9 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
       <SidebarGroup label="Search" icon={<SearchIcon />} to="/search">
         <SidebarSearchModal />
       </SidebarGroup>
-      {/* <SidebarDivider /> */}
-      <SidebarGroup label="Menu" icon={<MenuIcon />}>
+      <SidebarDivider />
+      <SidebarGroup label="Discover" icon={<MenuIcon />}>
         <SidebarItem icon={Homeicon} to="/home" text="Home" />
-        <SidebarItem icon={ExtensionIcon} to="api-docs" text="APIs" />
         <SidebarItem icon={CategoryIcon} to="catalog" text="Catalog">
           <SidebarSubmenu title="Catalog">
             <SidebarSubmenuItem
@@ -156,15 +155,19 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
             />
           </SidebarSubmenu>
         </SidebarItem>
+        <SidebarItem icon={ExtensionIcon} to="api-docs" text="APIs" />
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
         <SidebarItem icon={MapIcon} to="tech-radar" text="Tech Radar" />
-        <SidebarItem icon={CreateComponentIcon} to="create" text="Create..." />
+      </SidebarGroup>
+      <SidebarDivider />
+      <SidebarGroup label="Build" icon={<CreateComponentIcon />}>
+        <SidebarItem icon={CreateComponentIcon} to="create" text="Scaffolding" />
         <SidebarItem icon={CampaignIcon} to="announcements" text="Announcements" />
       </SidebarGroup>
       <SidebarSpace />
-      {/* <SidebarDivider /> */}
+      <SidebarDivider />
       <SidebarGroup
-        label="Settings"
+        label="Admin"
         icon={<UserSettingsSignInAvatar />}
         to="/settings"
       >

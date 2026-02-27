@@ -13,6 +13,7 @@ import { prometheusSettingsPlugin } from './plugins/prometheus-settings';
 import { portalSettingsPlugin } from './plugins/portal-settings';
 import { awsCostSettingsPlugin } from './plugins/aws-cost-settings';
 import { jenkinsSettingsPlugin } from './plugins/jenkins-settings';
+import { defectDensityPlugin } from './plugins/defect-density';
 
 const scaffolderModuleCustomExtensions = createBackendModule({
   pluginId: 'scaffolder', // name of the plugin that the module is targeting
@@ -92,5 +93,8 @@ backend.add(awsCostSettingsPlugin);
 
 // Jenkins per-entity settings (stores job paths in PostgreSQL, proxies to Jenkins API)
 backend.add(jenkinsSettingsPlugin);
+
+// Defect density per-entity (bugs per KLOC, cached weekly in PostgreSQL)
+backend.add(defectDensityPlugin);
 
 backend.start();

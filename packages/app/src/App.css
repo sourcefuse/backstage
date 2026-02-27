@@ -140,3 +140,117 @@
   margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
+
+/* --- Announcements Filter Dropdown Fix --- */
+.bui-Popover,
+.bui-SelectPopover,
+.bui-MenuPopover {
+  z-index: 1500 !important;
+  background: #ffffff !important;
+}
+
+/* --- Starred Entities list text spacing --- */
+.starred-entities-wrapper .MuiListItemText-root.MuiListItemText-dense.MuiListItemText-multiline {
+  margin-left: 20px !important;
+}
+
+/* --- Announcements Home Widget Fix --- */
+.announcements-home-wrapper .MuiListItem-root {
+  padding-left: 16px !important;
+  border-bottom: 1px solid #E4E4E4;
+}
+.announcements-home-wrapper .MuiListItem-root:last-child {
+  border-bottom: none;
+}
+.announcements-home-wrapper .MuiListItemText-root {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  text-align: left !important;
+}
+.announcements-home-wrapper .MuiListItemAvatar-root {
+  min-width: 0 !important;
+  margin-right: 0 !important;
+  display: none !important;
+}
+
+/* =============================================================
+ * Announcements Page — Card Enhancements
+ * Fixes: title truncation, full-card click, hover state,
+ * severity badge positioning, and skeleton loading.
+ * Applied globally to bui-Card elements on announcements page.
+ * ============================================================= */
+
+/* --- Title wrapping: prevent truncation ---
+   The plugin's Link uses truncate: true which adds
+   text-overflow: ellipsis + white-space: nowrap.
+   Override in card headers to let long CVE titles wrap. */
+.bui-CardHeader .bui-Link,
+.bui-CardHeader a[class*="Link"] {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  display: inline !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: unset !important;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+/* --- Full card clickable ---
+   Cards get a pointer cursor and a subtle hover lift.
+   The actual click is handled by JS (delegated to title link). */
+.bui-Card {
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.bui-Card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+  transform: translateY(-2px);
+}
+
+/* Let tags/buttons keep their own cursor */
+.bui-Card .bui-Tag,
+.bui-Card .bui-Button {
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+/* --- Severity badge alignment --- */
+.bui-CardHeader .bui-Flex {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+/* --- Skeleton loading enhancement ---
+   The plugin renders a single <Skeleton /> element.
+   Enhance it with a pulsing gradient animation. */
+.bui-Skeleton {
+  min-height: 280px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%) !important;
+  background-size: 400% 100% !important;
+  animation: skeleton-pulse 1.4s ease infinite !important;
+}
+
+@keyframes skeleton-pulse {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* --- Card footer tags: visual separation --- */
+.bui-CardFooter {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 8px;
+}
+
+/* --- Card body excerpt text --- */
+.bui-CardBody .bui-Text {
+  color: #555;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* --- The plugin's HeaderPage is hidden by JS in the AnnouncementsEnhancer
+   when category tabs are injected. No CSS sibling selector needed. */

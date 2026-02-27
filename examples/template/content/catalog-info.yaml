@@ -4,5 +4,6 @@ metadata:
   name: ${{ values.name | dump }}
 spec:
   type: service
+  system: backstage
   owner: user:guest
   lifecycle: experimental

@@ -131,12 +131,25 @@ proxy:
       headers:
         X-Api-Key: ${NEW_RELIC_USER_KEY}
 
+    '/jira/api':
+      target: https://sourcefuse.atlassian.net
+      headers:
+        Authorization: Basic ${JIRA_TOKEN}
+        Accept: application/json
+        Content-Type: application/json
+        X-Atlassian-Token: no-check
+        User-Agent: Backstage
+
 # Required by @backstage-community/plugin-grafana config schema.
 # We use our own backend proxy for actual Grafana queries, so this domain
 # is only used for the annotation-based dashboard/alert cards (not the tab).
 grafana:
   domain: ${GRAFANA_URL}
   unifiedAlerting: false
+
+jira:
+  baseUrl: https://sourcefuse.atlassian.net
+  token: ${JIRA_TOKEN}
 
 jenkins:
   instances:
@@ -171,7 +184,7 @@ catalog:
   #         timeout: { minutes: 15 }
 
   rules:
-    - allow: [Component, System, API, Group, User, Resource, Location]
+    - allow: [Component, System, API, Group, User, Resource, Location, Template]
   locations:
     # Backstage example templates
     - type: url
@@ -316,10 +329,6 @@ catalog:
       rules:
         - allow: [Component]
 
-    - type: url
-      target: https://github.com/sourcefuse/telemed-app-ui/blob/main/template.yaml
-      rules:
-        - allow: [Template]
     - type: url
       target: https://github.com/sourcefuse/telemed-app-api/blob/main/template.yaml
       rules:

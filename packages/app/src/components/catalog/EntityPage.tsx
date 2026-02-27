@@ -21,7 +21,6 @@ import {
   EntityDependsOnResourcesCard,
   EntityHasComponentsCard,
   EntityHasResourcesCard,
-  EntityHasSubcomponentsCard,
   EntityHasSystemsCard,
   EntityLayout,
   EntityLinksCard,
@@ -60,6 +59,7 @@ import {
   EntityGithubPullRequestsOverviewCard,
 } from '@roadiehq/backstage-plugin-github-pull-requests';
 import { EntitySonarQubeCard } from '@backstage-community/plugin-sonarqube';
+import { EntityJiraOverviewCard, isJiraAvailable } from '@roadiehq/backstage-plugin-jira';
 
 import {
   EntityKubernetesContent,
@@ -81,6 +81,7 @@ import {GrafanaEntityTab} from '../grafana/GrafanaEntityTab';
 import {PrometheusEntityTab} from '../prometheus/PrometheusEntityTab';
 import {AwsCostEntityTab} from '../aws/AwsCostEntityTab';
 import {JenkinsEntityTab} from '../jenkins/JenkinsEntityTab';
+import {DefectDensityCard} from '../defect-density/DefectDensityCard';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -114,11 +115,11 @@ const overviewContent = (
     <Grid item md={4} xs={12}>
       <EntityLinksCard />
     </Grid>
-    <Grid item md={8} xs={12}>
-      <EntityHasSubcomponentsCard variant="gridItem" />
-    </Grid>
-    <Grid item md={12}>
+    <Grid item md={9} xs={12}>
       <EntityGithubPullRequestsOverviewCard />
+    </Grid>
+    <Grid item md={3} xs={12}>
+      <DefectDensityCard />
     </Grid>
     <EntitySwitch>
       <EntitySwitch.Case if={isNewRelicApmAvailable}>
@@ -205,6 +206,9 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
     </EntityLayout.Route>
+    <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
+      <EntityJiraOverviewCard />
+    </EntityLayout.Route>
     <EntityLayout.Route path="/codequality" title="Code Quality">
       <EntitySonarQubeCard />
     </EntityLayout.Route>
@@ -269,6 +273,9 @@ const websiteEntityPage = (
 
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
+    </EntityLayout.Route>
+    <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
+      <EntityJiraOverviewCard />
     </EntityLayout.Route>
     <EntityLayout.Route
       path="/newrelic-dashboard"

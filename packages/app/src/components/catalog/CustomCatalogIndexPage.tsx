@@ -15,6 +15,7 @@
  */
 
 import React, { ReactNode, useEffect, useState } from 'react';
+import Tooltip from '@material-ui/core/Tooltip';
 import {
   Content,
   ContentHeader,
@@ -70,14 +71,38 @@ export type CatalogPluginOptions = {
   createButtonTitle: string;
 };
 
-const columnsWithoutSystem: CatalogTableColumnsFunc = ctx => {
-  return CatalogTable.defaultColumnsFunc(ctx).filter(
-    col => col.title !== 'System',
-  );
+const columnsWithTooltips: CatalogTableColumnsFunc = ctx => {
+  return CatalogTable.defaultColumnsFunc(ctx)
+    .filter(col => col.title !== 'System')
+    .map(col => {
+      if (col.title === 'Description') {
+        return {
+          ...col,
+          render: (row: CatalogTableRow) => {
+            const desc = row.entity.metadata?.description || '';
+            if (desc.length <= 50) return <>{desc}</>;
+            return (
+              <Tooltip title={desc} arrow enterDelay={300}>
+                <span style={{
+                  display: 'block',
+                  maxWidth: 350,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {desc}
+                </span>
+              </Tooltip>
+            );
+          },
+        };
+      }
+      return col;
+    });
 };
 
 export const CustomCatalogPage = ({
-  columns = columnsWithoutSystem,
+  columns = columnsWithTooltips,
   actions,
   initiallySelectedFilter = 'owned',
   initialKind = 'component',

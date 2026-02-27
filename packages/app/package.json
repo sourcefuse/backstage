@@ -58,6 +58,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.61",
     "@roadiehq/backstage-plugin-github-pull-requests": "^2.5.14",
+    "@roadiehq/backstage-plugin-jira": "2.14.0",
     "history": "^5.0.0",
     "react": "^18.0.2",
     "react-dom": "^18.0.2",

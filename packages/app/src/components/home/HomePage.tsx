@@ -4,14 +4,21 @@ import {
   HomePageRecentlyVisited,
   HomePageStarredEntities,
   HomePageToolkit,
+  VisitDisplayProvider,
 } from '@backstage/plugin-home';
 import { HomePageSearchBar } from '@backstage/plugin-search';
 import { SearchContextProvider } from '@backstage/plugin-search-react';
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { Grid, makeStyles, Typography, CircularProgress } from '@material-ui/core';
 import GitHubIcon from '@material-ui/icons/GitHub';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import LanguageIcon from '@material-ui/icons/Language';
+import MyLocationIcon from '@material-ui/icons/MyLocation';
+import AnnouncementIcon from '@material-ui/icons/Announcement';
+import BuildIcon from '@material-ui/icons/Build';
+import CodeIcon from '@material-ui/icons/Code';
+import CategoryIcon from '@material-ui/icons/Category';
 import { discoveryApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { catalogApiRef } from '@backstage/plugin-catalog-react';
 import { PORTAL_BADGE_EVENT } from '../settings/PortalBadgeSettings';
 import { AnnouncementsCard } from '@backstage-community/plugin-announcements';
 
@@ -273,7 +280,117 @@ const toolkitTools = [
     label: 'SourceFuse',
     icon: <LanguageIcon />,
   },
+  {
+    url: '/tech-radar',
+    label: 'Tech Radar',
+    icon: <MyLocationIcon />,
+  },
+  {
+    url: '/announcements',
+    label: 'Announcements',
+    icon: <AnnouncementIcon />,
+  },
+  {
+    url: '/create',
+    label: 'Create',
+    icon: <BuildIcon />,
+  },
+  {
+    url: '/api-docs',
+    label: 'API Docs',
+    icon: <CodeIcon />,
+  },
+  {
+    url: '/catalog',
+    label: 'Catalog',
+    icon: <CategoryIcon />,
+  },
 ];
+
+/* ── Custom label for visited-widgets badges ─────────────────────────── */
+const visitLabel = (visit: { entityRef?: string }) => {
+  if (!visit.entityRef) return 'other';
+  const kind = visit.entityRef.split(':')[0]?.toLowerCase();
+  if (kind === 'resource') return 'page';
+  return kind || 'other';
+};
+
+/* ── Quick Stats ─────────────────────────────────────────────────────── */
+const STAT_ORDER = ['Component', 'API', 'Template', 'Resource', 'System', 'Group', 'User'];
+
+const CatalogQuickStats = () => {
+  const catalogApi = useApi(catalogApiRef);
+  const [facets, setFacets] = useState<Array<{ value: string; count: number }>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    catalogApi.getEntityFacets({ facets: ['kind'] }).then(res => {
+      if (!cancelled) {
+        setFacets(res.facets.kind ?? []);
+        setLoading(false);
+      }
+    }).catch(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [catalogApi]);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: 32 }}>
+        <CircularProgress size={28} />
+      </div>
+    );
+  }
+
+  // Sort facets by preferred order, then alphabetical for any extras
+  const sorted = [...facets].sort((a, b) => {
+    const ai = STAT_ORDER.indexOf(a.value);
+    const bi = STAT_ORDER.indexOf(b.value);
+    if (ai !== -1 && bi !== -1) return ai - bi;
+    if (ai !== -1) return -1;
+    if (bi !== -1) return 1;
+    return a.value.localeCompare(b.value);
+  });
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        gap: 16,
+        flexWrap: 'wrap',
+        padding: '20px 24px',
+      }}
+    >
+      {sorted.map(f => (
+        <div
+          key={f.value}
+          style={{
+            flex: '1 1 120px',
+            minWidth: 120,
+            textAlign: 'center',
+            padding: '16px 12px',
+            borderRadius: 8,
+            border: `1px solid ${SF.border}`,
+            background: SF.white,
+          }}
+        >
+          <Typography
+            variant="h4"
+            style={{ fontWeight: 700, color: SF.navy, fontFamily: 'Gotham, sans-serif' }}
+          >
+            {f.count}
+          </Typography>
+          <Typography
+            variant="body2"
+            style={{ color: SF.bodyText, marginTop: 4, fontFamily: 'Gotham, sans-serif' }}
+          >
+            {f.value}s
+          </Typography>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 /* ── Component ───────────────────────────────────────────────────────── */
 export const HomePageContent = () => {
@@ -330,20 +447,29 @@ export const HomePageContent = () => {
         {/* ── Content grid ── */}
         <div className={classes.mainContent}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            {/* ── Quick Stats ── */}
+            <Grid item xs={12}>
               <div className={classes.cardWrapper}>
-                <HomePageTopVisited />
+                <CatalogQuickStats />
               </div>
             </Grid>
 
-            <Grid item xs={12} md={6}>
-              <div className={classes.cardWrapper}>
-                <HomePageRecentlyVisited />
-              </div>
-            </Grid>
+            <VisitDisplayProvider getLabel={visitLabel}>
+              <Grid item xs={12} md={6}>
+                <div className={classes.cardWrapper}>
+                  <HomePageTopVisited />
+                </div>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <div className={classes.cardWrapper}>
+                  <HomePageRecentlyVisited />
+                </div>
+              </Grid>
+            </VisitDisplayProvider>
 
             <Grid item xs={12} md={6}>
-              <div className={classes.cardWrapper}>
+              <div className={`${classes.cardWrapper} starred-entities-wrapper`}>
                 <HomePageStarredEntities />
               </div>
             </Grid>
@@ -355,7 +481,7 @@ export const HomePageContent = () => {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <div className={classes.cardWrapper}>
+              <div className={`${classes.cardWrapper} announcements-home-wrapper`}>
                 <AnnouncementErrorBoundary>
                   <AnnouncementsCard max={3} />
                 </AnnouncementErrorBoundary>
