@@ -187,14 +187,14 @@ catalog:
     - allow: [Component, System, API, Group, User, Resource, Location, Template]
   locations:
     # AI Check UT Quality template
-    - type: file
-      target: ../../templates/github-workflow/template.yaml
+    - type: url
+      target: https://github.com/sourcefuse/ai-test-quality-analyzer/blob/CheckUnitTestCases/scaffolder/ut-quality-workflow/template.yaml
       rules:
         - allow: [Template]
 
     # AI Generate UT Cases template
-    - type: file
-      target: ../../templates/generate-ut-workflow/template.yaml
+    - type: url
+      target: https://github.com/sourcefuse/ai-test-quality-analyzer/blob/GenerateUnitTestCases/scaffolder/generate-ut-workflow/template.yaml
       rules:
         - allow: [Template]
 
