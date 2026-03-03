@@ -16,7 +16,7 @@ export const fileReplaceAction = () => {
             .array(
               z.object({
                 search: z.string().describe('String to find'),
-                replace: z.string().min(0).describe('String to replace with (use empty string to delete)'),
+                replace: z.string().optional().default('').describe('String to replace with (omit or empty to delete)'),
                 type: z
                   .enum(['plain', 'yaml-list'])
                   .optional()
@@ -39,7 +39,7 @@ export const fileReplaceAction = () => {
         filePath: string;
         replacements: Array<{
           search: string;
-          replace: string;
+          replace?: string;
           type?: 'plain' | 'yaml-list';
           indent?: number;
         }>;
@@ -50,7 +50,8 @@ export const fileReplaceAction = () => {
 
       let content = fs.readFileSync(fullPath, 'utf8');
 
-      for (const { search, replace, type, indent } of input.replacements) {
+      for (const { search, replace: rawReplace, type, indent } of input.replacements) {
+        const replace = rawReplace ?? '';
         const before = content;
 
         if (type === 'yaml-list') {
