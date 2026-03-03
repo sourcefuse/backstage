@@ -16,7 +16,7 @@ export const fileReplaceAction = () => {
             .array(
               z.object({
                 search: z.string().describe('String to find'),
-                replace: z.string().describe('String to replace with'),
+                replace: z.string().min(0).describe('String to replace with (use empty string to delete)'),
                 type: z
                   .enum(['plain', 'yaml-list'])
                   .optional()
