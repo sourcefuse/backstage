@@ -1,11 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Grid } from '@material-ui/core';
-import { NewRelicApmCard, isNewRelicApmAvailable } from '../newrelic/NewRelicApmCard';
 import { NewRelicFacadesTab, isNewRelicFacadesTabAvailable } from '../newrelic/NewRelicFacadesTab';
 import {
   isNewRelicDashboardAvailable,
   EntityNewRelicDashboardContent,
-  EntityNewRelicDashboardCard,
 } from '@backstage-community/plugin-newrelic-dashboard';
 import {
   EntityApiDefinitionCard,
@@ -56,7 +54,6 @@ import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import { EntityTeamPullRequestsCard } from '@backstage-community/plugin-github-pull-requests-board';
 import {
   EntityGithubPullRequestsContent,
-  EntityGithubPullRequestsOverviewCard,
 } from '@roadiehq/backstage-plugin-github-pull-requests';
 import { EntitySonarQubeCard } from '@backstage-community/plugin-sonarqube';
 import { EntityJiraOverviewCard, isJiraAvailable } from '@roadiehq/backstage-plugin-jira';
@@ -67,9 +64,9 @@ import {
 } from '@backstage/plugin-kubernetes';
 
 import {
-  EntityGithubActionsContent,
   isGithubActionsAvailable,
 } from '@backstage-community/plugin-github-actions';
+import {GithubActionsContent} from '../github-actions/GithubActionsContent';
 
 import {
   EntityGrafanaAlertsCard,
@@ -82,6 +79,44 @@ import {PrometheusEntityTab} from '../prometheus/PrometheusEntityTab';
 import {AwsCostEntityTab} from '../aws/AwsCostEntityTab';
 import {JenkinsEntityTab} from '../jenkins/JenkinsEntityTab';
 import {DefectDensityCard} from '../defect-density/DefectDensityCard';
+import {EntityTagsCard, EntityTagsDialog} from '../entity-tags/EntityTagsCard';
+import {CreatePrCard} from '../github-pr/CreatePrCard';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import LabelIcon from '@material-ui/icons/Label';
+import { TabDefinition } from '../tab-settings/types';
+import { useTabSettings } from '../tab-settings/useTabSettings';
+import { TabVisibilityDialog } from '../tab-settings/TabSettingsCard';
+
+const SERVICE_TABS: TabDefinition[] = [
+  { id: 'ci-cd', title: 'CI/CD' },
+  { id: 'jenkins', title: 'Jenkins' },
+  { id: 'api', title: 'API' },
+  { id: 'kubernetes', title: 'Kubernetes' },
+  { id: 'dependencies', title: 'Dependencies' },
+  { id: 'docs', title: 'Docs' },
+  { id: 'jira', title: 'Jira' },
+  { id: 'codequality', title: 'Code Quality' },
+  { id: 'pull-requests', title: 'Pull Requests' },
+  { id: 'newrelic-dashboard', title: 'New Relic' },
+  { id: 'newrelic-apm', title: 'New Relic APM' },
+  { id: 'grafana', title: 'Grafana' },
+  { id: 'prometheus', title: 'Prometheus' },
+  { id: 'aws-cost', title: 'AWS Cost' },
+];
+
+const WEBSITE_TABS: TabDefinition[] = [
+  { id: 'ci-cd', title: 'CI/CD' },
+  { id: 'jenkins', title: 'Jenkins' },
+  { id: 'dependencies', title: 'Dependencies' },
+  { id: 'docs', title: 'Docs' },
+  { id: 'jira', title: 'Jira' },
+  { id: 'pull-requests', title: 'Pull Requests' },
+  { id: 'newrelic-dashboard', title: 'New Relic' },
+  { id: 'newrelic-apm', title: 'New Relic APM' },
+  { id: 'grafana', title: 'Grafana' },
+  { id: 'prometheus', title: 'Prometheus' },
+  { id: 'aws-cost', title: 'AWS Cost' },
+];
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -94,7 +129,7 @@ const techdocsContent = (
 const cicdContent = (
   <EntitySwitch>
     <EntitySwitch.Case if={isGithubActionsAvailable}>
-      <EntityGithubActionsContent />
+      <GithubActionsContent />
     </EntitySwitch.Case>
 
     <EntitySwitch.Case>
@@ -103,7 +138,7 @@ const cicdContent = (
   </EntitySwitch>
 );
 
-const overviewContent = (
+const overviewGrid = (
   <Grid container spacing={3} alignItems="stretch">
     <Grid item md={6}>
       <EntityAboutCard variant="gridItem" />
@@ -115,26 +150,9 @@ const overviewContent = (
     <Grid item md={4} xs={12}>
       <EntityLinksCard />
     </Grid>
-    <Grid item md={9} xs={12}>
-      <EntityGithubPullRequestsOverviewCard />
-    </Grid>
     <Grid item md={3} xs={12}>
       <DefectDensityCard />
     </Grid>
-    <EntitySwitch>
-      <EntitySwitch.Case if={isNewRelicApmAvailable}>
-        <Grid item md={6} xs={12}>
-          <NewRelicApmCard />
-        </Grid>
-      </EntitySwitch.Case>
-    </EntitySwitch>
-    <EntitySwitch>
-      <EntitySwitch.Case if={isNewRelicDashboardAvailable}>
-        <Grid item md={6} xs={12}>
-          <EntityNewRelicDashboardCard />
-        </Grid>
-      </EntitySwitch.Case>
-    </EntitySwitch>
     <EntitySwitch>
       <EntitySwitch.Case if={isAlertSelectorAvailable}>
         <Grid item md={6} xs={12}>
@@ -152,17 +170,56 @@ const overviewContent = (
   </Grid>
 );
 
+/**
+ * Wrapper that manages tab visibility + dialogs while keeping route children
+ * as static JSX so Backstage can discover routable extensions in the element tree.
+ * At render time, it filters out disabled routes before passing to EntityLayout.
+ */
+const TabAwareEntityLayout = ({
+  tabs,
+  children,
+}: {
+  tabs: TabDefinition[];
+  children: React.ReactNode;
+}) => {
+  const { loading, isTabEnabled, toggleTab } = useTabSettings();
+  const [tabDialogOpen, setTabDialogOpen] = useState(false);
+  const [tagsDialogOpen, setTagsDialogOpen] = useState(false);
+
+  const visibleChildren = React.Children.toArray(children).filter(child => {
+    if (!React.isValidElement(child)) return true;
+    const path = (child.props as any).path;
+    if (!path || path === '/') return true;
+    const tabId = path.replace(/^\//, '');
+    return loading || isTabEnabled(tabId);
+  });
+
+  return (
+    <>
+      <TabVisibilityDialog
+        tabs={tabs}
+        open={tabDialogOpen}
+        onClose={() => setTabDialogOpen(false)}
+        toggleTab={toggleTab}
+        isTabEnabled={isTabEnabled}
+      />
+      <EntityTagsDialog open={tagsDialogOpen} onClose={() => setTagsDialogOpen(false)} />
+      <EntityLayout
+        UNSTABLE_extraContextMenuItems={[
+          { title: 'Tab Visibility', Icon: VisibilityIcon, onClick: () => setTabDialogOpen(true) },
+          { title: 'My Tags', Icon: LabelIcon, onClick: () => setTagsDialogOpen(true) },
+        ]}
+      >
+        {visibleChildren}
+      </EntityLayout>
+    </>
+  );
+};
+
 const serviceEntityPage = (
-  <EntityLayout>
-    <EntityLayout.Route
-      path="/kubernetes"
-      title="Kubernetes"
-      if={isKubernetesAvailable}
-    >
-      <EntityKubernetesContent />
-    </EntityLayout.Route>
+  <TabAwareEntityLayout tabs={SERVICE_TABS}>
     <EntityLayout.Route path="/" title="Overview">
-      {overviewContent}
+      {overviewGrid}
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/ci-cd" title="CI/CD">
@@ -206,20 +263,26 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
     </EntityLayout.Route>
+
     <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
       <EntityJiraOverviewCard />
     </EntityLayout.Route>
+
     <EntityLayout.Route path="/codequality" title="Code Quality">
       <EntitySonarQubeCard />
     </EntityLayout.Route>
-    <EntityLayout.Route
-      path="/pull-requests"
-      title="Pull Requests"
-      // Uncomment the line below if you'd like to only show the tab on entities with the correct annotations already set
-      // if={isGithubPullRequestsAvailable}
-    >
-      <EntityGithubPullRequestsContent />
+
+    <EntityLayout.Route path="/pull-requests" title="Pull Requests">
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <CreatePrCard />
+        </Grid>
+        <Grid item xs={12}>
+          <EntityGithubPullRequestsContent />
+        </Grid>
+      </Grid>
     </EntityLayout.Route>
+
     <EntityLayout.Route
       path="/newrelic-dashboard"
       title="New Relic"
@@ -227,6 +290,7 @@ const serviceEntityPage = (
     >
       <EntityNewRelicDashboardContent />
     </EntityLayout.Route>
+
     <EntityLayout.Route
       path="/newrelic-apm"
       title="New Relic APM"
@@ -234,22 +298,25 @@ const serviceEntityPage = (
     >
       <NewRelicFacadesTab />
     </EntityLayout.Route>
+
     <EntityLayout.Route path="/grafana" title="Grafana">
       <GrafanaEntityTab />
     </EntityLayout.Route>
+
     <EntityLayout.Route path="/prometheus" title="Prometheus">
       <PrometheusEntityTab />
     </EntityLayout.Route>
+
     <EntityLayout.Route path="/aws-cost" title="AWS Cost">
       <AwsCostEntityTab />
     </EntityLayout.Route>
-  </EntityLayout>
+  </TabAwareEntityLayout>
 );
 
 const websiteEntityPage = (
-  <EntityLayout>
+  <TabAwareEntityLayout tabs={WEBSITE_TABS}>
     <EntityLayout.Route path="/" title="Overview">
-      {overviewContent}
+      {overviewGrid}
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/ci-cd" title="CI/CD">
@@ -274,9 +341,22 @@ const websiteEntityPage = (
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
     </EntityLayout.Route>
+
     <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
       <EntityJiraOverviewCard />
     </EntityLayout.Route>
+
+    <EntityLayout.Route path="/pull-requests" title="Pull Requests">
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <CreatePrCard />
+        </Grid>
+        <Grid item xs={12}>
+          <EntityGithubPullRequestsContent />
+        </Grid>
+      </Grid>
+    </EntityLayout.Route>
+
     <EntityLayout.Route
       path="/newrelic-dashboard"
       title="New Relic"
@@ -284,16 +364,62 @@ const websiteEntityPage = (
     >
       <EntityNewRelicDashboardContent />
     </EntityLayout.Route>
+
+    <EntityLayout.Route
+      path="/newrelic-apm"
+      title="New Relic APM"
+      if={isNewRelicFacadesTabAvailable}
+    >
+      <NewRelicFacadesTab />
+    </EntityLayout.Route>
+
     <EntityLayout.Route path="/grafana" title="Grafana">
       <GrafanaEntityTab />
     </EntityLayout.Route>
+
     <EntityLayout.Route path="/prometheus" title="Prometheus">
       <PrometheusEntityTab />
     </EntityLayout.Route>
+
     <EntityLayout.Route path="/aws-cost" title="AWS Cost">
       <AwsCostEntityTab />
     </EntityLayout.Route>
-  </EntityLayout>
+  </TabAwareEntityLayout>
+);
+
+const overviewContent = (
+  <Grid container spacing={3} alignItems="stretch">
+    <Grid item md={6}>
+      <EntityAboutCard variant="gridItem" />
+    </Grid>
+    <Grid item md={6} xs={12}>
+      <EntityCatalogGraphCard variant="gridItem" height={400} />
+    </Grid>
+
+    <Grid item md={4} xs={12}>
+      <EntityLinksCard />
+    </Grid>
+    <Grid item md={3} xs={12}>
+      <DefectDensityCard />
+    </Grid>
+    <Grid item md={3} xs={12}>
+      <EntityTagsCard />
+    </Grid>
+    <EntitySwitch>
+      <EntitySwitch.Case if={isAlertSelectorAvailable}>
+        <Grid item md={6} xs={12}>
+          <EntityGrafanaAlertsCard />
+        </Grid>
+      </EntitySwitch.Case>
+    </EntitySwitch>
+    <EntitySwitch>
+      <EntitySwitch.Case if={e => Boolean(isDashboardSelectorAvailable(e))}>
+        <Grid item md={6} xs={12}>
+          <EntityGrafanaDashboardsCard />
+        </Grid>
+      </EntitySwitch.Case>
+    </EntitySwitch>
+  </Grid>
 );
 
 /**
@@ -341,6 +467,9 @@ const apiPage = (
         </Grid>
         <Grid item md={4} xs={12}>
           <EntityLinksCard />
+        </Grid>
+        <Grid item md={3} xs={12}>
+          <EntityTagsCard />
         </Grid>
         <Grid container item md={12}>
           <Grid item md={6}>
@@ -414,6 +543,9 @@ const systemPage = (
         </Grid>
         <Grid item md={4} xs={12}>
           <EntityLinksCard />
+        </Grid>
+        <Grid item md={3} xs={12}>
+          <EntityTagsCard />
         </Grid>
         <Grid item md={8}>
           <EntityHasComponentsCard variant="gridItem" />

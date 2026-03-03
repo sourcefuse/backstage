@@ -49,6 +49,7 @@ import {
   catalogPlugin,
 } from '@backstage/plugin-catalog';
 import { EntityLanguagePicker } from '../../filters/language.filter';
+import { EntityCustomTagPicker } from '../../filters/entity-tags.filter';
 import Grid from '@material-ui/core/Grid';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import ToggleButton from '@material-ui/lab/ToggleButton';
@@ -73,7 +74,7 @@ export type CatalogPluginOptions = {
 
 const columnsWithTooltips: CatalogTableColumnsFunc = ctx => {
   return CatalogTable.defaultColumnsFunc(ctx)
-    .filter(col => col.title !== 'System')
+    .filter(col => col.field !== 'resolved.partOfSystemRelationTitle')
     .map(col => {
       if (col.title === 'Description') {
         return {
@@ -149,6 +150,7 @@ export const CustomCatalogPage = ({
                 <EntityProcessingStatusPicker />
                 <EntityNamespacePicker />
                 <EntityLanguagePicker />
+                <EntityCustomTagPicker />
               </Grid>
             )}
             <Grid item xs={12} lg={showFilters ? 10 : 12}>

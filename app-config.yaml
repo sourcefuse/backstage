@@ -186,6 +186,18 @@ catalog:
   rules:
     - allow: [Component, System, API, Group, User, Resource, Location, Template]
   locations:
+    # AI Check UT Quality template
+    - type: url
+      target: https://github.com/sourcefuse/ai-test-quality-analyzer/blob/CheckUnitTestCases/scaffolder/ut-quality-workflow/template.yaml
+      rules:
+        - allow: [Template]
+
+    # AI Generate UT Cases template
+    - type: url
+      target: https://github.com/sourcefuse/ai-test-quality-analyzer/blob/GenerateUnitTestCases/scaffolder/generate-ut-workflow/template.yaml
+      rules:
+        - allow: [Template]
+
     # Backstage example templates
     - type: url
       target: https://github.com/backstage/software-templates/blob/main/scaffolder-templates/react-ssr-template/template.yaml

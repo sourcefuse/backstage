@@ -8,12 +8,16 @@ import { createExtensionAction } from './plugins/sourceloop-extension';
 import { createScaffoldAction } from './plugins/sourceloop-scaffold';
 import { modifyIaCModules } from './plugins/iac-scaffold';
 import { deleteDirectory } from './plugins/iac-scaffold';
+import { fileReplaceAction } from './plugins/file-replace';
 import { grafanaSettingsPlugin } from './plugins/grafana-settings';
 import { prometheusSettingsPlugin } from './plugins/prometheus-settings';
 import { portalSettingsPlugin } from './plugins/portal-settings';
 import { awsCostSettingsPlugin } from './plugins/aws-cost-settings';
 import { jenkinsSettingsPlugin } from './plugins/jenkins-settings';
 import { defectDensityPlugin } from './plugins/defect-density';
+import { entityTagsPlugin } from './plugins/entity-tags';
+import { githubPrPlugin } from './plugins/github-pr';
+import { tabSettingsPlugin } from './plugins/tab-settings';
 
 const scaffolderModuleCustomExtensions = createBackendModule({
   pluginId: 'scaffolder', // name of the plugin that the module is targeting
@@ -29,7 +33,8 @@ const scaffolderModuleCustomExtensions = createBackendModule({
           createScaffoldAction(),
           createExtensionAction(),
           modifyIaCModules(),
-          deleteDirectory()
+          deleteDirectory(),
+          fileReplaceAction()
         );
         //scaffolder.addActions(modifyIaCModules());
       },
@@ -96,5 +101,14 @@ backend.add(jenkinsSettingsPlugin);
 
 // Defect density per-entity (bugs per KLOC, cached weekly in PostgreSQL)
 backend.add(defectDensityPlugin);
+
+// Per-user private entity tags (custom tags for organizing catalog entities)
+backend.add(entityTagsPlugin);
+
+// GitHub PR creation and listing (stateless GitHub API proxy)
+backend.add(githubPrPlugin);
+
+// Per-entity tab visibility settings (stores disabled tabs in PostgreSQL)
+backend.add(tabSettingsPlugin);
 
 backend.start();

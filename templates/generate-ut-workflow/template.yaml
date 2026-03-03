@@ -1,0 +1,122 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: add-generate-ut-workflow
+  title: AI Generate UT Cases
+  description: Creates a PR to add the Generate Unit Test Cases via AI GitHub Actions workflow to an existing repository
+  tags:
+    - github
+    - ci
+    - quality
+    - testing
+spec:
+  owner: group:sourcefuse
+  type: service
+
+  parameters:
+    - title: Target Repository
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository
+          type: string
+          description: The existing repository to add the workflow to
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+            allowedOwners:
+              - sourcefuse
+
+    - title: Workflow Configuration
+      required:
+        - defaultBranch
+        - jiraProjectKey
+      properties:
+        defaultBranch:
+          title: Default Target Branch
+          type: string
+          description: Default branch where generated tests should be merged
+          default: dev
+        jiraProjectKey:
+          title: JIRA Project Key
+          type: string
+          description: JIRA project key prefix used in ticket IDs (e.g. TEL, BB, PROJ)
+          default: BB
+
+    - title: Pull Request Details
+      required:
+        - branchName
+      properties:
+        branchName:
+          title: Branch Name
+          type: string
+          description: Branch name for the PR
+          default: feat/add-generate-ut-workflow
+        prTitle:
+          title: PR Title
+          type: string
+          description: Title for the pull request
+          default: 'ci: add generate unit test cases workflow'
+        prDescription:
+          title: PR Description
+          type: string
+          description: Description for the pull request
+          default: |
+            Adds the Generate Unit Test Cases via AI GitHub Actions workflow.
+
+            This workflow generates unit test cases by:
+            - Reading JIRA tickets and Confluence documentation
+            - Analyzing repository code using AI
+            - Generating unit test cases
+            - Uploading results to Confluence
+            - Creating a PR with the generated tests
+
+            **Required Secrets:** UT_GENERATE_JIRA_URL, UT_GENERATE_JIRA_EMAIL, UT_GENERATE_JIRA_API_TOKEN, UT_GENERATE_CONFLUENCE_URL, UT_GENERATE_CONFLUENCE_EMAIL, UT_GENERATE_CONFLUENCE_API_TOKEN, and AI provider secrets.
+
+            **Required Variables:** UT_GENERATE_JIRA_PROJECT_KEY, UT_GENERATE_CONFLUENCE_SPACE_KEY
+          ui:widget: textarea
+
+  steps:
+    - id: fetch-workflow
+      name: Fetch Workflow from GitHub
+      action: fetch:plain:file
+      input:
+        url: https://github.com/sourcefuse/ai-test-quality-analyzer/blob/GenerateUnitTestCases/templates/generate-unit-testcases.yml
+        targetPath: .github/workflows/generate-unit-testcases.yml
+
+    - id: replace-variables
+      name: Configure Workflow Variables
+      action: acme:file:replace
+      input:
+        filePath: .github/workflows/generate-unit-testcases.yml
+        replacements:
+          - search: "(e.g., BB-15690)"
+            replace: "(e.g., ${{ parameters.jiraProjectKey }}-15690)"
+          - search: "(e.g., BB)"
+            replace: "(e.g., ${{ parameters.jiraProjectKey }})"
+          - search: "default: 'dev'"
+            replace: "default: '${{ parameters.defaultBranch }}'"
+          - search: "(default: dev)"
+            replace: "(default: ${{ parameters.defaultBranch }})"
+          - search: "(default: main)"
+            replace: "(default: ${{ parameters.defaultBranch }})"
+          - search: "|| 'dev'"
+            replace: "|| '${{ parameters.defaultBranch }}'"
+          - search: "|| 'main'"
+            replace: "|| '${{ parameters.defaultBranch }}'"
+
+    - id: create-pr
+      name: Create Pull Request
+      action: publish:github:pull-request
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        branchName: ${{ parameters.branchName }}
+        title: ${{ parameters.prTitle }}
+        description: ${{ parameters.prDescription }}
+
+  output:
+    links:
+      - title: Pull Request
+        url: ${{ steps['create-pr'].output.remoteUrl }}

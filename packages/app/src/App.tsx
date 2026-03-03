@@ -58,6 +58,7 @@ import {
 } from '@backstage/plugin-user-settings';
 import { CustomLogoSettings } from './components/settings/CustomLogoSettings';
 import { PortalBadgeSettings } from './components/settings/PortalBadgeSettings';
+import { CustomTagsSettings } from './components/settings/CustomTagsSettings';
 import { ThemeGuideCard } from './components/settings/ThemeGuideCard';
 import {
   PortalPreferencesCard,
@@ -677,6 +678,9 @@ const routes = (
           </SettingsLayout.Route>
           <SettingsLayout.Route path="auth-providers" title="Authentication">
             <UserSettingsAuthProviders />
+          </SettingsLayout.Route>
+          <SettingsLayout.Route path="custom-tags" title="Custom Tags">
+            <CustomTagsSettings />
           </SettingsLayout.Route>
           <SettingsLayout.Route path="feature-flags" title="Feature Flags">
             <>

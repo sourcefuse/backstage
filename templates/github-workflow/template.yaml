@@ -1,0 +1,131 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: add-unit-test-quality-workflow
+  title: AI Check UT Quality
+  description: Creates a PR to add the Check Unit Test Cases Quality GitHub Actions workflow to an existing repository
+  tags:
+    - github
+    - ci
+    - quality
+    - testing
+spec:
+  owner: group:sourcefuse
+  type: service
+
+  parameters:
+    - title: Target Repository
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository
+          type: string
+          description: The existing repository to add the workflow to
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+            allowedOwners:
+              - sourcefuse
+
+    - title: Workflow Configuration
+      required:
+        - triggerBranches
+        - jiraProjectKey
+      properties:
+        triggerBranches:
+          title: Trigger Branches
+          type: string
+          description: Comma-separated list of branches that trigger the workflow on PR (e.g. dev, main, staging)
+          default: dev
+        jiraProjectKey:
+          title: JIRA Project Key
+          type: string
+          description: JIRA project key prefix used in ticket IDs (e.g. TEL, BB, PROJ)
+          default: BB
+
+    - title: Pull Request Details
+      required:
+        - branchName
+      properties:
+        branchName:
+          title: Branch Name
+          type: string
+          description: Branch name for the PR
+          default: feat/add-unit-test-quality-workflow
+        prTitle:
+          title: PR Title
+          type: string
+          description: Title for the pull request
+          default: 'ci: add unit test quality analysis workflow'
+        prDescription:
+          title: PR Description
+          type: string
+          description: Description for the pull request
+          default: |
+            Adds the Check Unit Test Cases Quality GitHub Actions workflow.
+
+            This workflow automatically analyzes unit test quality on PRs by:
+            - Extracting JIRA ticket ID from branch name or PR title
+            - Running AI-powered test quality analysis
+            - Posting a quality score report as a PR comment
+            - Uploading results to Confluence
+
+            **Required Secrets:** UT_QUALITY_JIRA_URL, UT_QUALITY_JIRA_EMAIL, UT_QUALITY_JIRA_API_TOKEN, UT_QUALITY_CONFLUENCE_URL, UT_QUALITY_CONFLUENCE_EMAIL, UT_QUALITY_CONFLUENCE_API_TOKEN, and AI provider secrets (AWS Bedrock or Anthropic).
+
+            **Required Variables:** UT_QUALITY_AI_TYPE (1=bedrock, 2=glm)
+          ui:widget: textarea
+
+  steps:
+    - id: fetch-workflow
+      name: Fetch Workflow from GitHub
+      action: fetch:plain:file
+      input:
+        url: https://github.com/sourcefuse/ai-test-quality-analyzer/blob/CheckUnitTestCases/templates/check-unit-testcases.yml
+        targetPath: .github/workflows/check-unit-testcases.yml
+
+    - id: replace-variables
+      name: Configure Workflow Variables
+      action: acme:file:replace
+      input:
+        filePath: .github/workflows/check-unit-testcases.yml
+        replacements:
+          - search: "      - dev"
+            replace: ${{ parameters.triggerBranches }}
+            type: yaml-list
+            indent: 6
+          - search: "(e.g., BB-15690)"
+            replace: "(e.g., ${{ parameters.jiraProjectKey }}-15690)"
+          - search: "(e.g., BB-1234)"
+            replace: "(e.g., ${{ parameters.jiraProjectKey }}-1234)"
+          - search: "default: BB)"
+            replace: "default: ${{ parameters.jiraProjectKey }})"
+          - search: "|| 'BB'"
+            replace: "|| '${{ parameters.jiraProjectKey }}'"
+          - search: "feature/BB-15690"
+            replace: "feature/${{ parameters.jiraProjectKey }}-15690"
+          - search: "feature/BB-1234"
+            replace: "feature/${{ parameters.jiraProjectKey }}-1234"
+          - search: "bugfix/BB-5678"
+            replace: "bugfix/${{ parameters.jiraProjectKey }}-5678"
+          - search: "BB-1234: Your PR title"
+            replace: "${{ parameters.jiraProjectKey }}-1234: Your PR title"
+          - search: "[BB-5678] Fix for issue"
+            replace: "[${{ parameters.jiraProjectKey }}-5678] Fix for issue"
+          - search: "        continue-on-error: true\n"
+            replace: ""
+
+    - id: create-pr
+      name: Create Pull Request
+      action: publish:github:pull-request
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        branchName: ${{ parameters.branchName }}
+        title: ${{ parameters.prTitle }}
+        description: ${{ parameters.prDescription }}
+
+  output:
+    links:
+      - title: Pull Request
+        url: ${{ steps['create-pr'].output.remoteUrl }}
