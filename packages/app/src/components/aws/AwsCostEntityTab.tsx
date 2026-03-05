@@ -23,6 +23,8 @@ import {
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import { useEntity } from '@backstage/plugin-catalog-react';
 import {
@@ -31,6 +33,7 @@ import {
   useApi,
 } from '@backstage/core-plugin-api';
 import { stringifyEntityRef } from '@backstage/catalog-model';
+import { useSharedTabSettings } from '../tab-settings/TabSettingsContext';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -205,6 +208,105 @@ interface Ec2Data {
   stoppedCount: number;
   instances: Ec2Instance[];
 }
+
+// ── S3 Types ──────────────────────────────────────────────────────────────────
+
+interface S3Bucket {
+  name: string;
+  creationDate: string | null;
+  region: string | null;
+}
+
+interface S3Data {
+  totalBuckets: number;
+  buckets: S3Bucket[];
+}
+
+// ── RDS Types ─────────────────────────────────────────────────────────────────
+
+interface RdsInstance {
+  dbInstanceIdentifier: string;
+  dbInstanceClass: string;
+  engine: string;
+  engineVersion: string;
+  status: string;
+  endpoint: string | null;
+  port: number | null;
+  allocatedStorage: number;
+  multiAZ: boolean;
+  availabilityZone: string | null;
+  storageType: string;
+  storageEncrypted: boolean;
+  enabledCloudwatchLogsExports: string[];
+}
+
+interface RdsData {
+  totalInstances: number;
+  instances: RdsInstance[];
+}
+
+interface RdsLogFile {
+  logFileName: string;
+  lastWritten: number;
+  size: number;
+}
+
+// ── CloudFront Types ──────────────────────────────────────────────────────────
+
+interface CloudFrontDistribution {
+  id: string;
+  domainName: string;
+  status: string;
+  enabled: boolean;
+  aliases: string[];
+  origins: string[];
+  priceClass: string;
+  lastModified: string | null;
+}
+
+interface CloudFrontData {
+  totalDistributions: number;
+  distributions: CloudFrontDistribution[];
+}
+
+// ── OpenSearch Types ──────────────────────────────────────────────────────────
+
+interface OpenSearchLogOption {
+  enabled: boolean;
+  cloudWatchLogsLogGroupArn: string;
+}
+
+interface OpenSearchDomain {
+  domainName: string;
+  engineVersion: string;
+  endpoint: string | null;
+  instanceType: string;
+  instanceCount: number;
+  storageType: string;
+  ebsVolumeSize: number | null;
+  processing: boolean;
+  created: boolean;
+  deleted: boolean;
+  logPublishingOptions: Record<string, OpenSearchLogOption>;
+}
+
+interface OpenSearchData {
+  totalDomains: number;
+  domains: OpenSearchDomain[];
+}
+
+interface OpenSearchLogEvent {
+  timestamp: number;
+  message: string;
+  logStream: string;
+}
+
+const OS_LOG_TYPE_LABELS: Record<string, string> = {
+  INDEX_SLOW_LOGS: 'Index Slow Logs',
+  SEARCH_SLOW_LOGS: 'Search Slow Logs',
+  ES_APPLICATION_LOGS: 'Application Logs',
+  AUDIT_LOGS: 'Audit Logs',
+};
 
 // ── Status Chip ───────────────────────────────────────────────────────────────
 
@@ -854,6 +956,39 @@ export function AwsCostEntityTab() {
   const [ec2Loading, setEc2Loading] = useState(false);
   const [ec2Error, setEc2Error] = useState('');
 
+  // S3 state
+  const [s3Data, setS3Data] = useState<S3Data | null>(null);
+  const [s3Loading, setS3Loading] = useState(false);
+  const [s3Error, setS3Error] = useState('');
+
+  // RDS state
+  const [rdsData, setRdsData] = useState<RdsData | null>(null);
+  const [rdsLoading, setRdsLoading] = useState(false);
+  const [rdsError, setRdsError] = useState('');
+  const [rdsLogsExpanded, setRdsLogsExpanded] = useState<Record<string, boolean>>({});
+  const [rdsLogFiles, setRdsLogFiles] = useState<Record<string, RdsLogFile[]>>({});
+  const [rdsLogFilesLoading, setRdsLogFilesLoading] = useState<Record<string, boolean>>({});
+  const [rdsLogFilesError, setRdsLogFilesError] = useState<Record<string, string>>({});
+  const [rdsSelectedLogFile, setRdsSelectedLogFile] = useState<Record<string, string>>({});
+  const [rdsLogContent, setRdsLogContent] = useState<Record<string, string>>({});
+  const [rdsLogContentLoading, setRdsLogContentLoading] = useState<Record<string, boolean>>({});
+  const [rdsLogContentError, setRdsLogContentError] = useState<Record<string, string>>({});
+
+  // CloudFront state
+  const [cfData, setCfData] = useState<CloudFrontData | null>(null);
+  const [cfLoading, setCfLoading] = useState(false);
+  const [cfError, setCfError] = useState('');
+
+  // OpenSearch state
+  const [osData, setOsData] = useState<OpenSearchData | null>(null);
+  const [osLoading, setOsLoading] = useState(false);
+  const [osError, setOsError] = useState('');
+  const [osLogsExpanded, setOsLogsExpanded] = useState<Record<string, boolean>>({});
+  const [osLogsType, setOsLogsType] = useState<Record<string, string>>({});
+  const [osLogsData, setOsLogsData] = useState<Record<string, OpenSearchLogEvent[]>>({});
+  const [osLogsLoading, setOsLogsLoading] = useState<Record<string, boolean>>({});
+  const [osLogsError, setOsLogsError] = useState<Record<string, string>>({});
+
   // Form state
   const [formOpen, setFormOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<AwsConfig | undefined>(
@@ -862,6 +997,8 @@ export function AwsCostEntityTab() {
 
   // Section tab (Cost | ECS) within a config
   const [sectionTab, setSectionTab] = useState(0);
+
+  const { isTabEnabled: isSubTabEnabled } = useSharedTabSettings();
 
   const getBase = useCallback(
     async () => discoveryApi.getBaseUrl('aws-cost-settings'),
@@ -1029,15 +1166,190 @@ export function AwsCostEntityTab() {
     [getBase, fetchApi],
   );
 
+  const loadS3 = useCallback(
+    async (configId: number) => {
+      setS3Loading(true);
+      setS3Error('');
+      setS3Data(null);
+      try {
+        const base = await getBase();
+        const resp = await fetchApi.fetch(`${base}/s3/${configId}`);
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({ error: resp.statusText }));
+          setS3Error(err.error ?? 'Failed to fetch S3 data');
+          return;
+        }
+        setS3Data(await resp.json());
+      } catch (e: any) {
+        setS3Error(e.message ?? 'Unexpected error');
+      } finally {
+        setS3Loading(false);
+      }
+    },
+    [getBase, fetchApi],
+  );
+
+  const loadRds = useCallback(
+    async (configId: number) => {
+      setRdsLoading(true);
+      setRdsError('');
+      setRdsData(null);
+      try {
+        const base = await getBase();
+        const resp = await fetchApi.fetch(`${base}/rds/${configId}`);
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({ error: resp.statusText }));
+          setRdsError(err.error ?? 'Failed to fetch RDS data');
+          return;
+        }
+        setRdsData(await resp.json());
+      } catch (e: any) {
+        setRdsError(e.message ?? 'Unexpected error');
+      } finally {
+        setRdsLoading(false);
+      }
+    },
+    [getBase, fetchApi],
+  );
+
+  const loadCloudFront = useCallback(
+    async (configId: number) => {
+      setCfLoading(true);
+      setCfError('');
+      setCfData(null);
+      try {
+        const base = await getBase();
+        const resp = await fetchApi.fetch(`${base}/cloudfront/${configId}`);
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({ error: resp.statusText }));
+          setCfError(err.error ?? 'Failed to fetch CloudFront data');
+          return;
+        }
+        setCfData(await resp.json());
+      } catch (e: any) {
+        setCfError(e.message ?? 'Unexpected error');
+      } finally {
+        setCfLoading(false);
+      }
+    },
+    [getBase, fetchApi],
+  );
+
+  const loadOpenSearch = useCallback(
+    async (configId: number) => {
+      setOsLoading(true);
+      setOsError('');
+      setOsData(null);
+      try {
+        const base = await getBase();
+        const resp = await fetchApi.fetch(`${base}/opensearch/${configId}`);
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({ error: resp.statusText }));
+          setOsError(err.error ?? 'Failed to fetch OpenSearch data');
+          return;
+        }
+        setOsData(await resp.json());
+      } catch (e: any) {
+        setOsError(e.message ?? 'Unexpected error');
+      } finally {
+        setOsLoading(false);
+      }
+    },
+    [getBase, fetchApi],
+  );
+
+  const loadOsLogs = useCallback(
+    async (configId: number, domainName: string, logGroupArn: string) => {
+      const key = `${configId}:${domainName}`;
+      setOsLogsLoading(prev => ({ ...prev, [key]: true }));
+      setOsLogsError(prev => ({ ...prev, [key]: '' }));
+      setOsLogsData(prev => ({ ...prev, [key]: [] }));
+      try {
+        const base = await getBase();
+        const url = `${base}/opensearch/${configId}/logs?logGroupArn=${encodeURIComponent(logGroupArn)}&limit=100`;
+        const resp = await fetchApi.fetch(url);
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({ error: resp.statusText }));
+          setOsLogsError(prev => ({ ...prev, [key]: err.error ?? 'Failed to fetch logs' }));
+          return;
+        }
+        const data = await resp.json();
+        setOsLogsData(prev => ({ ...prev, [key]: data.events ?? [] }));
+      } catch (e: any) {
+        setOsLogsError(prev => ({ ...prev, [key]: e.message ?? 'Unexpected error' }));
+      } finally {
+        setOsLogsLoading(prev => ({ ...prev, [key]: false }));
+      }
+    },
+    [getBase, fetchApi],
+  );
+
+  const loadRdsLogFiles = useCallback(
+    async (configId: number, dbInstanceId: string) => {
+      setRdsLogFilesLoading(prev => ({ ...prev, [dbInstanceId]: true }));
+      setRdsLogFilesError(prev => ({ ...prev, [dbInstanceId]: '' }));
+      setRdsLogFiles(prev => ({ ...prev, [dbInstanceId]: [] }));
+      try {
+        const base = await getBase();
+        const url = `${base}/rds/${configId}/logfiles?dbInstanceId=${encodeURIComponent(dbInstanceId)}`;
+        const resp = await fetchApi.fetch(url);
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({ error: resp.statusText }));
+          setRdsLogFilesError(prev => ({ ...prev, [dbInstanceId]: err.error ?? 'Failed to fetch log files' }));
+          return;
+        }
+        const data = await resp.json();
+        setRdsLogFiles(prev => ({ ...prev, [dbInstanceId]: data.files ?? [] }));
+      } catch (e: any) {
+        setRdsLogFilesError(prev => ({ ...prev, [dbInstanceId]: e.message ?? 'Unexpected error' }));
+      } finally {
+        setRdsLogFilesLoading(prev => ({ ...prev, [dbInstanceId]: false }));
+      }
+    },
+    [getBase, fetchApi],
+  );
+
+  const loadRdsLogContent = useCallback(
+    async (configId: number, dbInstanceId: string, logFileName: string) => {
+      const key = `${dbInstanceId}:${logFileName}`;
+      setRdsLogContentLoading(prev => ({ ...prev, [key]: true }));
+      setRdsLogContentError(prev => ({ ...prev, [key]: '' }));
+      setRdsLogContent(prev => ({ ...prev, [key]: '' }));
+      try {
+        const base = await getBase();
+        const url = `${base}/rds/${configId}/logcontent?dbInstanceId=${encodeURIComponent(dbInstanceId)}&logFileName=${encodeURIComponent(logFileName)}`;
+        const resp = await fetchApi.fetch(url);
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({ error: resp.statusText }));
+          setRdsLogContentError(prev => ({ ...prev, [key]: err.error ?? 'Failed to fetch log content' }));
+          return;
+        }
+        const data = await resp.json();
+        setRdsLogContent(prev => ({ ...prev, [key]: data.logFileData ?? '' }));
+      } catch (e: any) {
+        setRdsLogContentError(prev => ({ ...prev, [key]: e.message ?? 'Unexpected error' }));
+      } finally {
+        setRdsLogContentLoading(prev => ({ ...prev, [key]: false }));
+      }
+    },
+    [getBase, fetchApi],
+  );
+
   const activeConfig = configs[activeTab];
 
-  // Build list of available section keys based on config
+  // Build list of available section keys based on config and visibility settings
   const sectionKeys: string[] = React.useMemo(() => {
-    const keys = ['cost'];
+    const keys: string[] = [];
+    if (isSubTabEnabled('aws-cost/cost')) keys.push('cost');
     if (activeConfig?.ecs_cluster_name) keys.push('ecs');
-    keys.push('lambda', 'ec2');
+    if (isSubTabEnabled('aws-cost/lambda')) keys.push('lambda');
+    if (isSubTabEnabled('aws-cost/ec2')) keys.push('ec2');
+    if (isSubTabEnabled('aws-cost/s3')) keys.push('s3');
+    if (isSubTabEnabled('aws-cost/rds')) keys.push('rds');
+    if (isSubTabEnabled('aws-cost/cloudfront')) keys.push('cloudfront');
+    if (isSubTabEnabled('aws-cost/opensearch')) keys.push('opensearch');
     return keys;
-  }, [activeConfig]);
+  }, [activeConfig, isSubTabEnabled]);
 
   const activeSection = sectionKeys[sectionTab] ?? 'cost';
 
@@ -1047,6 +1359,10 @@ export function AwsCostEntityTab() {
     setCostData(null);
     setEcsData(null);
     setEc2Data(null);
+    setS3Data(null);
+    setRdsData(null);
+    setCfData(null);
+    setOsData(null);
   }, [activeTab]);
 
   // Load cost when on cost section
@@ -1074,6 +1390,26 @@ export function AwsCostEntityTab() {
       loadEc2(activeConfig.id);
     }
   }, [activeConfig, activeSection, loadEc2]);
+
+  // Load S3 when on S3 section
+  useEffect(() => {
+    if (activeConfig && activeSection === 's3') loadS3(activeConfig.id);
+  }, [activeConfig, activeSection, loadS3]);
+
+  // Load RDS when on RDS section
+  useEffect(() => {
+    if (activeConfig && activeSection === 'rds') loadRds(activeConfig.id);
+  }, [activeConfig, activeSection, loadRds]);
+
+  // Load CloudFront when on CloudFront section
+  useEffect(() => {
+    if (activeConfig && activeSection === 'cloudfront') loadCloudFront(activeConfig.id);
+  }, [activeConfig, activeSection, loadCloudFront]);
+
+  // Load OpenSearch when on OpenSearch section
+  useEffect(() => {
+    if (activeConfig && activeSection === 'opensearch') loadOpenSearch(activeConfig.id);
+  }, [activeConfig, activeSection, loadOpenSearch]);
 
   const handleSave = async (formData: {
     configName: string;
@@ -2152,6 +2488,564 @@ export function AwsCostEntityTab() {
                                       style={{ fontSize: 10, height: 18 }}
                                     />
                                   ))}
+                                </Box>
+                              )}
+                            </Paper>
+                          );
+                        })
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* ── S3 section ── */}
+              {activeSection === 's3' && (
+                <>
+                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+                    <Typography variant="h6" style={{ fontWeight: 600 }}>
+                      S3 Buckets
+                    </Typography>
+                    <Tooltip title="Refresh S3">
+                      <IconButton size="small" onClick={() => loadS3(activeConfig.id)}>
+                        <RefreshIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  {s3Loading && (
+                    <Box display="flex" justifyContent="center" p={4}><CircularProgress size={32} /></Box>
+                  )}
+                  {s3Error && (
+                    <Paper elevation={0} style={{ padding: 16, background: '#fff3f3', border: '1px solid #f5c6cb', marginBottom: 16 }}>
+                      <Typography color="error" variant="body2">{s3Error}</Typography>
+                    </Paper>
+                  )}
+                  {s3Data && (
+                    <>
+                      <Paper variant="outlined" style={{ padding: 16, marginBottom: 16 }}>
+                        <Box textAlign="center">
+                          <Typography variant="h4" style={{ fontWeight: 700, color: '#1976d2' }}>
+                            {s3Data.totalBuckets}
+                          </Typography>
+                          <Typography variant="caption" color="textSecondary">Total Buckets</Typography>
+                        </Box>
+                      </Paper>
+                      {s3Data.buckets.length === 0 ? (
+                        <Typography color="textSecondary" variant="body2">No S3 buckets found.</Typography>
+                      ) : (
+                        s3Data.buckets.map(b => (
+                          <Paper key={b.name} elevation={1} style={{ padding: 16, marginBottom: 12 }}>
+                            <Box display="flex" alignItems="center" justifyContent="space-between">
+                              <Typography variant="subtitle2" style={{ fontWeight: 600 }}>{b.name}</Typography>
+                              {b.region && <Chip label={b.region} size="small" variant="outlined" style={{ fontSize: 10, height: 20 }} />}
+                            </Box>
+                            {b.creationDate && (
+                              <Typography variant="caption" color="textSecondary">
+                                Created: {new Date(b.creationDate).toLocaleString()}
+                              </Typography>
+                            )}
+                          </Paper>
+                        ))
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* ── RDS section ── */}
+              {activeSection === 'rds' && (
+                <>
+                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+                    <Typography variant="h6" style={{ fontWeight: 600 }}>
+                      RDS Instances ({activeConfig.aws_region})
+                    </Typography>
+                    <Tooltip title="Refresh RDS">
+                      <IconButton size="small" onClick={() => loadRds(activeConfig.id)}>
+                        <RefreshIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  {rdsLoading && (
+                    <Box display="flex" justifyContent="center" p={4}><CircularProgress size={32} /></Box>
+                  )}
+                  {rdsError && (
+                    <Paper elevation={0} style={{ padding: 16, background: '#fff3f3', border: '1px solid #f5c6cb', marginBottom: 16 }}>
+                      <Typography color="error" variant="body2">{rdsError}</Typography>
+                    </Paper>
+                  )}
+                  {rdsData && (
+                    <>
+                      <Paper variant="outlined" style={{ padding: 16, marginBottom: 16 }}>
+                        <Box textAlign="center">
+                          <Typography variant="h4" style={{ fontWeight: 700, color: '#1976d2' }}>
+                            {rdsData.totalInstances}
+                          </Typography>
+                          <Typography variant="caption" color="textSecondary">Total DB Instances</Typography>
+                        </Box>
+                      </Paper>
+                      {rdsData.instances.length === 0 ? (
+                        <Typography color="textSecondary" variant="body2">No RDS instances found.</Typography>
+                      ) : (
+                        rdsData.instances.map(db => {
+                          const dbId = db.dbInstanceIdentifier;
+                          const isOpen = rdsLogsExpanded[dbId] ?? false;
+                          const logFiles = rdsLogFiles[dbId] ?? [];
+                          const selectedFile = rdsSelectedLogFile[dbId] ?? '';
+                          const contentKey = `${dbId}:${selectedFile}`;
+
+                          const handleToggle = () => {
+                            const opening = !isOpen;
+                            setRdsLogsExpanded(prev => ({ ...prev, [dbId]: opening }));
+                            if (opening && !rdsLogFiles[dbId]) {
+                              loadRdsLogFiles(activeConfig.id, dbId);
+                            }
+                          };
+
+                          const handleFileSelect = (fileName: string) => {
+                            setRdsSelectedLogFile(prev => ({ ...prev, [dbId]: fileName }));
+                            loadRdsLogContent(activeConfig.id, dbId, fileName);
+                          };
+
+                          return (
+                            <Paper key={dbId} elevation={1} style={{ marginBottom: 12, overflow: 'hidden' }}>
+                              {/* Accordion header */}
+                              <Box
+                                display="flex"
+                                alignItems="center"
+                                style={{
+                                  gap: 8,
+                                  padding: '12px 16px',
+                                  cursor: 'pointer',
+                                  userSelect: 'none',
+                                  background: isOpen ? '#f5f8ff' : 'transparent',
+                                  transition: 'background 0.2s',
+                                }}
+                                onClick={handleToggle}
+                              >
+                                <Typography variant="subtitle2" style={{ fontWeight: 600 }}>{dbId}</Typography>
+                                <Chip
+                                  label={db.status}
+                                  size="small"
+                                  style={{
+                                    fontSize: 10, height: 20, fontWeight: 600,
+                                    color: db.status === 'available' ? '#2e7d32' : '#c62828',
+                                    backgroundColor: db.status === 'available' ? '#e8f5e9' : '#ffebee',
+                                  }}
+                                />
+                                <Chip label={`${db.engine} ${db.engineVersion}`} size="small" variant="outlined" style={{ fontSize: 10, height: 20 }} />
+                                <Chip label={db.dbInstanceClass} size="small" variant="outlined" style={{ fontSize: 10, height: 20 }} />
+                                <Box ml="auto" display="flex" alignItems="center" style={{ gap: 6 }}>
+                                  <Typography variant="caption" color="textSecondary" style={{ fontSize: 11 }}>
+                                    {isOpen ? 'Hide Logs' : 'View Logs'}
+                                  </Typography>
+                                  {isOpen ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+                                </Box>
+                              </Box>
+
+                              {/* Instance details */}
+                              <Box display="flex" flexWrap="wrap" style={{ gap: 24, padding: '0 16px 12px' }}>
+                                {db.endpoint && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">Endpoint</Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500 }}>{db.endpoint}:{db.port}</Typography>
+                                  </Box>
+                                )}
+                                <Box>
+                                  <Typography variant="caption" color="textSecondary">Storage</Typography>
+                                  <Typography variant="body2" style={{ fontWeight: 500 }}>{db.allocatedStorage} GB ({db.storageType})</Typography>
+                                </Box>
+                                <Box>
+                                  <Typography variant="caption" color="textSecondary">Multi-AZ</Typography>
+                                  <Typography variant="body2" style={{ fontWeight: 500 }}>{db.multiAZ ? 'Yes' : 'No'}</Typography>
+                                </Box>
+                                <Box>
+                                  <Typography variant="caption" color="textSecondary">Encrypted</Typography>
+                                  <Typography variant="body2" style={{ fontWeight: 500 }}>{db.storageEncrypted ? 'Yes' : 'No'}</Typography>
+                                </Box>
+                                {db.availabilityZone && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">AZ</Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500 }}>{db.availabilityZone}</Typography>
+                                  </Box>
+                                )}
+                              </Box>
+
+                              {/* Logs accordion body */}
+                              {isOpen && (
+                                <Box style={{ borderTop: '1px solid #e0e0e0' }}>
+                                  <Box p={2}>
+                                    {rdsLogFilesLoading[dbId] && (
+                                      <Box display="flex" justifyContent="center" p={2}><CircularProgress size={24} /></Box>
+                                    )}
+                                    {rdsLogFilesError[dbId] && (
+                                      <Typography color="error" variant="caption">{rdsLogFilesError[dbId]}</Typography>
+                                    )}
+                                    {!rdsLogFilesLoading[dbId] && logFiles.length === 0 && !rdsLogFilesError[dbId] && (
+                                      <Typography variant="caption" color="textSecondary">No log files found.</Typography>
+                                    )}
+                                    {logFiles.length > 0 && (
+                                      <>
+                                        {/* Log file list as chips */}
+                                        <Box display="flex" alignItems="center" mb={1} style={{ gap: 6 }}>
+                                          <Typography variant="caption" style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>Log File:</Typography>
+                                          <Box display="flex" flexWrap="wrap" style={{ gap: 6, flex: 1 }}>
+                                            {logFiles.map(f => (
+                                              <Chip
+                                                key={f.logFileName}
+                                                label={f.logFileName.split('/').pop()}
+                                                title={f.logFileName}
+                                                size="small"
+                                                clickable
+                                                onClick={() => handleFileSelect(f.logFileName)}
+                                                style={{
+                                                  fontSize: 11,
+                                                  fontWeight: selectedFile === f.logFileName ? 700 : 400,
+                                                  background: selectedFile === f.logFileName ? '#1976d2' : '#f0f0f0',
+                                                  color: selectedFile === f.logFileName ? '#fff' : '#333',
+                                                  maxWidth: 220,
+                                                }}
+                                              />
+                                            ))}
+                                          </Box>
+                                          <IconButton
+                                            size="small"
+                                            title="Refresh log files"
+                                            disabled={rdsLogFilesLoading[dbId]}
+                                            onClick={e => { e.stopPropagation(); loadRdsLogFiles(activeConfig.id, dbId); }}
+                                          >
+                                            <RefreshIcon fontSize="small" />
+                                          </IconButton>
+                                        </Box>
+
+                                        {/* Log content */}
+                                        {selectedFile && (
+                                          <>
+                                            {rdsLogContentLoading[contentKey] && (
+                                              <Box display="flex" justifyContent="center" p={2}><CircularProgress size={24} /></Box>
+                                            )}
+                                            {rdsLogContentError[contentKey] && (
+                                              <Typography color="error" variant="caption">{rdsLogContentError[contentKey]}</Typography>
+                                            )}
+                                            {rdsLogContent[contentKey] !== undefined && rdsLogContent[contentKey] !== '' && !rdsLogContentLoading[contentKey] && (
+                                              <Box
+                                                component="pre"
+                                                style={{
+                                                  background: '#1e1e1e',
+                                                  color: '#d4d4d4',
+                                                  padding: 12,
+                                                  borderRadius: 4,
+                                                  fontSize: 11,
+                                                  overflowX: 'auto',
+                                                  maxHeight: 420,
+                                                  overflowY: 'auto',
+                                                  fontFamily: 'monospace',
+                                                  margin: 0,
+                                                  whiteSpace: 'pre-wrap',
+                                                  wordBreak: 'break-all',
+                                                }}
+                                              >
+                                                {rdsLogContent[contentKey]}
+                                              </Box>
+                                            )}
+                                            {rdsLogContent[contentKey] === '' && !rdsLogContentLoading[contentKey] && !rdsLogContentError[contentKey] && (
+                                              <Typography variant="caption" color="textSecondary">Log file is empty.</Typography>
+                                            )}
+                                          </>
+                                        )}
+                                      </>
+                                    )}
+                                  </Box>
+                                </Box>
+                              )}
+                            </Paper>
+                          );
+                        })
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* ── CloudFront section ── */}
+              {activeSection === 'cloudfront' && (
+                <>
+                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+                    <Typography variant="h6" style={{ fontWeight: 600 }}>
+                      CloudFront Distributions
+                    </Typography>
+                    <Tooltip title="Refresh CloudFront">
+                      <IconButton size="small" onClick={() => loadCloudFront(activeConfig.id)}>
+                        <RefreshIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  {cfLoading && (
+                    <Box display="flex" justifyContent="center" p={4}><CircularProgress size={32} /></Box>
+                  )}
+                  {cfError && (
+                    <Paper elevation={0} style={{ padding: 16, background: '#fff3f3', border: '1px solid #f5c6cb', marginBottom: 16 }}>
+                      <Typography color="error" variant="body2">{cfError}</Typography>
+                    </Paper>
+                  )}
+                  {cfData && (
+                    <>
+                      <Paper variant="outlined" style={{ padding: 16, marginBottom: 16 }}>
+                        <Box textAlign="center">
+                          <Typography variant="h4" style={{ fontWeight: 700, color: '#1976d2' }}>
+                            {cfData.totalDistributions}
+                          </Typography>
+                          <Typography variant="caption" color="textSecondary">Total Distributions</Typography>
+                        </Box>
+                      </Paper>
+                      {cfData.distributions.length === 0 ? (
+                        <Typography color="textSecondary" variant="body2">No CloudFront distributions found.</Typography>
+                      ) : (
+                        cfData.distributions.map(dist => (
+                          <Paper key={dist.id} elevation={1} style={{ padding: 16, marginBottom: 12 }}>
+                            <Box display="flex" alignItems="center" style={{ gap: 8 }} mb={1}>
+                              <Typography variant="subtitle2" style={{ fontWeight: 600 }}>{dist.id}</Typography>
+                              <Chip
+                                label={dist.status}
+                                size="small"
+                                style={{
+                                  fontSize: 10, height: 20, fontWeight: 600,
+                                  color: dist.status === 'Deployed' ? '#2e7d32' : '#ed6c02',
+                                  backgroundColor: dist.status === 'Deployed' ? '#e8f5e9' : '#fff3e0',
+                                }}
+                              />
+                              <Chip label={dist.enabled ? 'Enabled' : 'Disabled'} size="small" variant="outlined" style={{ fontSize: 10, height: 20 }} />
+                              <Chip label={dist.priceClass} size="small" variant="outlined" style={{ fontSize: 10, height: 20 }} />
+                            </Box>
+                            <Box display="flex" flexWrap="wrap" style={{ gap: 24 }}>
+                              <Box>
+                                <Typography variant="caption" color="textSecondary">Domain</Typography>
+                                <Typography variant="body2" style={{ fontWeight: 500 }}>{dist.domainName}</Typography>
+                              </Box>
+                              {dist.aliases.length > 0 && (
+                                <Box>
+                                  <Typography variant="caption" color="textSecondary">Aliases</Typography>
+                                  <Typography variant="body2" style={{ fontWeight: 500 }}>{dist.aliases.join(', ')}</Typography>
+                                </Box>
+                              )}
+                              {dist.origins.length > 0 && (
+                                <Box>
+                                  <Typography variant="caption" color="textSecondary">Origins</Typography>
+                                  <Typography variant="body2" style={{ fontWeight: 500 }}>{dist.origins.join(', ')}</Typography>
+                                </Box>
+                              )}
+                            </Box>
+                          </Paper>
+                        ))
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* ── OpenSearch section ── */}
+              {activeSection === 'opensearch' && (
+                <>
+                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+                    <Typography variant="h6" style={{ fontWeight: 600 }}>
+                      OpenSearch Domains ({activeConfig.aws_region})
+                    </Typography>
+                    <Tooltip title="Refresh OpenSearch">
+                      <IconButton size="small" onClick={() => loadOpenSearch(activeConfig.id)}>
+                        <RefreshIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  {osLoading && (
+                    <Box display="flex" justifyContent="center" p={4}><CircularProgress size={32} /></Box>
+                  )}
+                  {osError && (
+                    <Paper elevation={0} style={{ padding: 16, background: '#fff3f3', border: '1px solid #f5c6cb', marginBottom: 16 }}>
+                      <Typography color="error" variant="body2">{osError}</Typography>
+                    </Paper>
+                  )}
+                  {osData && (
+                    <>
+                      <Paper variant="outlined" style={{ padding: 16, marginBottom: 16 }}>
+                        <Box textAlign="center">
+                          <Typography variant="h4" style={{ fontWeight: 700, color: '#1976d2' }}>
+                            {osData.totalDomains}
+                          </Typography>
+                          <Typography variant="caption" color="textSecondary">Total Domains</Typography>
+                        </Box>
+                      </Paper>
+                      {osData.domains.length === 0 ? (
+                        <Typography color="textSecondary" variant="body2">No OpenSearch domains found.</Typography>
+                      ) : (
+                        osData.domains.map(d => {
+                          const logKey = `${activeConfig.id}:${d.domainName}`;
+                          const enabledLogTypes = Object.entries(d.logPublishingOptions ?? {})
+                            .filter(([, opt]) => opt.enabled && opt.cloudWatchLogsLogGroupArn)
+                            .map(([t]) => t);
+                          const selectedLogType = osLogsType[logKey] ?? enabledLogTypes[0] ?? '';
+                          const isOpen = osLogsExpanded[logKey] ?? false;
+
+                          const handleToggle = () => {
+                            const opening = !isOpen;
+                            setOsLogsExpanded(prev => ({ ...prev, [logKey]: opening }));
+                            // Auto-fetch on first open if logs not yet loaded
+                            if (opening && enabledLogTypes.length > 0 && !osLogsData[logKey]) {
+                              const type = osLogsType[logKey] ?? enabledLogTypes[0];
+                              const arn = d.logPublishingOptions[type]?.cloudWatchLogsLogGroupArn;
+                              if (arn) loadOsLogs(activeConfig.id, d.domainName, arn);
+                            }
+                          };
+
+                          const handleLogTypeChange = (newType: string) => {
+                            setOsLogsType(prev => ({ ...prev, [logKey]: newType }));
+                            const arn = d.logPublishingOptions[newType]?.cloudWatchLogsLogGroupArn;
+                            if (arn) loadOsLogs(activeConfig.id, d.domainName, arn);
+                          };
+
+                          return (
+                            <Paper key={d.domainName} elevation={1} style={{ marginBottom: 12, overflow: 'hidden' }}>
+                              {/* Accordion header — click to expand */}
+                              <Box
+                                display="flex"
+                                alignItems="center"
+                                style={{
+                                  gap: 8,
+                                  padding: '12px 16px',
+                                  cursor: 'pointer',
+                                  userSelect: 'none',
+                                  background: isOpen ? '#f5f8ff' : 'transparent',
+                                  transition: 'background 0.2s',
+                                }}
+                                onClick={handleToggle}
+                              >
+                                <Typography variant="subtitle2" style={{ fontWeight: 600 }}>{d.domainName}</Typography>
+                                <Chip
+                                  label={d.processing ? 'Processing' : d.deleted ? 'Deleted' : 'Active'}
+                                  size="small"
+                                  style={{
+                                    fontSize: 10, height: 20, fontWeight: 600,
+                                    color: d.deleted ? '#c62828' : d.processing ? '#ed6c02' : '#2e7d32',
+                                    backgroundColor: d.deleted ? '#ffebee' : d.processing ? '#fff3e0' : '#e8f5e9',
+                                  }}
+                                />
+                                <Chip label={d.engineVersion} size="small" variant="outlined" style={{ fontSize: 10, height: 20 }} />
+                                <Box ml="auto" display="flex" alignItems="center" style={{ gap: 6 }}>
+                                  {enabledLogTypes.length > 0 && (
+                                    <Typography variant="caption" color="textSecondary" style={{ fontSize: 11 }}>
+                                      {isOpen ? 'Hide Logs' : 'View Logs'}
+                                    </Typography>
+                                  )}
+                                  {isOpen ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+                                </Box>
+                              </Box>
+
+                              {/* Domain details — always visible */}
+                              <Box display="flex" flexWrap="wrap" style={{ gap: 24, padding: '0 16px 12px' }}>
+                                {d.endpoint && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">Endpoint</Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500 }}>{d.endpoint}</Typography>
+                                  </Box>
+                                )}
+                                <Box>
+                                  <Typography variant="caption" color="textSecondary">Instance</Typography>
+                                  <Typography variant="body2" style={{ fontWeight: 500 }}>{d.instanceType} x{d.instanceCount}</Typography>
+                                </Box>
+                                {d.ebsVolumeSize && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">Storage</Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500 }}>{d.ebsVolumeSize} GB ({d.storageType})</Typography>
+                                  </Box>
+                                )}
+                              </Box>
+
+                              {/* Logs panel — accordion body */}
+                              {isOpen && (
+                                <Box style={{ borderTop: '1px solid #e0e0e0' }}>
+                                  {enabledLogTypes.length === 0 ? (
+                                    <Box p={2}>
+                                      <Typography variant="caption" color="textSecondary">
+                                        No log publishing configured for this domain.
+                                      </Typography>
+                                    </Box>
+                                  ) : (
+                                    <Box p={2}>
+                                      {/* Log type tabs */}
+                                      <Box display="flex" alignItems="center" style={{ gap: 8 }} mb={2}>
+                                        {enabledLogTypes.map(t => (
+                                          <Chip
+                                            key={t}
+                                            label={OS_LOG_TYPE_LABELS[t] ?? t}
+                                            size="small"
+                                            clickable
+                                            onClick={e => { e.stopPropagation(); handleLogTypeChange(t); }}
+                                            style={{
+                                              fontSize: 11,
+                                              fontWeight: selectedLogType === t ? 700 : 400,
+                                              background: selectedLogType === t ? '#1976d2' : '#f0f0f0',
+                                              color: selectedLogType === t ? '#fff' : '#333',
+                                            }}
+                                          />
+                                        ))}
+                                        <Box ml="auto">
+                                          <IconButton
+                                            size="small"
+                                            title="Refresh logs"
+                                            disabled={osLogsLoading[logKey]}
+                                            onClick={e => {
+                                              e.stopPropagation();
+                                              const arn = d.logPublishingOptions[selectedLogType]?.cloudWatchLogsLogGroupArn;
+                                              if (arn) loadOsLogs(activeConfig.id, d.domainName, arn);
+                                            }}
+                                          >
+                                            <RefreshIcon fontSize="small" />
+                                          </IconButton>
+                                        </Box>
+                                      </Box>
+
+                                      {osLogsLoading[logKey] && (
+                                        <Box display="flex" justifyContent="center" p={3}>
+                                          <CircularProgress size={24} />
+                                        </Box>
+                                      )}
+                                      {osLogsError[logKey] && (
+                                        <Typography color="error" variant="caption">{osLogsError[logKey]}</Typography>
+                                      )}
+                                      {osLogsData[logKey] && osLogsData[logKey].length === 0 && !osLogsLoading[logKey] && !osLogsError[logKey] && (
+                                        <Typography variant="caption" color="textSecondary">No log events found.</Typography>
+                                      )}
+                                      {osLogsData[logKey] && osLogsData[logKey].length > 0 && (
+                                        <Box
+                                          component="pre"
+                                          style={{
+                                            background: '#1e1e1e',
+                                            color: '#d4d4d4',
+                                            padding: 12,
+                                            borderRadius: 4,
+                                            fontSize: 11,
+                                            overflowX: 'auto',
+                                            maxHeight: 420,
+                                            overflowY: 'auto',
+                                            fontFamily: 'monospace',
+                                            margin: 0,
+                                            whiteSpace: 'pre-wrap',
+                                            wordBreak: 'break-all',
+                                          }}
+                                        >
+                                          {osLogsData[logKey].map((ev, i) => (
+                                            <Box key={i} mb={0.5}>
+                                              <span style={{ color: '#569cd6' }}>
+                                                [{new Date(ev.timestamp).toISOString()}]
+                                              </span>
+                                              {' '}
+                                              <span style={{ color: '#9cdcfe', fontSize: 10 }}>({ev.logStream})</span>
+                                              {'\n'}
+                                              {ev.message}
+                                            </Box>
+                                          ))}
+                                        </Box>
+                                      )}
+                                    </Box>
+                                  )}
                                 </Box>
                               )}
                             </Paper>
