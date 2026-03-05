@@ -687,6 +687,157 @@ export const awsCostSettingsPlugin = createBackendPlugin({
           }
         });
 
+        // ── CodeBuild ──────────────────────────────────────────────────────────
+
+        router.get('/codebuild/:id', async (req, res) => {
+          const row = await db(TABLE).where({id: req.params.id}).first();
+          if (!row) return res.status(404).json({error: 'Config not found'});
+
+          const cb = new AWS.CodeBuild({region: region(row), credentials: makeCredentials(row)});
+          try {
+            const listResult = await cb.listProjects({sortBy: 'LAST_MODIFIED_TIME', sortOrder: 'DESCENDING'}).promise();
+            const names = listResult.projects ?? [];
+            if (names.length === 0) return res.json({totalProjects: 0, projects: []});
+
+            const details = await cb.batchGetProjects({names: names.slice(0, 25)}).promise();
+            const projects = await Promise.all((details.projects ?? []).map(async p => {
+              let lastBuild: any = null;
+              try {
+                const buildsResp = await cb.listBuildsForProject({projectName: p.name!, sortOrder: 'DESCENDING'}).promise();
+                const buildIds = (buildsResp.ids ?? []).slice(0, 1);
+                if (buildIds.length > 0) {
+                  const buildDetails = await cb.batchGetBuilds({ids: buildIds}).promise();
+                  const b = buildDetails.builds?.[0];
+                  if (b) {
+                    lastBuild = {
+                      id: b.id ?? '',
+                      status: b.buildStatus ?? '',
+                      startTime: b.startTime?.toISOString() ?? null,
+                      endTime: b.endTime?.toISOString() ?? null,
+                      initiator: b.initiator ?? null,
+                    };
+                  }
+                }
+              } catch (_) { /* ignore per-project build fetch errors */ }
+              return {
+                name: p.name ?? '',
+                arn: p.arn ?? '',
+                description: p.description ?? null,
+                sourceType: p.source?.type ?? '',
+                sourceLocation: p.source?.location ?? null,
+                environmentType: p.environment?.type ?? '',
+                environmentImage: p.environment?.image ?? '',
+                serviceRole: p.serviceRole ?? null,
+                created: p.created?.toISOString() ?? null,
+                lastModified: p.lastModified?.toISOString() ?? null,
+                lastBuild,
+              };
+            }));
+            return res.json({totalProjects: projects.length, projects});
+          } catch (err: any) {
+            logger.error('AWS CodeBuild error:', err);
+            return res.status(500).json({error: err.message ?? 'CodeBuild API error'});
+          }
+        });
+
+        router.get('/codebuild/:id/builds', async (req, res) => {
+          const row = await db(TABLE).where({id: req.params.id}).first();
+          if (!row) return res.status(404).json({error: 'Config not found'});
+
+          const {projectName} = req.query as {projectName?: string};
+          if (!projectName) return res.status(400).json({error: 'projectName query param required'});
+
+          const cb = new AWS.CodeBuild({region: region(row), credentials: makeCredentials(row)});
+          try {
+            const listResp = await cb.listBuildsForProject({projectName, sortOrder: 'DESCENDING'}).promise();
+            const ids = (listResp.ids ?? []).slice(0, 10);
+            if (ids.length === 0) return res.json({builds: []});
+
+            const details = await cb.batchGetBuilds({ids}).promise();
+            const builds = (details.builds ?? []).map(b => ({
+              id: b.id ?? '',
+              buildNumber: b.buildNumber ?? null,
+              status: b.buildStatus ?? '',
+              startTime: b.startTime?.toISOString() ?? null,
+              endTime: b.endTime?.toISOString() ?? null,
+              initiator: b.initiator ?? null,
+              sourceVersion: b.sourceVersion ?? null,
+              resolvedSourceVersion: b.resolvedSourceVersion ?? null,
+              phases: (b.phases ?? []).map(ph => ({
+                name: ph.phaseType ?? '',
+                status: ph.phaseStatus ?? '',
+                durationSeconds: ph.durationInSeconds ?? null,
+              })),
+            }));
+            return res.json({builds});
+          } catch (err: any) {
+            logger.error('AWS CodeBuild builds error:', err);
+            return res.status(500).json({error: err.message ?? 'CodeBuild builds API error'});
+          }
+        });
+
+        // ── CodePipeline ───────────────────────────────────────────────────────
+
+        router.get('/codepipeline/:id', async (req, res) => {
+          const row = await db(TABLE).where({id: req.params.id}).first();
+          if (!row) return res.status(404).json({error: 'Config not found'});
+
+          const cp = new AWS.CodePipeline({region: region(row), credentials: makeCredentials(row)});
+          try {
+            const listResult = await cp.listPipelines().promise();
+            const pipelines = listResult.pipelines ?? [];
+            if (pipelines.length === 0) return res.json({totalPipelines: 0, pipelines: []});
+
+            const pipelineData = await Promise.all(pipelines.map(async p => {
+              try {
+                const stateResp = await cp.getPipelineState({name: p.name!}).promise();
+                const stages = (stateResp.stageStates ?? []).map(s => ({
+                  name: s.stageName ?? '',
+                  status: s.latestExecution?.status ?? 'NotStarted',
+                  lastChangedAt: (s.actionStates ?? []).map(a => a.latestExecution?.lastStatusChange?.getTime() ?? 0).reduce((a, b) => Math.max(a, b), 0) > 0
+                    ? new Date((s.actionStates ?? []).map(a => a.latestExecution?.lastStatusChange?.getTime() ?? 0).reduce((a, b) => Math.max(a, b), 0)).toISOString()
+                    : null,
+                  actions: (s.actionStates ?? []).map(a => ({
+                    name: a.actionName ?? '',
+                    status: a.latestExecution?.status ?? 'NotStarted',
+                    lastStatusChange: a.latestExecution?.lastStatusChange?.toISOString() ?? null,
+                    externalExecutionUrl: a.latestExecution?.externalExecutionUrl ?? null,
+                    errorDetails: a.latestExecution?.errorDetails?.message ?? null,
+                  })),
+                }));
+                // Latest execution summary
+                let latestExecution: any = null;
+                try {
+                  const execResp = await cp.listPipelineExecutions({pipelineName: p.name!, maxResults: 1}).promise();
+                  const exec = execResp.pipelineExecutionSummaries?.[0];
+                  if (exec) {
+                    latestExecution = {
+                      status: exec.status ?? '',
+                      startTime: exec.startTime?.toISOString() ?? null,
+                      lastUpdateTime: exec.lastUpdateTime?.toISOString() ?? null,
+                      trigger: exec.trigger?.triggerType ?? null,
+                    };
+                  }
+                } catch (_) { /* ignore */ }
+                return {
+                  name: p.name ?? '',
+                  version: p.version ?? 1,
+                  created: p.created?.toISOString() ?? null,
+                  updated: p.updated?.toISOString() ?? null,
+                  stages,
+                  latestExecution,
+                };
+              } catch (_) {
+                return {name: p.name ?? '', version: p.version ?? 1, created: null, updated: null, stages: [], latestExecution: null};
+              }
+            }));
+            return res.json({totalPipelines: pipelineData.length, pipelines: pipelineData});
+          } catch (err: any) {
+            logger.error('AWS CodePipeline error:', err);
+            return res.status(500).json({error: err.message ?? 'CodePipeline API error'});
+          }
+        });
+
         httpRouter.use(router);
         httpRouter.addAuthPolicy({
           path: '/aws-cost-settings',

@@ -56,7 +56,7 @@ import {
   EntityGithubPullRequestsContent,
 } from '@roadiehq/backstage-plugin-github-pull-requests';
 import { EntitySonarQubeCard } from '@backstage-community/plugin-sonarqube';
-import { EntityJiraOverviewCard, isJiraAvailable } from '@roadiehq/backstage-plugin-jira';
+import {JiraEntityTab} from '../jira/JiraEntityTab';
 
 import {
   EntityKubernetesContent,
@@ -84,7 +84,7 @@ import {CreatePrCard} from '../github-pr/CreatePrCard';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import LabelIcon from '@material-ui/icons/Label';
 import { TabDefinition } from '../tab-settings/types';
-import { useTabSettings } from '../tab-settings/useTabSettings';
+import { TabSettingsProvider, useSharedTabSettings } from '../tab-settings/TabSettingsContext';
 import { TabVisibilityDialog } from '../tab-settings/TabSettingsCard';
 
 const SERVICE_TABS: TabDefinition[] = [
@@ -101,7 +101,17 @@ const SERVICE_TABS: TabDefinition[] = [
   { id: 'newrelic-apm', title: 'New Relic APM' },
   { id: 'grafana', title: 'Grafana' },
   { id: 'prometheus', title: 'Prometheus' },
-  { id: 'aws-cost', title: 'AWS Cost' },
+  { id: 'aws-cost', title: 'AWS', children: [
+    { id: 'aws-cost/cost', title: 'Cost' },
+    { id: 'aws-cost/lambda', title: 'Lambda' },
+    { id: 'aws-cost/ec2', title: 'EC2' },
+    { id: 'aws-cost/s3', title: 'S3' },
+    { id: 'aws-cost/rds', title: 'RDS' },
+    { id: 'aws-cost/cloudfront', title: 'CloudFront' },
+    { id: 'aws-cost/opensearch', title: 'OpenSearch' },
+    { id: 'aws-cost/codebuild', title: 'CodeBuild' },
+    { id: 'aws-cost/codepipeline', title: 'CodePipeline' },
+  ]},
 ];
 
 const WEBSITE_TABS: TabDefinition[] = [
@@ -115,7 +125,17 @@ const WEBSITE_TABS: TabDefinition[] = [
   { id: 'newrelic-apm', title: 'New Relic APM' },
   { id: 'grafana', title: 'Grafana' },
   { id: 'prometheus', title: 'Prometheus' },
-  { id: 'aws-cost', title: 'AWS Cost' },
+  { id: 'aws-cost', title: 'AWS', children: [
+    { id: 'aws-cost/cost', title: 'Cost' },
+    { id: 'aws-cost/lambda', title: 'Lambda' },
+    { id: 'aws-cost/ec2', title: 'EC2' },
+    { id: 'aws-cost/s3', title: 'S3' },
+    { id: 'aws-cost/rds', title: 'RDS' },
+    { id: 'aws-cost/cloudfront', title: 'CloudFront' },
+    { id: 'aws-cost/opensearch', title: 'OpenSearch' },
+    { id: 'aws-cost/codebuild', title: 'CodeBuild' },
+    { id: 'aws-cost/codepipeline', title: 'CodePipeline' },
+  ]},
 ];
 
 const techdocsContent = (
@@ -175,14 +195,14 @@ const overviewGrid = (
  * as static JSX so Backstage can discover routable extensions in the element tree.
  * At render time, it filters out disabled routes before passing to EntityLayout.
  */
-const TabAwareEntityLayout = ({
+const TabAwareEntityLayoutInner = ({
   tabs,
   children,
 }: {
   tabs: TabDefinition[];
   children: React.ReactNode;
 }) => {
-  const { loading, isTabEnabled, toggleTab } = useTabSettings();
+  const { loading, isTabEnabled, toggleTab } = useSharedTabSettings();
   const [tabDialogOpen, setTabDialogOpen] = useState(false);
   const [tagsDialogOpen, setTagsDialogOpen] = useState(false);
 
@@ -215,6 +235,18 @@ const TabAwareEntityLayout = ({
     </>
   );
 };
+
+const TabAwareEntityLayout = ({
+  tabs,
+  children,
+}: {
+  tabs: TabDefinition[];
+  children: React.ReactNode;
+}) => (
+  <TabSettingsProvider>
+    <TabAwareEntityLayoutInner tabs={tabs}>{children}</TabAwareEntityLayoutInner>
+  </TabSettingsProvider>
+);
 
 const serviceEntityPage = (
   <TabAwareEntityLayout tabs={SERVICE_TABS}>
@@ -264,8 +296,8 @@ const serviceEntityPage = (
       {techdocsContent}
     </EntityLayout.Route>
 
-    <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
-      <EntityJiraOverviewCard />
+    <EntityLayout.Route path="/jira" title="Jira">
+      <JiraEntityTab />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/codequality" title="Code Quality">
@@ -307,7 +339,7 @@ const serviceEntityPage = (
       <PrometheusEntityTab />
     </EntityLayout.Route>
 
-    <EntityLayout.Route path="/aws-cost" title="AWS Cost">
+    <EntityLayout.Route path="/aws-cost" title="AWS">
       <AwsCostEntityTab />
     </EntityLayout.Route>
   </TabAwareEntityLayout>
@@ -342,8 +374,8 @@ const websiteEntityPage = (
       {techdocsContent}
     </EntityLayout.Route>
 
-    <EntityLayout.Route path="/jira" title="Jira" if={isJiraAvailable}>
-      <EntityJiraOverviewCard />
+    <EntityLayout.Route path="/jira" title="Jira">
+      <JiraEntityTab />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/pull-requests" title="Pull Requests">
@@ -381,7 +413,7 @@ const websiteEntityPage = (
       <PrometheusEntityTab />
     </EntityLayout.Route>
 
-    <EntityLayout.Route path="/aws-cost" title="AWS Cost">
+    <EntityLayout.Route path="/aws-cost" title="AWS">
       <AwsCostEntityTab />
     </EntityLayout.Route>
   </TabAwareEntityLayout>

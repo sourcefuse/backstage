@@ -308,6 +308,112 @@ const OS_LOG_TYPE_LABELS: Record<string, string> = {
   AUDIT_LOGS: 'Audit Logs',
 };
 
+// ── CodeBuild Types ───────────────────────────────────────────────────────────
+
+interface CodeBuildLastBuild {
+  id: string;
+  status: string;
+  startTime: string | null;
+  endTime: string | null;
+  initiator: string | null;
+}
+
+interface CodeBuildProject {
+  name: string;
+  arn: string;
+  description: string | null;
+  sourceType: string;
+  sourceLocation: string | null;
+  environmentType: string;
+  environmentImage: string;
+  created: string | null;
+  lastModified: string | null;
+  lastBuild: CodeBuildLastBuild | null;
+}
+
+interface CodeBuildData {
+  totalProjects: number;
+  projects: CodeBuildProject[];
+}
+
+interface CodeBuildPhase {
+  name: string;
+  status: string;
+  durationSeconds: number | null;
+}
+
+interface CodeBuildBuild {
+  id: string;
+  buildNumber: number | null;
+  status: string;
+  startTime: string | null;
+  endTime: string | null;
+  initiator: string | null;
+  sourceVersion: string | null;
+  resolvedSourceVersion: string | null;
+  phases: CodeBuildPhase[];
+}
+
+// ── CodePipeline Types ─────────────────────────────────────────────────────────
+
+interface PipelineAction {
+  name: string;
+  status: string;
+  lastStatusChange: string | null;
+  externalExecutionUrl: string | null;
+  errorDetails: string | null;
+}
+
+interface PipelineStage {
+  name: string;
+  status: string;
+  lastChangedAt: string | null;
+  actions: PipelineAction[];
+}
+
+interface PipelineLatestExecution {
+  status: string;
+  startTime: string | null;
+  lastUpdateTime: string | null;
+  trigger: string | null;
+}
+
+interface CodePipelineEntry {
+  name: string;
+  version: number;
+  created: string | null;
+  updated: string | null;
+  stages: PipelineStage[];
+  latestExecution: PipelineLatestExecution | null;
+}
+
+interface CodePipelineData {
+  totalPipelines: number;
+  pipelines: CodePipelineEntry[];
+}
+
+function buildStatusStyle(status: string): { color: string; bg: string } {
+  switch (status) {
+    case 'SUCCEEDED': case 'Succeeded': return { color: '#2e7d32', bg: '#e8f5e9' };
+    case 'FAILED': case 'Failed': return { color: '#c62828', bg: '#ffebee' };
+    case 'IN_PROGRESS': case 'InProgress': return { color: '#1565c0', bg: '#e3f2fd' };
+    case 'STOPPED': case 'Stopped': return { color: '#e65100', bg: '#fff3e0' };
+    case 'TIMED_OUT': return { color: '#6a1a1a', bg: '#ffebee' };
+    default: return { color: '#616161', bg: '#f5f5f5' };
+  }
+}
+
+function pipelineStatusStyle(status: string): { color: string; bg: string } {
+  switch (status) {
+    case 'Succeeded': return { color: '#2e7d32', bg: '#e8f5e9' };
+    case 'Failed': return { color: '#c62828', bg: '#ffebee' };
+    case 'InProgress': return { color: '#1565c0', bg: '#e3f2fd' };
+    case 'Stopped': case 'Stopping': return { color: '#e65100', bg: '#fff3e0' };
+    case 'Superseded': return { color: '#6a1a1a', bg: '#fce4ec' };
+    default: return { color: '#616161', bg: '#f5f5f5' };
+  }
+}
+
 // ── Status Chip ───────────────────────────────────────────────────────────────
 
 function statusColor(status?: string): 'default' | 'primary' {
@@ -989,6 +1095,20 @@ export function AwsCostEntityTab() {
   const [osLogsLoading, setOsLogsLoading] = useState<Record<string, boolean>>({});
   const [osLogsError, setOsLogsError] = useState<Record<string, string>>({});
 
+  // CodeBuild state
+  const [cbData, setCbData] = useState<CodeBuildData | null>(null);
+  const [cbLoading, setCbLoading] = useState(false);
+  const [cbError, setCbError] = useState('');
+  const [cbExpanded, setCbExpanded] = useState<Record<string, boolean>>({});
+  const [cbBuilds, setCbBuilds] = useState<Record<string, CodeBuildBuild[]>>({});
+  const [cbBuildsLoading, setCbBuildsLoading] = useState<Record<string, boolean>>({});
+  const [cbBuildsError, setCbBuildsError] = useState<Record<string, string>>({});
+
+  // CodePipeline state
+  const [cpData, setCpData] = useState<CodePipelineData | null>(null);
+  const [cpLoading, setCpLoading] = useState(false);
+  const [cpError, setCpError] = useState('');
+
   // Form state
   const [formOpen, setFormOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<AwsConfig | undefined>(
@@ -1335,6 +1455,77 @@ export function AwsCostEntityTab() {
     [getBase, fetchApi],
   );
 
+  const loadCodeBuild = useCallback(
+    async (configId: number) => {
+      setCbLoading(true);
+      setCbError('');
+      setCbData(null);
+      try {
+        const base = await getBase();
+        const resp = await fetchApi.fetch(`${base}/codebuild/${configId}`);
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({ error: resp.statusText }));
+          setCbError(err.error ?? 'Failed to fetch CodeBuild data');
+          return;
+        }
+        setCbData(await resp.json());
+      } catch (e: any) {
+        setCbError(e.message ?? 'Unexpected error');
+      } finally {
+        setCbLoading(false);
+      }
+    },
+    [getBase, fetchApi],
+  );
+
+  const loadCbBuilds = useCallback(
+    async (configId: number, projectName: string) => {
+      setCbBuildsLoading(prev => ({ ...prev, [projectName]: true }));
+      setCbBuildsError(prev => ({ ...prev, [projectName]: '' }));
+      setCbBuilds(prev => ({ ...prev, [projectName]: [] }));
+      try {
+        const base = await getBase();
+        const url = `${base}/codebuild/${configId}/builds?projectName=${encodeURIComponent(projectName)}`;
+        const resp = await fetchApi.fetch(url);
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({ error: resp.statusText }));
+          setCbBuildsError(prev => ({ ...prev, [projectName]: err.error ?? 'Failed to fetch builds' }));
+          return;
+        }
+        const data = await resp.json();
+        setCbBuilds(prev => ({ ...prev, [projectName]: data.builds ?? [] }));
+      } catch (e: any) {
+        setCbBuildsError(prev => ({ ...prev, [projectName]: e.message ?? 'Unexpected error' }));
+      } finally {
+        setCbBuildsLoading(prev => ({ ...prev, [projectName]: false }));
+      }
+    },
+    [getBase, fetchApi],
+  );
+
+  const loadCodePipeline = useCallback(
+    async (configId: number) => {
+      setCpLoading(true);
+      setCpError('');
+      setCpData(null);
+      try {
+        const base = await getBase();
+        const resp = await fetchApi.fetch(`${base}/codepipeline/${configId}`);
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({ error: resp.statusText }));
+          setCpError(err.error ?? 'Failed to fetch CodePipeline data');
+          return;
+        }
+        setCpData(await resp.json());
+      } catch (e: any) {
+        setCpError(e.message ?? 'Unexpected error');
+      } finally {
+        setCpLoading(false);
+      }
+    },
+    [getBase, fetchApi],
+  );
+
   const activeConfig = configs[activeTab];
 
   // Build list of available section keys based on config and visibility settings
@@ -1348,6 +1539,8 @@ export function AwsCostEntityTab() {
     if (isSubTabEnabled('aws-cost/rds')) keys.push('rds');
     if (isSubTabEnabled('aws-cost/cloudfront')) keys.push('cloudfront');
     if (isSubTabEnabled('aws-cost/opensearch')) keys.push('opensearch');
+    if (isSubTabEnabled('aws-cost/codebuild')) keys.push('codebuild');
+    if (isSubTabEnabled('aws-cost/codepipeline')) keys.push('codepipeline');
     return keys;
   }, [activeConfig, isSubTabEnabled]);
 
@@ -1363,6 +1556,8 @@ export function AwsCostEntityTab() {
     setRdsData(null);
     setCfData(null);
     setOsData(null);
+    setCbData(null);
+    setCpData(null);
   }, [activeTab]);
 
   // Load cost when on cost section
@@ -1410,6 +1605,14 @@ export function AwsCostEntityTab() {
   useEffect(() => {
     if (activeConfig && activeSection === 'opensearch') loadOpenSearch(activeConfig.id);
   }, [activeConfig, activeSection, loadOpenSearch]);
+
+  useEffect(() => {
+    if (activeConfig && activeSection === 'codebuild') loadCodeBuild(activeConfig.id);
+  }, [activeConfig, activeSection, loadCodeBuild]);
+
+  useEffect(() => {
+    if (activeConfig && activeSection === 'codepipeline') loadCodePipeline(activeConfig.id);
+  }, [activeConfig, activeSection, loadCodePipeline]);
 
   const handleSave = async (formData: {
     configName: string;
@@ -3048,6 +3251,253 @@ export function AwsCostEntityTab() {
                                   )}
                                 </Box>
                               )}
+                            </Paper>
+                          );
+                        })
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* ── CodeBuild section ── */}
+              {activeSection === 'codebuild' && (
+                <>
+                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+                    <Typography variant="h6" style={{ fontWeight: 600 }}>
+                      CodeBuild Projects ({activeConfig.aws_region})
+                    </Typography>
+                    <Tooltip title="Refresh CodeBuild">
+                      <IconButton size="small" onClick={() => loadCodeBuild(activeConfig.id)}>
+                        <RefreshIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  {cbLoading && <Box display="flex" justifyContent="center" p={4}><CircularProgress size={32} /></Box>}
+                  {cbError && (
+                    <Paper elevation={0} style={{ padding: 16, background: '#fff3f3', border: '1px solid #f5c6cb', marginBottom: 16 }}>
+                      <Typography color="error" variant="body2">{cbError}</Typography>
+                    </Paper>
+                  )}
+                  {cbData && (
+                    <>
+                      <Paper variant="outlined" style={{ padding: 16, marginBottom: 16 }}>
+                        <Box textAlign="center">
+                          <Typography variant="h4" style={{ fontWeight: 700, color: '#1976d2' }}>{cbData.totalProjects}</Typography>
+                          <Typography variant="caption" color="textSecondary">Total Projects</Typography>
+                        </Box>
+                      </Paper>
+                      {cbData.projects.length === 0 ? (
+                        <Typography color="textSecondary" variant="body2">No CodeBuild projects found.</Typography>
+                      ) : (
+                        cbData.projects.map(proj => {
+                          const isOpen = cbExpanded[proj.name] ?? false;
+                          const builds = cbBuilds[proj.name] ?? [];
+                          const handleToggle = () => {
+                            const opening = !isOpen;
+                            setCbExpanded(prev => ({ ...prev, [proj.name]: opening }));
+                            if (opening && !cbBuilds[proj.name]) {
+                              loadCbBuilds(activeConfig.id, proj.name);
+                            }
+                          };
+                          const lastBuildStyle = proj.lastBuild ? buildStatusStyle(proj.lastBuild.status) : { color: '#616161', bg: '#f5f5f5' };
+                          return (
+                            <Paper key={proj.name} elevation={1} style={{ marginBottom: 12, overflow: 'hidden' }}>
+                              {/* Accordion header */}
+                              <Box
+                                display="flex" alignItems="center" style={{ gap: 8, padding: '12px 16px', cursor: 'pointer', userSelect: 'none', background: isOpen ? '#f5f8ff' : 'transparent', transition: 'background 0.2s' }}
+                                onClick={handleToggle}
+                              >
+                                <Typography variant="subtitle2" style={{ fontWeight: 600 }}>{proj.name}</Typography>
+                                <Chip label={proj.sourceType} size="small" variant="outlined" style={{ fontSize: 10, height: 20 }} />
+                                {proj.lastBuild && (
+                                  <Chip
+                                    label={proj.lastBuild.status}
+                                    size="small"
+                                    style={{ fontSize: 10, height: 20, fontWeight: 600, color: lastBuildStyle.color, backgroundColor: lastBuildStyle.bg }}
+                                  />
+                                )}
+                                <Box ml="auto" display="flex" alignItems="center" style={{ gap: 6 }}>
+                                  <Typography variant="caption" color="textSecondary" style={{ fontSize: 11 }}>
+                                    {isOpen ? 'Hide Builds' : 'Build History'}
+                                  </Typography>
+                                  {isOpen ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+                                </Box>
+                              </Box>
+
+                              {/* Project details */}
+                              <Box display="flex" flexWrap="wrap" style={{ gap: 24, padding: '0 16px 12px' }}>
+                                {proj.sourceLocation && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">Source</Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500, wordBreak: 'break-all' }}>{proj.sourceLocation}</Typography>
+                                  </Box>
+                                )}
+                                <Box>
+                                  <Typography variant="caption" color="textSecondary">Environment</Typography>
+                                  <Typography variant="body2" style={{ fontWeight: 500 }}>{proj.environmentImage}</Typography>
+                                </Box>
+                                {proj.lastBuild?.startTime && (
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary">Last Build</Typography>
+                                    <Typography variant="body2" style={{ fontWeight: 500 }}>
+                                      {new Date(proj.lastBuild.startTime).toLocaleString()}
+                                      {proj.lastBuild.initiator ? ` · ${proj.lastBuild.initiator}` : ''}
+                                    </Typography>
+                                  </Box>
+                                )}
+                              </Box>
+
+                              {/* Build history accordion body */}
+                              {isOpen && (
+                                <Box style={{ borderTop: '1px solid #e0e0e0' }}>
+                                  <Box p={2}>
+                                    <Box display="flex" alignItems="center" mb={1} style={{ gap: 8 }}>
+                                      <Typography variant="caption" style={{ fontWeight: 600 }}>Recent Builds</Typography>
+                                      <Box ml="auto">
+                                        <IconButton size="small" disabled={cbBuildsLoading[proj.name]} onClick={e => { e.stopPropagation(); loadCbBuilds(activeConfig.id, proj.name); }}>
+                                          <RefreshIcon fontSize="small" />
+                                        </IconButton>
+                                      </Box>
+                                    </Box>
+                                    {cbBuildsLoading[proj.name] && <Box display="flex" justifyContent="center" p={2}><CircularProgress size={22} /></Box>}
+                                    {cbBuildsError[proj.name] && <Typography color="error" variant="caption">{cbBuildsError[proj.name]}</Typography>}
+                                    {builds.length === 0 && !cbBuildsLoading[proj.name] && !cbBuildsError[proj.name] && (
+                                      <Typography variant="caption" color="textSecondary">No builds found.</Typography>
+                                    )}
+                                    {builds.map(b => {
+                                      const s = buildStatusStyle(b.status);
+                                      return (
+                                        <Box key={b.id} display="flex" alignItems="center" style={{ gap: 10, padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
+                                          <Chip label={b.status} size="small" style={{ fontSize: 10, height: 18, fontWeight: 600, color: s.color, backgroundColor: s.bg, minWidth: 90 }} />
+                                          <Box flex={1}>
+                                            <Typography variant="caption" style={{ fontFamily: 'monospace', fontSize: 11 }}>
+                                              #{b.buildNumber ?? '—'} · {b.resolvedSourceVersion?.slice(0, 8) ?? b.sourceVersion ?? '—'}
+                                            </Typography>
+                                            {b.initiator && <Typography variant="caption" color="textSecondary" style={{ marginLeft: 8 }}>by {b.initiator}</Typography>}
+                                          </Box>
+                                          <Typography variant="caption" color="textSecondary" style={{ whiteSpace: 'nowrap' }}>
+                                            {b.startTime ? new Date(b.startTime).toLocaleString() : '—'}
+                                          </Typography>
+                                        </Box>
+                                      );
+                                    })}
+                                  </Box>
+                                </Box>
+                              )}
+                            </Paper>
+                          );
+                        })
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* ── CodePipeline section ── */}
+              {activeSection === 'codepipeline' && (
+                <>
+                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+                    <Typography variant="h6" style={{ fontWeight: 600 }}>
+                      CodePipeline ({activeConfig.aws_region})
+                    </Typography>
+                    <Tooltip title="Refresh CodePipeline">
+                      <IconButton size="small" onClick={() => loadCodePipeline(activeConfig.id)}>
+                        <RefreshIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  {cpLoading && <Box display="flex" justifyContent="center" p={4}><CircularProgress size={32} /></Box>}
+                  {cpError && (
+                    <Paper elevation={0} style={{ padding: 16, background: '#fff3f3', border: '1px solid #f5c6cb', marginBottom: 16 }}>
+                      <Typography color="error" variant="body2">{cpError}</Typography>
+                    </Paper>
+                  )}
+                  {cpData && (
+                    <>
+                      <Paper variant="outlined" style={{ padding: 16, marginBottom: 16 }}>
+                        <Box textAlign="center">
+                          <Typography variant="h4" style={{ fontWeight: 700, color: '#1976d2' }}>{cpData.totalPipelines}</Typography>
+                          <Typography variant="caption" color="textSecondary">Total Pipelines</Typography>
+                        </Box>
+                      </Paper>
+                      {cpData.pipelines.length === 0 ? (
+                        <Typography color="textSecondary" variant="body2">No pipelines found.</Typography>
+                      ) : (
+                        cpData.pipelines.map(pipe => {
+                          const execStyle = pipe.latestExecution ? pipelineStatusStyle(pipe.latestExecution.status) : { color: '#616161', bg: '#f5f5f5' };
+                          return (
+                            <Paper key={pipe.name} elevation={1} style={{ padding: 16, marginBottom: 16 }}>
+                              {/* Pipeline header */}
+                              <Box display="flex" alignItems="center" style={{ gap: 8 }} mb={2}>
+                                <Typography variant="subtitle1" style={{ fontWeight: 700 }}>{pipe.name}</Typography>
+                                <Chip label={`v${pipe.version}`} size="small" variant="outlined" style={{ fontSize: 10, height: 20 }} />
+                                {pipe.latestExecution && (
+                                  <Chip
+                                    label={pipe.latestExecution.status}
+                                    size="small"
+                                    style={{ fontSize: 10, height: 20, fontWeight: 600, color: execStyle.color, backgroundColor: execStyle.bg }}
+                                  />
+                                )}
+                                {pipe.latestExecution?.lastUpdateTime && (
+                                  <Typography variant="caption" color="textSecondary" style={{ marginLeft: 'auto' }}>
+                                    {pipe.latestExecution.trigger && `${pipe.latestExecution.trigger} · `}
+                                    {new Date(pipe.latestExecution.lastUpdateTime).toLocaleString()}
+                                  </Typography>
+                                )}
+                              </Box>
+
+                              {/* Stage flow */}
+                              <Box display="flex" flexWrap="wrap" alignItems="center" style={{ gap: 0 }}>
+                                {pipe.stages.map((stage, si) => {
+                                  const ss = pipelineStatusStyle(stage.status);
+                                  return (
+                                    <React.Fragment key={stage.name}>
+                                      {si > 0 && (
+                                        <Box style={{ width: 20, height: 2, background: '#bdbdbd', flexShrink: 0 }} />
+                                      )}
+                                      <Tooltip
+                                        title={
+                                          <Box>
+                                            {stage.actions.map(a => (
+                                              <Box key={a.name} mb={0.5}>
+                                                <Typography variant="caption" style={{ fontWeight: 600 }}>{a.name}</Typography>
+                                                {' — '}
+                                                <Typography variant="caption">{a.status}</Typography>
+                                                {a.errorDetails && <Typography variant="caption" style={{ color: '#ff8a80', display: 'block' }}>{a.errorDetails}</Typography>}
+                                              </Box>
+                                            ))}
+                                            {stage.lastChangedAt && (
+                                              <Typography variant="caption" color="inherit" style={{ display: 'block', marginTop: 4, opacity: 0.7 }}>
+                                                {new Date(stage.lastChangedAt).toLocaleString()}
+                                              </Typography>
+                                            )}
+                                          </Box>
+                                        }
+                                      >
+                                        <Box
+                                          style={{
+                                            padding: '8px 14px',
+                                            borderRadius: 6,
+                                            border: `1px solid ${ss.color}`,
+                                            background: ss.bg,
+                                            cursor: 'default',
+                                            minWidth: 90,
+                                            textAlign: 'center',
+                                          }}
+                                        >
+                                          <Typography variant="caption" style={{ fontWeight: 700, color: ss.color, display: 'block', fontSize: 11 }}>
+                                            {stage.name}
+                                          </Typography>
+                                          <Typography variant="caption" style={{ color: ss.color, fontSize: 10 }}>
+                                            {stage.status}
+                                          </Typography>
+                                        </Box>
+                                      </Tooltip>
+                                    </React.Fragment>
+                                  );
+                                })}
+                              </Box>
                             </Paper>
                           );
                         })
