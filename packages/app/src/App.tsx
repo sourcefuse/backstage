@@ -556,6 +556,15 @@ const routes = (
       path="/catalog"
       element={<CustomCatalogPage initiallySelectedFilter="all" />}
     />
+    <Route path="/catalog/kind/component" element={<Navigate to="/catalog?filters[kind]=component&filters[user]=all" replace />} />
+    <Route path="/catalog/kind/group" element={<Navigate to="/catalog?filters[kind]=group&filters[user]=all" replace />} />
+    <Route path="/catalog/kind/location" element={<Navigate to="/catalog?filters[kind]=location&filters[user]=all" replace />} />
+    <Route path="/catalog/kind/resource" element={<Navigate to="/catalog?filters[kind]=resource&filters[user]=all" replace />} />
+    <Route path="/catalog/kind/system" element={<Navigate to="/catalog?filters[kind]=system&filters[user]=all" replace />} />
+    <Route path="/catalog/kind/template" element={<Navigate to="/catalog?filters[kind]=template&filters[user]=all" replace />} />
+    <Route path="/catalog/kind/user" element={<Navigate to="/catalog?filters[kind]=user&filters[user]=all" replace />} />
+    <Route path="/catalog/backend" element={<Navigate to="/catalog?filters[kind]=component&filters[type]=service&filters[tags]=microservices&filters[user]=all" replace />} />
+    <Route path="/catalog/frontend" element={<Navigate to="/catalog?filters[kind]=component&filters[type]=website&filters[user]=all" replace />} />
     <Route
       path="/catalog/:namespace/:kind/:name"
       element={

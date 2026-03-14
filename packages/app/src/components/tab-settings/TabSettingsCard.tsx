@@ -41,17 +41,36 @@ export const TabVisibilityDialog = ({
       <DialogContent dividers>
         <List dense>
           {tabs.map(tab => (
-            <ListItem key={tab.id}>
-              <ListItemText primary={tab.title} />
-              <ListItemSecondaryAction>
-                <Switch
-                  edge="end"
-                  checked={isTabEnabled(tab.id)}
-                  onChange={() => toggleTab(tab.id)}
-                  color="primary"
-                />
-              </ListItemSecondaryAction>
-            </ListItem>
+            <React.Fragment key={tab.id}>
+              <ListItem>
+                <ListItemText primary={tab.title} />
+                <ListItemSecondaryAction>
+                  <Switch
+                    edge="end"
+                    checked={isTabEnabled(tab.id)}
+                    onChange={() => toggleTab(tab.id)}
+                    color="primary"
+                  />
+                </ListItemSecondaryAction>
+              </ListItem>
+              {tab.children && isTabEnabled(tab.id) && tab.children.map(child => (
+                <ListItem key={child.id} style={{ paddingLeft: 32 }}>
+                  <ListItemText
+                    primary={child.title}
+                    primaryTypographyProps={{ variant: 'body2', color: 'textSecondary' }}
+                  />
+                  <ListItemSecondaryAction>
+                    <Switch
+                      edge="end"
+                      size="small"
+                      checked={isTabEnabled(child.id)}
+                      onChange={() => toggleTab(child.id)}
+                      color="primary"
+                    />
+                  </ListItemSecondaryAction>
+                </ListItem>
+              ))}
+            </React.Fragment>
           ))}
         </List>
       </DialogContent>

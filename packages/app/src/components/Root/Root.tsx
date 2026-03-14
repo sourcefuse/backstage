@@ -31,6 +31,8 @@ import GroupIcon from '@material-ui/icons/People';
 import CampaignIcon from '@material-ui/icons/Announcement';
 import StorageIcon from '@material-ui/icons/Storage';
 import CategoryIcon from '@material-ui/icons/Category';
+import CodeIcon from '@material-ui/icons/Code';
+import WebIcon from '@material-ui/icons/Web';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import AssignmentIcon from '@material-ui/icons/Assignment';
@@ -120,41 +122,43 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
           <SidebarSubmenu title="Catalog">
             <SidebarSubmenuItem
               title="Components"
-              to="catalog?filters[kind]=component&filters[user]=all"
+              to="catalog/kind/component"
               icon={CategoryIcon}
             />
             <SidebarSubmenuItem
               title="Groups"
-              to="catalog?filters[kind]=group&filters[user]=all"
+              to="catalog/kind/group"
               icon={GroupIcon}
             />
             <SidebarSubmenuItem
               title="Locations"
-              to="catalog?filters[kind]=location&filters[user]=all"
+              to="catalog/kind/location"
               icon={RoomIcon}
             />
             <SidebarSubmenuItem
               title="Resources"
-              to="catalog?filters[kind]=resource&filters[user]=all"
+              to="catalog/kind/resource"
               icon={StorageIcon}
             />
             <SidebarSubmenuItem
               title="Systems"
-              to="catalog?filters[kind]=system&filters[user]=all"
+              to="catalog/kind/system"
               icon={DevicesIcon}
             />
             <SidebarSubmenuItem
               title="Templates"
-              to="catalog?filters[kind]=template&filters[user]=all"
+              to="catalog/kind/template"
               icon={AssignmentIcon}
             />
             <SidebarSubmenuItem
               title="Users"
-              to="catalog?filters[kind]=user&filters[user]=all"
+              to="catalog/kind/user"
               icon={PersonIcon}
             />
           </SidebarSubmenu>
         </SidebarItem>
+        <SidebarItem icon={CodeIcon} to="catalog/backend" text="Backend" />
+        <SidebarItem icon={WebIcon} to="catalog/frontend" text="Frontend" />
         <SidebarItem icon={ExtensionIcon} to="api-docs" text="APIs" />
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
         <SidebarItem icon={MapIcon} to="tech-radar" text="Tech Radar" />

@@ -14,6 +14,7 @@ import { prometheusSettingsPlugin } from './plugins/prometheus-settings';
 import { portalSettingsPlugin } from './plugins/portal-settings';
 import { awsCostSettingsPlugin } from './plugins/aws-cost-settings';
 import { jenkinsSettingsPlugin } from './plugins/jenkins-settings';
+import { jiraSettingsPlugin } from './plugins/jira-settings';
 import { defectDensityPlugin } from './plugins/defect-density';
 import { entityTagsPlugin } from './plugins/entity-tags';
 import { githubPrPlugin } from './plugins/github-pr';
@@ -98,6 +99,9 @@ backend.add(awsCostSettingsPlugin);
 
 // Jenkins per-entity settings (stores job paths in PostgreSQL, proxies to Jenkins API)
 backend.add(jenkinsSettingsPlugin);
+
+// Jira per-entity settings (stores project key, token, URL in PostgreSQL, proxies to Jira API)
+backend.add(jiraSettingsPlugin);
 
 // Defect density per-entity (bugs per KLOC, cached weekly in PostgreSQL)
 backend.add(defectDensityPlugin);

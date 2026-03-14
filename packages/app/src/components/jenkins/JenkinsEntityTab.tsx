@@ -7,6 +7,7 @@ import {
   useApi,
 } from '@backstage/core-plugin-api';
 import {stringifyEntityRef} from '@backstage/catalog-model';
+import {Router as DefaultJenkinsView} from '@internal/backstage-plugin-jenkins-with-reporting';
 import {
   Box,
   Button,
@@ -39,11 +40,17 @@ type JenkinsConfig = {
   entity_ref: string;
   config_name: string;
   job_full_name: string;
+  jenkins_url: string;
+  jenkins_username: string;
+  jenkins_token: string; // masked on GET
 };
 
 type FormState = {
   configName: string;
   jobFullName: string;
+  jenkinsUrl: string;
+  jenkinsUsername: string;
+  jenkinsApiToken: string;
 };
 
 type JenkinsBuild = {
@@ -74,6 +81,9 @@ type JenkinsJob = {
 const emptyForm = (): FormState => ({
   configName: '',
   jobFullName: '',
+  jenkinsUrl: '',
+  jenkinsUsername: '',
+  jenkinsApiToken: '',
 });
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -380,11 +390,13 @@ function JenkinsDataViewer({
 function ConfigForm({
   initial,
   saving,
+  isEdit,
   onSave,
   onCancel,
 }: {
   initial: FormState;
   saving: boolean;
+  isEdit?: boolean;
   onSave: (f: FormState) => void;
   onCancel: () => void;
 }) {
@@ -407,12 +419,55 @@ function ConfigForm({
       </Grid>
       <Grid item xs={12} md={8}>
         <TextField
+          label="Jenkins Base URL"
+          placeholder="https://jenkins.example.com"
+          value={form.jenkinsUrl}
+          onChange={set('jenkinsUrl')}
+          fullWidth
+          variant="outlined"
+          helperText="Leave blank to use the global Jenkins URL from app-config"
+        />
+      </Grid>
+      <Grid item xs={12} md={8}>
+        <TextField
+          label="Jenkins Username"
+          placeholder="admin"
+          value={form.jenkinsUsername}
+          onChange={set('jenkinsUsername')}
+          fullWidth
+          variant="outlined"
+          helperText={
+            isEdit
+              ? 'Leave blank to keep existing credentials'
+              : 'Leave blank to use the global Jenkins credentials from app-config'
+          }
+        />
+      </Grid>
+      <Grid item xs={12} md={8}>
+        <TextField
+          label="Jenkins API Token"
+          placeholder="Your Jenkins API token"
+          value={form.jenkinsApiToken}
+          onChange={set('jenkinsApiToken')}
+          fullWidth
+          variant="outlined"
+          type="password"
+          helperText={
+            isEdit
+              ? 'Leave blank to keep existing token'
+              : 'Leave blank to use the global Jenkins token from app-config'
+          }
+        />
+      </Grid>
+      <Grid item xs={12} md={8}>
+        <TextField
           label="Jenkins Job Full Name"
           placeholder="e.g. bizbook/DEV or bizbook/bizbook-production"
           value={form.jobFullName}
           onChange={set('jobFullName')}
           fullWidth
           variant="outlined"
+          required
           helperText="The full path of the Jenkins job/folder, using / as separator (e.g. folder/subfolder/job-name)"
         />
       </Grid>
@@ -494,6 +549,9 @@ export function JenkinsEntityTab() {
           entityRef,
           configName: form.configName || 'Default',
           jobFullName: form.jobFullName,
+          jenkinsUrl: form.jenkinsUrl,
+          jenkinsUsername: form.jenkinsUsername,
+          jenkinsApiToken: form.jenkinsApiToken,
         }),
       });
       if (!resp.ok) {
@@ -524,6 +582,9 @@ export function JenkinsEntityTab() {
         body: JSON.stringify({
           configName: form.configName || 'Default',
           jobFullName: form.jobFullName,
+          jenkinsUrl: form.jenkinsUrl,
+          jenkinsUsername: form.jenkinsUsername,
+          jenkinsApiToken: form.jenkinsApiToken,
         }),
       });
       if (!resp.ok) {
@@ -600,8 +661,12 @@ export function JenkinsEntityTab() {
           initial={{
             configName: c.config_name,
             jobFullName: c.job_full_name,
+            jenkinsUrl: c.jenkins_url ?? '',
+            jenkinsUsername: c.jenkins_username ?? '',
+            jenkinsApiToken: '',
           }}
           saving={saving}
+          isEdit
           onSave={form => handleUpdate(c.id, form)}
           onCancel={() => setUiMode('view')}
         />
@@ -609,30 +674,24 @@ export function JenkinsEntityTab() {
     );
   }
 
-  // ── No configs yet ────────────────────────────────────────────────────────
+  // ── No DB configs → show default Jenkins plugin + Add button ──────────────
 
   if (configs.length === 0) {
     return (
-      <InfoCard
-        title="Jenkins"
-        subheader="No Jenkins jobs configured for this component yet"
-      >
-        {error && (
-          <Box mb={2}>
-            <WarningPanel title="Error" message={error} />
-          </Box>
-        )}
-        <Box py={2}>
+      <Box>
+        <Box display="flex" justifyContent="flex-end" mb={1}>
           <Button
-            variant="contained"
+            variant="outlined"
             color="primary"
+            size="small"
             startIcon={<AddIcon />}
             onClick={() => setUiMode('add')}
           >
             Add Jenkins Job
           </Button>
         </Box>
-      </InfoCard>
+        <DefaultJenkinsView />
+      </Box>
     );
   }
 

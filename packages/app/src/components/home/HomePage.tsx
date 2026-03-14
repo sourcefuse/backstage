@@ -316,7 +316,7 @@ const visitLabel = (visit: { entityRef?: string }) => {
 };
 
 /* ── Quick Stats ─────────────────────────────────────────────────────── */
-const STAT_ORDER = ['Component', 'API', 'Template', 'Resource', 'System', 'Group', 'User'];
+const STAT_ORDER = ['Backend', 'Frontend', 'Component', 'API', 'Template', 'Resource', 'System', 'Group', 'User'];
 
 const CatalogQuickStats = () => {
   const catalogApi = useApi(catalogApiRef);
@@ -325,9 +325,24 @@ const CatalogQuickStats = () => {
 
   useEffect(() => {
     let cancelled = false;
-    catalogApi.getEntityFacets({ facets: ['kind'] }).then(res => {
+    Promise.all([
+      catalogApi.getEntityFacets({ facets: ['kind'] }),
+      catalogApi.getEntities({
+        filter: { kind: 'component', 'spec.type': 'service', 'metadata.tags': 'microservices' },
+        fields: ['metadata.name'],
+      }),
+      catalogApi.getEntities({
+        filter: { kind: 'component', 'spec.type': 'website' },
+        fields: ['metadata.name'],
+      }),
+    ]).then(([kindRes, backendRes, frontendRes]) => {
       if (!cancelled) {
-        setFacets(res.facets.kind ?? []);
+        const kindFacets = kindRes.facets.kind ?? [];
+        kindFacets.push(
+          { value: 'Backend', count: backendRes.items.length },
+          { value: 'Frontend', count: frontendRes.items.length },
+        );
+        setFacets(kindFacets);
         setLoading(false);
       }
     }).catch(() => { if (!cancelled) setLoading(false); });
@@ -352,6 +367,18 @@ const CatalogQuickStats = () => {
     return a.value.localeCompare(b.value);
   });
 
+  const linkMap: Record<string, string> = {
+    Component: '/catalog/kind/component',
+    API: '/catalog?filters[kind]=api&filters[user]=all',
+    Template: '/catalog/kind/template',
+    Resource: '/catalog/kind/resource',
+    System: '/catalog/kind/system',
+    Group: '/catalog/kind/group',
+    User: '/catalog/kind/user',
+    Backend: '/catalog/backend',
+    Frontend: '/catalog/frontend',
+  };
+
   return (
     <div
       style={{
@@ -362,8 +389,9 @@ const CatalogQuickStats = () => {
       }}
     >
       {sorted.map(f => (
-        <div
+        <a
           key={f.value}
+          href={linkMap[f.value] || `/catalog/kind/${f.value.toLowerCase()}`}
           style={{
             flex: '1 1 120px',
             minWidth: 120,
@@ -372,6 +400,9 @@ const CatalogQuickStats = () => {
             borderRadius: 8,
             border: `1px solid ${SF.border}`,
             background: SF.white,
+            textDecoration: 'none',
+            cursor: 'pointer',
+            transition: 'box-shadow 0.2s',
           }}
         >
           <Typography
@@ -384,9 +415,9 @@ const CatalogQuickStats = () => {
             variant="body2"
             style={{ color: SF.bodyText, marginTop: 4, fontFamily: 'Gotham, sans-serif' }}
           >
-            {f.value}s
+            {f.value === 'Backend' || f.value === 'Frontend' ? f.value : `${f.value}s`}
           </Typography>
-        </div>
+        </a>
       ))}
     </div>
   );

@@ -8,6 +8,7 @@ import {
   AnyApiFactory,
   configApiRef,
   createApiFactory,
+  fetchApiRef,
   githubAuthApiRef,
   identityApiRef,
   oauthRequestApiRef,
@@ -21,6 +22,7 @@ import {
 } from '@roadiehq/backstage-plugin-github-pull-requests';
 import { techRadarApiRef } from '@backstage-community/plugin-tech-radar';
 import { SourceFuseTechRadarApi } from './techRadarData';
+import { jiraApiRef, JiraAPI } from '@roadiehq/backstage-plugin-jira';
 
 async function getGuestGithubToken(identityApi: any): Promise<string> {
   // eslint-disable-next-line no-console
@@ -48,6 +50,16 @@ async function getGuestGithubToken(identityApi: any): Promise<string> {
 }
 
 export const apis: AnyApiFactory[] = [
+  createApiFactory({
+    api: jiraApiRef,
+    deps: {
+      discoveryApi: discoveryApiRef,
+      configApi: configApiRef,
+      fetchApi: fetchApiRef,
+    },
+    factory: ({ discoveryApi, configApi, fetchApi }) =>
+      new JiraAPI({ discoveryApi, configApi, fetchApi }),
+  }),
   createApiFactory({
     api: techRadarApiRef,
     deps: {},
