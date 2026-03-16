@@ -5,7 +5,6 @@ This is the SourceFuse ARC Backstage implementation. It comes packaged with
   - Microservices
   - Lambdas
   - IaC
-  - UI
   - Reference architectures of example apps, i.e. telemedecine applications
 
 
