@@ -88,6 +88,7 @@
     "react-dom": "^18",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "@backstage-community/plugin-announcements-backend/uuid": "^9.0.0"
+    "@backstage-community/plugin-announcements-backend/uuid": "^9.0.0",
+    "node-forge": "^1.4.3"
   }
 }
